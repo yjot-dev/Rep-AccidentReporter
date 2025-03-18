@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Accident Reporter</string>
+    <string name="startview_title">App para Reportar Incidentes</string>
+    <string name="startview_button">Continuar</string>
+    <string name="mapview_title">Mapa</string>
+    <string name="mapview_date">Fecha: %1$s</string>
+    <string name="mapview_type">Tipo: %1$s</string>
+    <string name="addpositionview_title">Agregar ubicación</string>
+    <string name="addpositionview_button">Reportar</string>
+    <string name="editpositionview_title">Editar ubicación</string>
+    <string name="editpositionview_button">Actualizar</string>
+    <string name="textfield_description">Ingrese descripcion del accidente</string>
+    <string name="combobox_title">Tipo de incidente</string>
+    <string name="combobox_option1">Tráfico</string>
+    <string name="combobox_option2">Accidentes</string>
+    <string name="combobox_option3">Problemas en servicios públicos</string>
+    <string name="toast_insert_true">Reporte insertado</string>
+    <string name="toast_insert_false">Error al insertar reporte</string>
+    <string name="toast_update_true">Reporte actualizado</string>
+    <string name="toast_update_false">Error al actualizar reporte</string>
+    <string name="toast_delete_true">Reporte eliminado</string>
+    <string name="toast_delete_false">Error al eliminar reporte</string>
+</resources>
