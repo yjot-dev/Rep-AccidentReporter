@@ -4,11 +4,11 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import com.yjotdev.accidentreporter.domain.entity.ReportEntity
 import com.yjotdev.accidentreporter.domain.port.ReportRepository
-import com.yjotdev.accidentreporter.infrastructure.adapter.HttpsClient
+import com.yjotdev.accidentreporter.infrastructure.adapter.Api
 
 @Singleton
 class ReportRepositoryImpl @Inject constructor(
-    private val api: HttpsClient
+    private val api: Api
 ) : ReportRepository {
 
     /** Recupera una lista de reportes */

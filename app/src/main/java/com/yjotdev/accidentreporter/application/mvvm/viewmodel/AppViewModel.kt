@@ -113,8 +113,9 @@ class AppViewModel @Inject constructor(
     /** Obtiene los reportes (marcadores) de la BD **/
     private fun getReports(){
         viewModelScope.launch {
-            val reports = withContext(Dispatchers.IO) {
-                selectReportUseCase() }
+            val reports = try{
+                withContext(Dispatchers.IO) { selectReportUseCase() }
+            }catch (e: Exception){ emptyList() }
             setItemsMarker(reports)
         }
     }

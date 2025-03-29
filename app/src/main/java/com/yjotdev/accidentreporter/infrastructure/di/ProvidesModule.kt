@@ -9,7 +9,7 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 import com.yjotdev.accidentreporter.domain.port.ReportRepository
 import com.yjotdev.accidentreporter.domain.port.TokenRepository
-import com.yjotdev.accidentreporter.infrastructure.adapter.HttpsClient
+import com.yjotdev.accidentreporter.infrastructure.adapter.Api
 import com.yjotdev.accidentreporter.infrastructure.repositories.ReportRepositoryImpl
 import com.yjotdev.accidentreporter.infrastructure.repositories.TokenRepositoryImpl
 
@@ -22,7 +22,7 @@ object ProvidesModule {
 
     @Singleton
     @Provides
-    fun provideReportRepositoryImpl(api: HttpsClient): ReportRepository =
+    fun provideReportRepositoryImpl(api: Api): ReportRepository =
         ReportRepositoryImpl(api)
 
     @Singleton
