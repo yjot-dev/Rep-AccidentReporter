@@ -16,9 +16,6 @@ import com.yjotdev.accidentreporter.infrastructure.repositories.TokenRepositoryI
 @Module
 @InstallIn(SingletonComponent::class)
 object ProvidesModule {
-    @Singleton
-    @Provides
-    fun provideContext(@ApplicationContext context: Context) = context
 
     @Singleton
     @Provides
