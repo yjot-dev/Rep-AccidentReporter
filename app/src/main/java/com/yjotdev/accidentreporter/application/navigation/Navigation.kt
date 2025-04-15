@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -45,19 +46,19 @@ fun NavigationView(
     viewModel: AppViewModel
 ){
     val context = LocalContext.current
+    val state by viewModel.uiState.collectAsState()
     //Actualiza el titulo de la barra de navegacion segun la ruta
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentScreen = ViewRoutes.valueOf(
         backStackEntry?.destination?.route ?: ViewRoutes.Start.name
     )
-    //Obtiene las obciones del combobox
+    //Items del combobox
     val optionList = listOf(
         stringResource(R.string.combobox_title),
         stringResource(R.string.combobox_option1),
         stringResource(R.string.combobox_option2),
         stringResource(R.string.combobox_option3)
     )
-    viewModel.setItemsComboBox(optionList)
     //Navegacion
     Scaffold(
         topBar = {
@@ -84,7 +85,12 @@ fun NavigationView(
             composable(route = ViewRoutes.Start.name) {
                 StartView(
                     modifier = Modifier.fillMaxSize(),
-                    onNext = {navController.navigate(ViewRoutes.Map.name)}
+                    onNext = {
+                        if(state.token == 0) viewModel.loadToken()
+                        if(state.itemsComboBox.isEmpty()) viewModel.setItemsComboBox(optionList)
+                        if(state.itemsMarker.isEmpty()) viewModel.getReports()
+                        navController.navigate(ViewRoutes.Map.name)
+                    }
                 )
             }
             composable(route = ViewRoutes.Map.name) {

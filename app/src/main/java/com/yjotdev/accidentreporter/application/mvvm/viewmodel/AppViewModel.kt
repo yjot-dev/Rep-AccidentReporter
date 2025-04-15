@@ -1,5 +1,6 @@
 package com.yjotdev.accidentreporter.application.mvvm.viewmodel
 
+import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
@@ -14,20 +15,14 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import com.yjotdev.accidentreporter.application.mvvm.model.AppModel
 import com.yjotdev.accidentreporter.domain.entity.ReportEntity
-import com.yjotdev.accidentreporter.domain.usecase.DeleteReportUseCase
-import com.yjotdev.accidentreporter.domain.usecase.InsertReportUseCase
-import com.yjotdev.accidentreporter.domain.usecase.SelectReportUseCase
+import com.yjotdev.accidentreporter.domain.usecase.ReportUseCase
 import com.yjotdev.accidentreporter.domain.usecase.CreateTokenUseCase
 import com.yjotdev.accidentreporter.domain.usecase.GetTokenUseCase
-import com.yjotdev.accidentreporter.domain.usecase.UpdateReportUseCase
 import com.yjotdev.accidentreporter.domain.utils.Validation
 
 @HiltViewModel
 class AppViewModel @Inject constructor(
-    private val selectReportUseCase: SelectReportUseCase,
-    private val insertReportUseCase: InsertReportUseCase,
-    private val updateReportUseCase: UpdateReportUseCase,
-    private val deleteReportUseCase: DeleteReportUseCase,
+    private val reportUseCase: ReportUseCase,
     private val createTokenUseCase: CreateTokenUseCase,
     private val getTokenUseCase: GetTokenUseCase
 ): ViewModel() {
@@ -40,11 +35,10 @@ class AppViewModel @Inject constructor(
         resetViewModel()
     }
 
-    /** Carga el token y los reportes en la IU **/
-    fun loadData() {
+    /** Carga el token **/
+    fun loadToken() {
         createTokenUseCase()
         setToken(getTokenUseCase())
-        getReports()
     }
 
     /** Actualiza el texto de la descripcion **/
@@ -111,12 +105,11 @@ class AppViewModel @Inject constructor(
     }
 
     /** Obtiene los reportes (marcadores) de la BD **/
-    private fun getReports(){
+    fun getReports(){
         viewModelScope.launch {
-            val reports = try{
-                withContext(Dispatchers.IO) { selectReportUseCase() }
-            }catch (e: Exception){ emptyList() }
-            setItemsMarker(reports)
+            try{
+                reportUseCase.invoke().collect{ setItemsMarker(it) }
+            }catch (e: Exception){ setItemsMarker(emptyList()) }
         }
     }
 
@@ -128,14 +121,15 @@ class AppViewModel @Inject constructor(
                 id = 0,
                 latitude = state.posMarker.latitude,
                 longitude = state.posMarker.longitude,
-                date = Validation.getDateToString(),
+                date = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                           Validation.getDateToString()
+                       }else "",
                 type = state.itemsComboBox[state.indexComboBox],
                 description = state.textDescription,
                 token = state.token
             )
             try {
-                withContext(Dispatchers.IO){ insertReportUseCase(report) }
-                getReports()
+                withContext(Dispatchers.IO){ reportUseCase.invoke(report) }
                 result(true)
             }catch (e: Exception){
                 result(false)
@@ -152,14 +146,15 @@ class AppViewModel @Inject constructor(
                 id = id,
                 latitude = state.posMarker.latitude,
                 longitude = state.posMarker.longitude,
-                date = Validation.getDateToString(),
+                date = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                           Validation.getDateToString()
+                       }else "",
                 type = state.itemsComboBox[state.indexComboBox],
                 description = state.textDescription,
                 token = state.token
             )
             try {
-                withContext(Dispatchers.IO){ updateReportUseCase(id, report) }
-                getReports()
+                withContext(Dispatchers.IO){ reportUseCase.invoke(id, report) }
                 result(true)
             }catch (e: Exception){
                 result(false)
@@ -173,8 +168,7 @@ class AppViewModel @Inject constructor(
             val state = uiState.value
             val id = state.itemsMarker[state.indexMarker].id
             try{
-                withContext(Dispatchers.IO){ deleteReportUseCase(id) }
-                getReports()
+                withContext(Dispatchers.IO){ reportUseCase.invoke(id) }
                 result(true)
             }catch (e: Exception){
                 result(false)

@@ -2,7 +2,6 @@ package com.yjotdev.accidentreporter.infrastructure.adapter
 
 import android.content.Context
 import android.util.Log
-import com.yjotdev.accidentreporter.R
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import java.io.InputStream
@@ -12,6 +11,7 @@ import java.security.cert.X509Certificate
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManagerFactory
 import javax.net.ssl.X509TrustManager
+import com.yjotdev.accidentreporter.R
 
 object Client {
     private val loggingInterceptor = HttpLoggingInterceptor{ msm ->

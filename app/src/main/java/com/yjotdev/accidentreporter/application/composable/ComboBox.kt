@@ -50,18 +50,19 @@ fun ComboBoxAccidentReporter(
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = modifier.border(
-            width = dimensionResource(R.dimen.dp_1),
-            color = MaterialTheme.colorScheme.secondary,
-            shape = MaterialTheme.shapes.medium
-        ).padding(dimensionResource(R.dimen.dp_2))
+        modifier = Modifier.fillMaxWidth(0.8f)
+            .border(
+                width = dimensionResource(R.dimen.dp_1),
+                color = MaterialTheme.colorScheme.secondary,
+                shape = MaterialTheme.shapes.medium
+            ).padding(dimensionResource(R.dimen.dp_2))
     ){
         item{
             ComboBoxItem(
                 textItem = optionList[indexSelected],
                 textColor = colorList[indexSelected],
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
+                modifier = modifier.fillMaxWidth()
                     .alpha(if(enabled) 1f else 0.5f)
                     .clickable(enabled = enabled) {
                         showOptions = !showOptions
@@ -88,7 +89,7 @@ fun ComboBoxAccidentReporter(
                         .clickable {
                             showOptions = !showOptions
                             onIndexSelected(index)
-                        }.testTag("combobox_item:${index}")
+                        }.testTag("combobox_item:${index + 1}")
                 )
             }
         }

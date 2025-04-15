@@ -1,6 +1,7 @@
 package com.yjotdev.accidentreporter.domain.utils
 
 import android.os.Build
+import androidx.annotation.RequiresApi
 import com.google.android.gms.maps.model.LatLng
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -12,11 +13,10 @@ object Validation {
         return LatLng(marker.latitude, marker.longitude)
     }
     /** Obtiene la fecha actual en String **/
+    @RequiresApi(Build.VERSION_CODES.O)
     fun getDateToString(): String {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val currentDateTime = LocalDateTime.now()
-            val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")
-            currentDateTime.format(formatter)
-        } else { "" }
+        val currentDateTime = LocalDateTime.now()
+        val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")
+        return currentDateTime.format(formatter)
     }
 }

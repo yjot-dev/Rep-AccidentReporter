@@ -1,7 +1,7 @@
 *.iml
 .gradle
 /local.properties
-/gradle.properties
+/custom.properties
 /.idea/caches
 /.idea/libraries
 /.idea/modules.xml
@@ -14,6 +14,6 @@
 .externalNativeBuild
 .cxx
 local.properties
-gradle.properties
+custom.properties
 /Api/node_modules/
 /Api/src/bd/.env

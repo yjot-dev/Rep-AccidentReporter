@@ -57,9 +57,7 @@ fun EditPositionView(
             indexSelected = state.indexComboBox,
             onIndexSelected = { viewModel.setIndexComboBox(it) },
             enabled = state.enableUpdate && viewModel.verifyUser(),
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .testTag("editpositionview_combobox")
+            modifier = Modifier.testTag("editpositionview_combobox")
         )
         TextFieldAccidentReporter(
             value = state.textDescription,

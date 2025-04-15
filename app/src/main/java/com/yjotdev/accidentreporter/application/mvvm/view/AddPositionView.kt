@@ -43,9 +43,7 @@ fun AddPositionView(
             optionList = optionList,
             indexSelected = state.indexComboBox,
             onIndexSelected = { viewModel.setIndexComboBox(it) },
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .testTag("addpositionview_combobox")
+            modifier = Modifier.testTag("addpositionview_combobox")
         )
         TextFieldAccidentReporter(
             value = state.textDescription,

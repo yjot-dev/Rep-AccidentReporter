@@ -12,7 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.yjotdev.accidentreporter.application.mvvm.viewmodel.AppViewModel
@@ -20,7 +20,7 @@ import com.yjotdev.accidentreporter.application.mvvm.viewmodel.AppViewModel
 @Composable
 fun PermissionView(
     navController: NavHostController = rememberNavController(),
-    viewModel: AppViewModel = viewModel()
+    viewModel: AppViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     var hasPermissions by remember{ mutableStateOf(checkPermissions(context)) }
