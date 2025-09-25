@@ -1,6 +1,6 @@
 # APP PARA REPORTAR INCIDENTES (ARI)
 Esta app le permite al usuario elegir una ubicación en el mapa para reportar algún incidente, luego de elegir una ubicación se mostrara un formulario donde debe elegir el tipo de 
-incidente y describir el incidente, luego la app obtiene la fecha actual en su dispositivo y guarda el reporte en una BD.
+incidente y describir el incidente, luego la app obtiene la fecha actual del dispositivo y guarda el reporte en una BD.
 
 # Características principales
 - 🪟 Interfaz moderna con Jetpack Compose
