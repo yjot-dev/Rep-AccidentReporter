@@ -1,3 +1,5 @@
+import com.android.build.api.dsl.Packaging
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -8,13 +10,13 @@ plugins {
 
 android {
     namespace = "com.yjotdev.accidentreporter"
-    compileSdk = 35
+    compileSdk = 36
     defaultConfig {
         applicationId = "com.yjotdev.accidentreporter"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
-        versionName = "1.1"
+        versionName = "1.2"
         testInstrumentationRunner = "com.yjotdev.accidentreporter.CustomTestRunner"
         manifestPlaceholders.putAll(
             mapOf(
@@ -26,7 +28,6 @@ android {
         debug {
             applicationIdSuffix = ".debug"
             isDebuggable = true
-            buildConfigField("Boolean", "DEBUG_MODE", "true")
         }
         release {
             isMinifyEnabled = true
@@ -34,7 +35,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("Boolean", "DEBUG_MODE", "false")
+            ndk {
+                debugSymbolLevel = "FULL"
+            }
         }
     }
     compileOptions {
@@ -51,6 +54,11 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+    fun Packaging.() {
+        jniLibs {
+            useLegacyPackaging = false
         }
     }
 }
