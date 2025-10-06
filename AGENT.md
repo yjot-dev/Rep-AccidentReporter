@@ -150,6 +150,6 @@
   5.**Asegurar Compatibilidad con Páginas de 16 KB:**
     - Para garantizar la compatibilidad con dispositivos que usan tamaños de página de memoria de 16 KB:
     - En el archivo `build.gradle.kts` a nivel de módulo (`app`), dentro del bloque `android { ... }`, añade lo siguiente si no existe:
-        - fun Packaging.() { jniLibs { useLegacyPackaging = false } }
+        - packaging { jniLibs { useLegacyPackaging = false } }
 
 - **Post-condición:** Al finalizar, el proyecto debe estar sincronizado, compilar correctamente y seguir las mejores prácticas de gestión de dependencias y configuración de Android.
