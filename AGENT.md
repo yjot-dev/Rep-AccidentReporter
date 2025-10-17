@@ -66,7 +66,7 @@
         - `di`: Configuración de la inyección de dependencias (Hilt, Koin).
             - `ProvidesModule.kt`
         - `repository`: Implementaciones concretas de las interfaces del dominio.
-            - `NombreDeTablaRepositoryImpl.kt`
+            - `NombreDeTablaRepository.kt`
         - `adapter`: Fuentes de datos remota. (API, bases de datos, etc.)
             - `Api.kt`
             - `Client.kt`

@@ -10,8 +10,8 @@ import javax.inject.Singleton
 import com.yjotdev.accidentreporter.domain.port.ReportPort
 import com.yjotdev.accidentreporter.domain.port.TokenPort
 import com.yjotdev.accidentreporter.infrastructure.adapter.Api
-import com.yjotdev.accidentreporter.infrastructure.repositories.ReportRepositoryImpl
-import com.yjotdev.accidentreporter.infrastructure.repositories.TokenRepositoryImpl
+import com.yjotdev.accidentreporter.infrastructure.repositories.ReportRepository
+import com.yjotdev.accidentreporter.infrastructure.repositories.TokenRepository
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -19,11 +19,11 @@ object ProvidesModule {
 
     @Singleton
     @Provides
-    fun provideReportRepositoryImpl(api: Api): ReportPort =
-        ReportRepositoryImpl(api)
+    fun provideReportRepository(api: Api): ReportPort =
+        ReportRepository(api)
 
     @Singleton
     @Provides
-    fun provideTokenRepositoryImpl(@ApplicationContext context: Context): TokenPort =
-        TokenRepositoryImpl(context)
+    fun provideTokenRepository(@ApplicationContext context: Context): TokenPort =
+        TokenRepository(context)
 }

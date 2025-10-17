@@ -10,7 +10,7 @@ import com.yjotdev.accidentreporter.domain.core.Result
 import com.yjotdev.accidentreporter.infrastructure.adapter.Api
 
 @Singleton
-class ReportRepositoryImpl @Inject constructor(
+class ReportRepository @Inject constructor(
     private val api: Api
 ) : ReportPort {
     /**
