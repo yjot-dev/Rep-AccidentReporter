@@ -5,24 +5,34 @@
 
 # SECCIÓN A: REGLAS DE ARQUITECTURA
 ## A.1 Estructura del Proyecto (Perfiles)
-- **Requisito:** Dependiendo de la complejidad del proyecto, se debe elegir uno de los siguientes perfiles de estructura. Indicar al inicio de la tarea qué perfil utilizar.
+- **Requisito:** La estructura del proyecto debe seguir un perfil de arquitectura y un paradigma de UI. Al inicio de la tarea, se debe indicar qué perfil y paradigma utilizar.
 
-### A.1.1 Perfil 1: MVVM Simple
+### A.1.1 Paradigma de UI
+- **Requisito:** Se debe especificar si la interfaz de usuario se construirá con el sistema de Vistas tradicional (XML) o con Jetpack Compose.
+- **Implementación:**
+    - **`UI_COMPOSE`:** Para proyectos que usan Jetpack Compose.
+    - **`UI_XML`:** Para proyectos que usan el sistema de Vistas basado en XML.
+
+### A.1.2 Perfil de Estructura: MVVM Simple
 - **Uso:** Ideal para aplicaciones pequeñas, de una sola capa, que no se conectan a APIs o bases de datos complejas y gestionan su lógica principalmente en la capa de presentación.
-- **Estructura de Directorios:**
-    - `application` (Capa de Presentación)
-        - `mvvm`: Contiene las view, viewmodel y model de la aplicación.
-            - `view`: Contiene las UI (pantallas) de la aplicación.
-                - `NombreDePantallaView.kt`
-            - `viewmodel`: Contiene la lógica de UI de la aplicación.
-                - `NombreDePantallaViewModel.kt`
-            - `model`: Contiene los modelos de datos de la UI (Data Class, `UiState`).
-                - `NombreDePantallaModel.kt`
+- **Estructura de Directorios (`application`):**
+    - `mvvm`: Contiene las view, viewmodel y model de la aplicación.
+        - `view`: Contiene las UI (pantallas) de la aplicación.
+            - `NombreDePantallaView.kt`
+        - `viewmodel`: Contiene la lógica de UI de la aplicación.
+            - `NombreDePantallaViewModel.kt`
+        - `model`: Contiene los modelos de datos de la UI (Data Class, `UiState`).
+            - `NombreDePantallaModel.kt`
+    - `navigation`: Lógica de navegación.
+    - **(Condicional) Si el paradigma es `UI_COMPOSE`:**
         - `components`: Composables reutilizables en varias UI.
-        - `navigation`: Lógica de navegación.
         - `theme`: Tema de la aplicación.
+    - **(Condicional) Si el paradigma es `UI_XML`:**
+        - Se omiten los directorios `components` y `theme`.
+        - Las vistas (layouts XML) residen en el directorio `res/layout`.
+        - Los estilos y temas residen en el directorio `res/values`.
 
-### A.1.2 Perfil 2: Arquitectura Hexagonal
+### A.1.3 Perfil de Estructura: Arquitectura Hexagonal
 - **Uso:** Para aplicaciones completas que requieren una separación estricta de responsabilidades, con capas de dominio, datos (infraestructura) y aplicación bien definidas. Ideal para proyectos con APIs, bases de datos, etc.
 - **Estructura de Módulos/Paquetes:**
     - `application` (Capa de Presentación)
@@ -33,9 +43,14 @@
                 - `NombreDePantallaViewModel.kt`
             - `model`: Contiene los modelos de datos de la UI (Data Class, `UiState`).
                 - `NombreDePantallaModel.kt`
-        - `components`: Composables reutilizables en varias UI.
         - `navigation`: Lógica de navegación.
-        - `theme`: Tema de la aplicación.
+        - **(Condicional) Si el paradigma es `UI_COMPOSE`:**
+            - `components`: Composables reutilizables en varias UI.
+            - `theme`: Tema de la aplicación.
+        - **(Condicional) Si el paradigma es `UI_XML`:**
+            - Se omiten los directorios `components` y `theme`.
+            - Las vistas (layouts XML) residen en el directorio `res/layout`.
+            - Los estilos y temas residen en el directorio `res/values`.
     - `domain` (Capa de Dominio)
         - `entity`: Entidades de negocio puras (Data Class).
             - `NombreDeTablaEntity.kt`
@@ -55,6 +70,8 @@
             - `Client.kt`
             - `HeaderInterceptor.kt`
             - `NullOnEmptyConverterFactory.kt`
+        - `datasource`: Clases que implementan las fuentes de datos.
+            - `NombreDeTablaApi.kt`
 
 ## A.2 Estilo del ViewModel
 - **Requisito:** Todo el codigo de cada `ViewModel` debe seguir un estilo de implementación.
@@ -124,32 +141,55 @@
 
 # SECCIÓN B: REGLAS DE TAREAS COMPLEJAS
 ## B.1 Tarea: Mantenimiento y Actualización del Proyecto
-- **Objetivo:** Realizar una actualización integral del proyecto, incluyendo dependencias, configuración de SDK y optimizaciones de compatibilidad.
+- **Objetivo:** Realizar una actualización integral del proyecto, incluyendo dependencias, configuración de SDK y optimizaciones de compatibilidad y compilación.
 - **Activación:** Esta tarea se debe ejecutar cuando se solicite con un prompt como "Ejecuta la tarea de mantenimiento y actualización del proyecto" o "Actualiza el proyecto según la regla B.1".
 
 - **Pasos a seguir (en orden estricto):**
-  1.**Migrar al Catálogo de Versiones (Version Catalog):**
-    - Analiza los archivos `build.gradle.kts` del proyecto.
-    - Si las dependencias no están centralizadas, migrarlas al archivo `libs.versions.toml`.
-    - Reemplaza las declaraciones de dependencias en los archivos `.gradle` para que usen los alias del catálogo (ej: `implementation(libs.androidx.core.ktx)`).
+    1. **Migrar al Catálogo de Versiones (Version Catalog):**
+        - Analiza los archivos `build.gradle.kts` del proyecto.
+        - Si las dependencias no están centralizadas, migrarlas al archivo `libs.versions.toml`.
+        - Reemplaza las declaraciones de dependencias en los archivos `.gradle` para que usen los alias del catálogo (ej: `implementation(libs.androidx.core.ktx)`).
 
-  2.**Actualizar el SDK de Android:**
-    - Identifica la última versión del SDK de Android instalado en el entorno de desarrollo actual.
-    - En el archivo `build.gradle.kts` a nivel de módulo (`app`), actualiza los valores de `compileSdk` y `targetSdk` a esta nueva versión.
+    2. **Actualizar el SDK de Android:**
+        - Identifica la última versión del SDK de Android disponible.
+        - En el archivo `build.gradle.kts` a nivel de módulo (`app`), actualiza los valores de `compileSdk` y `targetSdk` a esta nueva versión.
 
-  3.**Alinear la Versión de JVM de Kotlin:**
-    - En el archivo `build.gradle.kts` a nivel de módulo (`app`), dentro del bloque `android { ... }`, localiza o añade el bloque `kotlinOptions`, asi como el ejemplo siguiente:
-        - kotlinOptions { jvmTarget = "11" // o la versión correspondiente a compileOptions }
-    - Asegúrate de que el valor de `jvmTarget` sea coherente con la `sourceCompatibility` y `targetCompatibility` definidas en `compileOptions` (que actualmente es la versión `11`).
-    - Si `compileOptions` se actualizara a una versión superior (ej: `17` o `21`), este `jvmTarget` debe actualizarse correspondientemente.
+    3. **Alinear la Versión de JVM de Kotlin:**
+        - En el archivo `build.gradle.kts` a nivel de módulo (`app`), dentro del bloque `android { ... }`, localiza o añade el bloque `kotlinOptions`.
+        - Asegúrate de que el valor de `jvmTarget` sea coherente con la `sourceCompatibility` y `targetCompatibility` definidas en `compileOptions` (usualmente "11", "17" o "21").
 
-  4.**Actualizar Dependencias:**
-    - Revisa todas las dependencias declaradas en el catálogo de versiones (`libs.versions.toml`).
-    - Actualiza cada dependencia a su última versión estable que sea compatible con el `targetSdk` recién configurado.
+    4. **Actualizar Dependencias:**
+        - Revisa todas las dependencias declaradas en `libs.versions.toml`.
+        - Actualiza cada dependencia a su última versión estable compatible.
 
-  5.**Asegurar Compatibilidad con Páginas de 16 KB:**
-    - Para garantizar la compatibilidad con dispositivos que usan tamaños de página de memoria de 16 KB:
-    - En el archivo `build.gradle.kts` a nivel de módulo (`app`), dentro del bloque `android { ... }`, añade lo siguiente si no existe:
-        - packaging { jniLibs { useLegacyPackaging = false } }
+    5. **Asegurar Compatibilidad con Páginas de 16 KB:**
+        - En el archivo `build.gradle.kts` a nivel de módulo (`app`), dentro del bloque `android { ... }`, añade lo siguiente si no existe:
+          `packaging { jniLibs { useLegacyPackaging = false } }`
 
+    6. **Habilitar Símbolos de Depuración para NDK:**
+        - En el archivo `build.gradle.kts` a nivel de módulo (`app`), dentro de `android { buildTypes { release { ... } } }`, añade lo siguiente si no existe:
+          `ndk { debugSymbolLevel = "FULL" }`
+
+    7. **Excluir Metadatos de Licencia Duplicados:**
+        - En el archivo `build.gradle.kts` a nivel de módulo (`app`), dentro de `android { packaging { ... } }`, añade lo siguiente si no existe:
+          `resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" }`
+
+    8. **Habilitar Advertencias de Deprecación:**
+        - En el archivo `build.gradle.kts` a nivel de módulo (`app`), fuera del bloque `android` y antes de `dependencies`, añade lo siguiente si no existe:
+          `tasks.withType<JavaCompile> { options.compilerArgs.add("-Xlint:deprecation") }`
+
+    9. **Configurar Features de Compilación (UI_XML):**
+        - **Condición:** Ejecutar solo si el paradigma de UI es `UI_XML` (según A.1.1).
+        - En `android { ... }`, localiza o crea el bloque `buildFeatures`.
+        - Asegúrate de que contenga `viewBinding = true` y `buildConfig = true`.
+
+    10. **Configurar Features de Compilación (UI_COMPOSE):**
+        - **Condición:** Ejecutar solo si el paradigma de UI es `UI_COMPOSE` (según A.1.1).
+        - En `android { ... }`, localiza o crea el bloque `buildFeatures`.
+        - Asegúrate de que contenga `compose = true` y `buildConfig = true`.
+
+    11. **Habilitar el Cache de Configuración de Gradle:**
+        - En el archivo `gradle.properties` a nivel de proyecto, añade la siguiente línea si no existe:
+          `org.gradle.configuration-cache=true`
+ 
 - **Post-condición:** Al finalizar, el proyecto debe estar sincronizado, compilar correctamente y seguir las mejores prácticas de gestión de dependencias y configuración de Android.
