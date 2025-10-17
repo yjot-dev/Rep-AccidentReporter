@@ -1,6 +1,6 @@
 package com.yjotdev.accidentreporter.domain.port
 
-interface TokenRepository {
+interface TokenPort {
 
     fun createToken()
 

@@ -20,9 +20,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.yjotdev.accidentreporter.R
 import com.yjotdev.accidentreporter.application.theme.AccidentReporterTheme
 import com.yjotdev.accidentreporter.application.mvvm.viewmodel.AppViewModel
-import com.yjotdev.accidentreporter.application.composable.ButtonAccidentReporter
-import com.yjotdev.accidentreporter.application.composable.ComboBoxAccidentReporter
-import com.yjotdev.accidentreporter.application.composable.TextFieldAccidentReporter
+import com.yjotdev.accidentreporter.application.components.ButtonAccidentReporter
+import com.yjotdev.accidentreporter.application.components.ComboBoxAccidentReporter
+import com.yjotdev.accidentreporter.application.components.TextFieldAccidentReporter
 
 @Composable
 fun AddPositionView(

@@ -11,7 +11,11 @@ data class AppModel(
     val showPosition: Boolean = false,
     val posMarker: LatLng = LatLng(0.0, 0.0),
     val indexMarker: Int = 0,
-    val itemsMarker: List<ReportEntity> = emptyList(),
+    val itemsMarker: List<ReportEntity>? = null,
     val token: Int = 0,
-    val enableUpdate: Boolean = false
+    val enableUpdate: Boolean = false,
+    val isGetReport: Boolean = false,
+    val isInsert: Boolean = false,
+    val isUpdate: Boolean = false,
+    val isDelete: Boolean = false
 )

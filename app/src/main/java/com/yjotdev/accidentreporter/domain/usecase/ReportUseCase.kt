@@ -1,32 +1,32 @@
 package com.yjotdev.accidentreporter.domain.usecase
 
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.yjotdev.accidentreporter.domain.core.Result
 import com.yjotdev.accidentreporter.domain.entity.ReportEntity
-import com.yjotdev.accidentreporter.domain.port.ReportRepository
+import com.yjotdev.accidentreporter.domain.port.ReportPort
 
 @Singleton
 class ReportUseCase @Inject constructor(
-    private val reportRepository: ReportRepository
+    private val reportPort: ReportPort
 ) {
-    /** Obtener flujo de reportes mediante caso de uso **/
-    operator fun invoke(): Flow<List<ReportEntity>> {
-        return reportRepository.getReportsFlow()
+    /** Obtener reportes mediante caso de uso **/
+    suspend operator fun invoke(): Result<List<ReportEntity>> {
+        return reportPort.selectReports()
     }
 
     /** Insertar reporte mediante caso de uso **/
-    suspend operator fun invoke(report: ReportEntity) {
-        return reportRepository.insertReport(report)
+    suspend operator fun invoke(report: ReportEntity): Result<Unit> {
+        return reportPort.insertReport(report)
     }
 
     /** Actualizar reporte mediante caso de uso **/
-    suspend operator fun invoke(id: Int, report: ReportEntity) {
-        return reportRepository.updateReport(id, report)
+    suspend operator fun invoke(id: Int, report: ReportEntity): Result<Unit> {
+        return reportPort.updateReport(id, report)
     }
 
     /** Borrar reporte mediante caso de uso **/
-    suspend operator fun invoke(id: Int) {
-        return reportRepository.deleteReport(id)
+    suspend operator fun invoke(id: Int): Result<Unit> {
+        return reportPort.deleteReport(id)
     }
 }

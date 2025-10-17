@@ -7,8 +7,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
-import com.yjotdev.accidentreporter.domain.port.ReportRepository
-import com.yjotdev.accidentreporter.domain.port.TokenRepository
+import com.yjotdev.accidentreporter.domain.port.ReportPort
+import com.yjotdev.accidentreporter.domain.port.TokenPort
 import com.yjotdev.accidentreporter.infrastructure.adapter.Api
 import com.yjotdev.accidentreporter.infrastructure.repositories.ReportRepositoryImpl
 import com.yjotdev.accidentreporter.infrastructure.repositories.TokenRepositoryImpl
@@ -19,11 +19,11 @@ object ProvidesModule {
 
     @Singleton
     @Provides
-    fun provideReportRepositoryImpl(api: Api): ReportRepository =
+    fun provideReportRepositoryImpl(api: Api): ReportPort =
         ReportRepositoryImpl(api)
 
     @Singleton
     @Provides
-    fun provideTokenRepositoryImpl(@ApplicationContext context: Context): TokenRepository =
+    fun provideTokenRepositoryImpl(@ApplicationContext context: Context): TokenPort =
         TokenRepositoryImpl(context)
 }

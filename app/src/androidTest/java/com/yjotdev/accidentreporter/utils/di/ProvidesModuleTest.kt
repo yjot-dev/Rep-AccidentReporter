@@ -9,8 +9,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
 import javax.inject.Singleton
-import com.yjotdev.accidentreporter.domain.port.ReportRepository
-import com.yjotdev.accidentreporter.domain.port.TokenRepository
+import com.yjotdev.accidentreporter.domain.port.ReportPort
+import com.yjotdev.accidentreporter.domain.port.TokenPort
 import com.yjotdev.accidentreporter.infrastructure.di.ProvidesModule
 import com.yjotdev.accidentreporter.utils.repositories.FakeReportRepositoryImpl
 import com.yjotdev.accidentreporter.utils.repositories.FakeTokenRepositoryImpl
@@ -24,12 +24,12 @@ object ProvidesModuleTest {
 
     @Singleton
     @Provides
-    fun provideFakeReportRepositoryImpl(): ReportRepository =
+    fun provideFakeReportRepositoryImpl(): ReportPort =
         FakeReportRepositoryImpl()
 
     @Singleton
     @Provides
-    fun provideFakeTokenRepositoryImpl(): TokenRepository =
+    fun provideFakeTokenRepositoryImpl(): TokenPort =
         FakeTokenRepositoryImpl()
 
     @Singleton

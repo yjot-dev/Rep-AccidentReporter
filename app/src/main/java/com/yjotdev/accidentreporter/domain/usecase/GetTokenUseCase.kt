@@ -2,13 +2,13 @@ package com.yjotdev.accidentreporter.domain.usecase
 
 import javax.inject.Singleton
 import javax.inject.Inject
-import com.yjotdev.accidentreporter.domain.port.TokenRepository
+import com.yjotdev.accidentreporter.domain.port.TokenPort
 
 @Singleton
 class GetTokenUseCase @Inject constructor(
-    private val tokenRepository: TokenRepository
+    private val tokenPort: TokenPort
 ) {
     operator fun invoke(): Int {
-        return tokenRepository.getToken()
+        return tokenPort.getToken()
     }
 }

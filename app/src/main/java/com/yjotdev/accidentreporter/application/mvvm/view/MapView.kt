@@ -58,64 +58,66 @@ fun MapView(
         cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(elGuabo, 18f))
     }
     //Mapa
-    GoogleMap(
-        modifier = modifier,
-        cameraPositionState = cameraPositionState,
-        contentDescription = "googleMap",
-        onMapClick = onMapClick
-    ) {
-        state.itemsMarker.forEachIndexed { index, pos ->
-            //Coordenada de marcador en mapa
-            val marker = LatLng(pos.latitude, pos.longitude)
-            Marker(
-                state = rememberMarkerState(
-                    position = marker,
-                    key = pos.id.toString()
-                ),
-                title = "${index + 1}: ${pos.type}",
-                contentDescription = "${index + 1}",
-                onClick = {
-                    it.showInfoWindow()
-                    false
-                },
-                onInfoWindowClick = {
-                    viewModel.setPosMarker(it.position)
-                    viewModel.setIndexMarker(index)
-                    viewModel.setShowPosition(viewModel.showMarker())
-                    viewModel.setEnableUpdate(false)
-                }
-            )
-        }
-    }
-    //Muestra e oculta la informacion del marcador seleccionado
-    if(state.showPosition){
-        BasicAlertDialog(
-            onDismissRequest = { viewModel.setShowPosition(false) },
-            modifier = Modifier
-                .background(
-                    color = MaterialTheme.colorScheme.primary,
-                    shape = MaterialTheme.shapes.extraLarge
-                )
-                .border(
-                    width = dimensionResource(R.dimen.dp_1),
-                    color = MaterialTheme.colorScheme.secondary,
-                    shape = MaterialTheme.shapes.extraLarge
-                )
+    state.itemsMarker?.let { itemsMarker ->
+        GoogleMap(
+            modifier = modifier,
+            cameraPositionState = cameraPositionState,
+            contentDescription = "googleMap",
+            onMapClick = onMapClick
         ) {
-            Position(
-                modifier = Modifier.fillMaxWidth(0.7f),
-                date = state.itemsMarker[state.indexMarker].date,
-                type = state.itemsMarker[state.indexMarker].type,
-                enabledDelete = viewModel.verifyUser(),
-                onToLook = {
-                    viewModel.setShowPosition(false)
-                    onToLook()
-                },
-                onDelete = {
-                    viewModel.setShowPosition(false)
-                    onDelete()
-                }
-            )
+            itemsMarker.forEachIndexed { index, pos ->
+                //Coordenada de marcador en mapa
+                val marker = LatLng(pos.latitude, pos.longitude)
+                Marker(
+                    state = rememberMarkerState(
+                        position = marker,
+                        key = pos.id.toString()
+                    ),
+                    title = "${index + 1}: ${pos.type}",
+                    contentDescription = "${index + 1}",
+                    onClick = {
+                        it.showInfoWindow()
+                        false
+                    },
+                    onInfoWindowClick = {
+                        viewModel.setPosMarker(it.position)
+                        viewModel.setIndexMarker(index)
+                        viewModel.setShowPosition(viewModel.showMarker())
+                        viewModel.setEnableUpdate(false)
+                    }
+                )
+            }
+        }
+        //Muestra e oculta la informacion del marcador seleccionado
+        if(state.showPosition){
+            BasicAlertDialog(
+                onDismissRequest = { viewModel.setShowPosition(false) },
+                modifier = Modifier
+                    .background(
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = MaterialTheme.shapes.extraLarge
+                    )
+                    .border(
+                        width = dimensionResource(R.dimen.dp_1),
+                        color = MaterialTheme.colorScheme.secondary,
+                        shape = MaterialTheme.shapes.extraLarge
+                    )
+            ) {
+                Position(
+                    modifier = Modifier.fillMaxWidth(0.7f),
+                    date = itemsMarker[state.indexMarker].date,
+                    type = itemsMarker[state.indexMarker].type,
+                    enabledDelete = viewModel.verifyUser(),
+                    onToLook = {
+                        viewModel.setShowPosition(false)
+                        onToLook()
+                    },
+                    onDelete = {
+                        viewModel.setShowPosition(false)
+                        onDelete()
+                    }
+                )
+            }
         }
     }
 }

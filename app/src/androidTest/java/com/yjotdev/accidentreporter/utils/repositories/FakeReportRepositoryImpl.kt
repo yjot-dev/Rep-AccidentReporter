@@ -1,15 +1,13 @@
 package com.yjotdev.accidentreporter.utils.repositories
 
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import javax.inject.Singleton
 import javax.inject.Inject
 import com.yjotdev.accidentreporter.domain.entity.ReportEntity
-import com.yjotdev.accidentreporter.domain.port.ReportRepository
+import com.yjotdev.accidentreporter.domain.port.ReportPort
+import com.yjotdev.accidentreporter.domain.core.Result
 
 @Singleton
-class FakeReportRepositoryImpl @Inject constructor(): ReportRepository {
+class FakeReportRepositoryImpl @Inject constructor(): ReportPort {
     private val reportList = mutableListOf(
         ReportEntity(
             id = 2,
@@ -22,29 +20,22 @@ class FakeReportRepositoryImpl @Inject constructor(): ReportRepository {
         )
     )
 
-    override fun getReportsFlow(): Flow<List<ReportEntity>> {
-        return flow {
-            while(true){
-                val reports = selectReports()
-                emit(reports)
-                delay(5000)
-            }
-        }
+    override suspend fun selectReports(): Result<List<ReportEntity>> {
+        return Result.Success(reportList)
     }
 
-    override suspend fun selectReports(): List<ReportEntity> {
-        return reportList
-    }
-
-    override suspend fun insertReport(report: ReportEntity) {
+    override suspend fun insertReport(report: ReportEntity): Result<Unit> {
         reportList.add(report)
+        return Result.Success(Unit)
     }
 
-    override suspend fun updateReport(id: Int, report: ReportEntity) {
+    override suspend fun updateReport(id: Int, report: ReportEntity): Result<Unit> {
         reportList[id] = report
+        return Result.Success(Unit)
     }
 
-    override suspend fun deleteReport(id: Int) {
+    override suspend fun deleteReport(id: Int): Result<Unit> {
         reportList.removeAt(id)
+        return Result.Success(Unit)
     }
 }

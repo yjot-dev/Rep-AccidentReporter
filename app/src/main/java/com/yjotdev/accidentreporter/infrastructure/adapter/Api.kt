@@ -7,7 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Inject
 import javax.inject.Singleton
 import com.yjotdev.accidentreporter.BuildConfig
-import com.yjotdev.accidentreporter.domain.port.ReportRepository
+import com.yjotdev.accidentreporter.infrastructure.datasource.ReportApi
 
 @Singleton
 class Api @Inject constructor(
@@ -17,11 +17,11 @@ class Api @Inject constructor(
                              else { Client.getSafeClient() }
 
     /** API **/
-    fun getRetrofit(): ReportRepository = Retrofit.Builder()
+    fun getRetrofit(): ReportApi = Retrofit.Builder()
         .baseUrl("https://192.168.1.20:443/api/")
         .client(httpsClient)
         .addConverterFactory(NullOnEmptyConverterFactory())
         .addConverterFactory(GsonConverterFactory.create())
         .build()
-        .create(ReportRepository::class.java)
+        .create(ReportApi::class.java)
 }

@@ -88,7 +88,7 @@ fun NavigationView(
                     onNext = {
                         if(state.token == 0) viewModel.loadToken()
                         if(state.itemsComboBox.isEmpty()) viewModel.setItemsComboBox(optionList)
-                        if(state.itemsMarker.isEmpty()) viewModel.getReports()
+                        if(state.itemsMarker.isNullOrEmpty()) viewModel.getReports()
                         navController.navigate(ViewRoutes.Map.name)
                     }
                 )
@@ -99,18 +99,17 @@ fun NavigationView(
                     viewModel = viewModel,
                     onToLook = { navController.navigate(ViewRoutes.EditPosition.name) },
                     onDelete = {
-                        viewModel.deleteReport { result ->
-                            if (result) {
-                                Toast.makeText(
-                                    context, context.getString(R.string.toast_delete_true),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            } else {
-                                Toast.makeText(
-                                    context, context.getString(R.string.toast_delete_false),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
+                        viewModel.deleteReport()
+                        if(state.isDelete){
+                            Toast.makeText(
+                                context, context.getString(R.string.toast_delete_true),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }else {
+                            Toast.makeText(
+                                context, context.getString(R.string.toast_delete_false),
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     },
                     onMapClick = {
@@ -127,14 +126,13 @@ fun NavigationView(
                     modifier = Modifier.fillMaxSize(),
                     viewModel = viewModel,
                     onAdd = {
-                        viewModel.insertReport{ result ->
-                            if (result){
-                                Toast.makeText(context, context.getString(R.string.toast_insert_true),
-                                    Toast.LENGTH_SHORT).show()
-                            }else {
-                                Toast.makeText(context, context.getString(R.string.toast_insert_false),
-                                    Toast.LENGTH_SHORT).show()
-                            }
+                        viewModel.insertReport()
+                        if(state.isInsert){
+                            Toast.makeText(context, context.getString(R.string.toast_insert_true),
+                                Toast.LENGTH_SHORT).show()
+                        }else {
+                            Toast.makeText(context, context.getString(R.string.toast_insert_false),
+                                Toast.LENGTH_SHORT).show()
                         }
                     }
                 )
@@ -144,14 +142,13 @@ fun NavigationView(
                     modifier = Modifier.fillMaxSize(),
                     viewModel = viewModel,
                     onUpdate = {
-                        viewModel.updateReport{ result ->
-                            if (result){
-                                Toast.makeText(context, context.getString(R.string.toast_update_true),
-                                    Toast.LENGTH_SHORT).show()
-                            }else {
-                                Toast.makeText(context, context.getString(R.string.toast_update_false),
-                                    Toast.LENGTH_SHORT).show()
-                            }
+                        viewModel.updateReport()
+                        if (state.isUpdate){
+                            Toast.makeText(context, context.getString(R.string.toast_update_true),
+                                Toast.LENGTH_SHORT).show()
+                        }else {
+                            Toast.makeText(context, context.getString(R.string.toast_update_false),
+                                Toast.LENGTH_SHORT).show()
                         }
                     }
                 )

@@ -21,7 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.yjotdev.accidentreporter.R
-import com.yjotdev.accidentreporter.application.composable.ButtonAccidentReporter
+import com.yjotdev.accidentreporter.application.components.ButtonAccidentReporter
 import com.yjotdev.accidentreporter.application.theme.AccidentReporterTheme
 
 @Composable

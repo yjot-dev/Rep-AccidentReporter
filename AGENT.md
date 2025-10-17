@@ -52,13 +52,15 @@
             - Las vistas (layouts XML) residen en el directorio `res/layout`.
             - Los estilos y temas residen en el directorio `res/values`.
     - `domain` (Capa de Dominio)
+        - `core`: Abstracciones y modelos fundamentales que definen la estructura y comunicación del dominio.
+            - `Result.kt`  
         - `entity`: Entidades de negocio puras (Data Class).
-            - `NombreDeTablaEntity.kt`
+          - `NombreDeTablaEntity.kt`
         - `port`: Interfaces que definen los contratos para la obtención de datos.
             - `NombreDeTablaPort.kt`
         - `usecase`: Clases que contienen la lógica de negocio.
             - `NombreDeTablaUseCase.kt`
-        - `utils`: Contiene un objeto (Object) con metodos utilitarios.
+        - `utils`: Contiene helpers sin estado y funciones puras que realizan tareas de apoyo muy específicas y reutilizables.
             - `Validation.kt`
     - `infrastructure` (Capa de Datos)
         - `di`: Configuración de la inyección de dependencias (Hilt, Koin).

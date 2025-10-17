@@ -1,4 +1,4 @@
-package com.yjotdev.accidentreporter.application.composable
+package com.yjotdev.accidentreporter.application.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

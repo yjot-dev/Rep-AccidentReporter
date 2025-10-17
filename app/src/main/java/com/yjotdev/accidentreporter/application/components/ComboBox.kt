@@ -1,4 +1,4 @@
-package com.yjotdev.accidentreporter.application.composable
+package com.yjotdev.accidentreporter.application.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring

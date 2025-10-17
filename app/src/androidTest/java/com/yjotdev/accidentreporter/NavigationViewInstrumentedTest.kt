@@ -12,15 +12,15 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
 import com.google.android.gms.maps.model.LatLng
-import com.yjotdev.accidentreporter.application.mvvm.viewmodel.AppViewModel
-import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.Before
 import javax.inject.Inject
-import dagger.hilt.android.testing.HiltAndroidRule
 import org.junit.runner.RunWith
+import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.HiltAndroidRule
+import com.yjotdev.accidentreporter.application.mvvm.viewmodel.AppViewModel
 import com.yjotdev.accidentreporter.application.navigation.PermissionView
 import com.yjotdev.accidentreporter.application.navigation.ViewRoutes
 import com.yjotdev.accidentreporter.application.theme.AccidentReporterTheme
@@ -81,12 +81,14 @@ class NavigationViewInstrumentedTest {
         composeTestRule.activity.runOnUiThread {
             //Selecciona el marcador deseado
             val state = viewModel.uiState.value
-            val d = state.itemsMarker[0]
-            val it = LatLng(d.latitude, d.longitude)
-            viewModel.setPosMarker(it)
-            viewModel.setIndexMarker(0)
-            viewModel.setShowPosition(true)
-            viewModel.setEnableUpdate(false)
+            state.itemsMarker?.let { itemsMarker ->
+                val d = itemsMarker[0]
+                val it = LatLng(d.latitude, d.longitude)
+                viewModel.setPosMarker(it)
+                viewModel.setIndexMarker(0)
+                viewModel.setShowPosition(true)
+                viewModel.setEnableUpdate(false)
+            }
         }
         //Espera un momento para que se vea el AlertDialog
         composeTestRule.waitForIdle()

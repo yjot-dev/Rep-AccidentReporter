@@ -5,16 +5,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import com.yjotdev.accidentreporter.application.mvvm.model.AppModel
 import com.yjotdev.accidentreporter.domain.entity.ReportEntity
+import com.yjotdev.accidentreporter.domain.core.Result
 import com.yjotdev.accidentreporter.domain.usecase.ReportUseCase
 import com.yjotdev.accidentreporter.domain.usecase.CreateTokenUseCase
 import com.yjotdev.accidentreporter.domain.usecase.GetTokenUseCase
@@ -83,13 +82,6 @@ class AppViewModel @Inject constructor(
         }
     }
 
-    /** Actualiza la lista de marcadores **/
-    private fun setItemsMarker(list: List<ReportEntity>){
-        _uiState.update { state ->
-            state.copy(itemsMarker = list)
-        }
-    }
-
     /** Actualiza el token **/
     private fun setToken(token: Int){
         _uiState.update { state ->
@@ -107,16 +99,32 @@ class AppViewModel @Inject constructor(
     /** Obtiene los reportes (marcadores) de la BD **/
     fun getReports(){
         viewModelScope.launch {
-            try{
-                reportUseCase.invoke().collect{ setItemsMarker(it) }
-            }catch (e: Exception){ setItemsMarker(emptyList()) }
+            val result = reportUseCase.invoke()
+            when (result) {
+                is Result.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            itemsMarker = result.data,
+                            isGetReport = true
+                        )
+                    }
+                }
+                is Result.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            itemsMarker = null,
+                            isGetReport = false
+                        )
+                    }
+                }
+            }
         }
     }
 
     /** Inserta un reporte a la BD **/
-    fun insertReport(result: (Boolean) -> Unit) {
+    fun insertReport() {
+        val state = uiState.value
         viewModelScope.launch {
-            val state = uiState.value
             val report = ReportEntity(
                 id = 0,
                 latitude = state.posMarker.latitude,
@@ -128,50 +136,87 @@ class AppViewModel @Inject constructor(
                 description = state.textDescription,
                 token = state.token
             )
-            try {
-                withContext(Dispatchers.IO){ reportUseCase.invoke(report) }
-                result(true)
-            }catch (e: Exception){
-                result(false)
+            val result = reportUseCase.invoke(report)
+            when (result) {
+                is Result.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            isInsert = true
+                        )
+                    }
+                }
+                is Result.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            isInsert = false
+                        )
+                    }
+                }
             }
         }
     }
 
     /** Actualiza un reporte de la BD **/
-    fun updateReport(result: (Boolean) -> Unit) {
+    fun updateReport() {
+        val state = uiState.value
         viewModelScope.launch {
-            val state = uiState.value
-            val id = state.itemsMarker[state.indexMarker].id
-            val report = ReportEntity(
-                id = id,
-                latitude = state.posMarker.latitude,
-                longitude = state.posMarker.longitude,
-                date = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                           Validation.getDateToString()
-                       }else "",
-                type = state.itemsComboBox[state.indexComboBox],
-                description = state.textDescription,
-                token = state.token
-            )
-            try {
-                withContext(Dispatchers.IO){ reportUseCase.invoke(id, report) }
-                result(true)
-            }catch (e: Exception){
-                result(false)
+            state.itemsMarker?.let { itemsMarker ->
+                val id = itemsMarker[state.indexMarker].id
+                val report = ReportEntity(
+                    id = id,
+                    latitude = state.posMarker.latitude,
+                    longitude = state.posMarker.longitude,
+                    date = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        Validation.getDateToString()
+                    }else "",
+                    type = state.itemsComboBox[state.indexComboBox],
+                    description = state.textDescription,
+                    token = state.token
+                )
+                val result = reportUseCase.invoke(id, report)
+                when (result) {
+                    is Result.Success -> {
+                        _uiState.update {
+                            it.copy(
+                                isUpdate = true
+                            )
+                        }
+                    }
+                    is Result.Error -> {
+                        _uiState.update {
+                            it.copy(
+                                isUpdate = false
+                            )
+                        }
+                    }
+                }
             }
         }
     }
 
     /** Elimina un reporte de la BD **/
-    fun deleteReport(result: (Boolean) -> Unit) {
+    fun deleteReport() {
+        val state = uiState.value
         viewModelScope.launch {
-            val state = uiState.value
-            val id = state.itemsMarker[state.indexMarker].id
-            try{
-                withContext(Dispatchers.IO){ reportUseCase.invoke(id) }
-                result(true)
-            }catch (e: Exception){
-                result(false)
+            state.itemsMarker?.let { itemsMarker ->
+                val id = itemsMarker[state.indexMarker].id
+                val result = reportUseCase.invoke(id)
+                when (result) {
+                    is Result.Success -> {
+                        _uiState.update {
+                            it.copy(
+                                isDelete = true
+                            )
+                        }
+                    }
+                    is Result.Error -> {
+                        _uiState.update {
+                            it.copy(
+                                isDelete = false
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -185,13 +230,15 @@ class AppViewModel @Inject constructor(
     /** Verifica si el token del usuario corresponde al reporte seleccionado **/
     fun verifyUser(): Boolean{
         val state = uiState.value
-        return state.token == state.itemsMarker[state.indexMarker].token
+        return if(!state.itemsMarker.isNullOrEmpty()){
+            state.token == state.itemsMarker[state.indexMarker].token }
+        else false
     }
 
     /** Muestra y oculta la informacion del marcador seleccionado **/
     fun showMarker(): Boolean{
         val state = uiState.value
-        return if(state.itemsMarker.isNotEmpty()){
+        return if(!state.itemsMarker.isNullOrEmpty()){
             val pos = Validation.convertToPosition(state.itemsMarker[state.indexMarker])
             pos == state.posMarker
         }else{ false }
