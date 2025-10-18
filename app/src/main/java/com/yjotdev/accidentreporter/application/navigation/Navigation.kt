@@ -6,6 +6,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -20,6 +21,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -34,6 +36,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.yjotdev.accidentreporter.R
+import com.yjotdev.accidentreporter.application.components.LoadingScreen
 import com.yjotdev.accidentreporter.application.mvvm.view.AddPositionView
 import com.yjotdev.accidentreporter.application.mvvm.view.EditPositionView
 import com.yjotdev.accidentreporter.application.mvvm.view.MapView
@@ -88,70 +91,92 @@ fun NavigationView(
                     onNext = {
                         if(state.token == 0) viewModel.loadToken()
                         if(state.itemsComboBox.isEmpty()) viewModel.setItemsComboBox(optionList)
-                        if(state.itemsMarker.isNullOrEmpty()) viewModel.getReports()
+                        if(state.itemsMarker.isNullOrEmpty()) {
+                            viewModel.getReports()
+                            if(state.wasFound) viewModel.clearFlags()
+                        }
                         navController.navigate(ViewRoutes.Map.name)
                     }
                 )
             }
             composable(route = ViewRoutes.Map.name) {
-                MapView(
-                    modifier = Modifier.fillMaxSize(),
-                    viewModel = viewModel,
-                    onToLook = { navController.navigate(ViewRoutes.EditPosition.name) },
-                    onDelete = {
-                        viewModel.deleteReport()
-                        if(state.isDelete){
-                            Toast.makeText(
-                                context, context.getString(R.string.toast_delete_true),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }else {
-                            Toast.makeText(
-                                context, context.getString(R.string.toast_delete_false),
-                                Toast.LENGTH_SHORT
-                            ).show()
+                if(state.isLoading){
+                    LoadingScreen()
+                } else {
+                    MapView(
+                        modifier = Modifier.fillMaxSize(),
+                        viewModel = viewModel,
+                        onToLook = { navController.navigate(ViewRoutes.EditPosition.name) },
+                        onDelete = {
+                            viewModel.deleteReport()
+                            if(state.wasDeleted){
+                                Toast.makeText(
+                                    context, context.getString(R.string.toast_delete_true),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }else {
+                                Toast.makeText(
+                                    context, context.getString(R.string.toast_delete_false),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            viewModel.clearFlags()
+                        },
+                        onMapClick = {
+                            viewModel.setPosMarker(it)
+                            viewModel.setIndexComboBox(0)
+                            viewModel.setTextDescription("")
+                            viewModel.setShowPosition(false)
+                            navController.navigate(ViewRoutes.AddPosition.name)
                         }
-                    },
-                    onMapClick = {
-                        viewModel.setPosMarker(it)
-                        viewModel.setIndexComboBox(0)
-                        viewModel.setTextDescription("")
-                        viewModel.setShowPosition(false)
-                        navController.navigate(ViewRoutes.AddPosition.name)
-                    }
-                )
+                    )
+                }
             }
             composable(route = ViewRoutes.AddPosition.name) {
-                AddPositionView(
+                Box(
                     modifier = Modifier.fillMaxSize(),
-                    viewModel = viewModel,
-                    onAdd = {
-                        viewModel.insertReport()
-                        if(state.isInsert){
-                            Toast.makeText(context, context.getString(R.string.toast_insert_true),
-                                Toast.LENGTH_SHORT).show()
-                        }else {
-                            Toast.makeText(context, context.getString(R.string.toast_insert_false),
-                                Toast.LENGTH_SHORT).show()
+                    contentAlignment = Alignment.Center
+                ){
+                    AddPositionView(
+                        modifier = Modifier.fillMaxSize(),
+                        viewModel = viewModel,
+                        onAdd = {
+                            viewModel.insertReport()
+                            if(state.wasInserted){
+                                Toast.makeText(context, context.getString(R.string.toast_insert_true),
+                                    Toast.LENGTH_SHORT).show()
+                            }else {
+                                Toast.makeText(context, context.getString(R.string.toast_insert_false),
+                                    Toast.LENGTH_SHORT).show()
+                            }
+                            viewModel.clearFlags()
                         }
-                    }
-                )
+                    )
+                    if(state.isLoading) LoadingScreen()
+                }
             }
             composable(route = ViewRoutes.EditPosition.name) {
-                EditPositionView(
+                Box(
                     modifier = Modifier.fillMaxSize(),
-                    viewModel = viewModel,
-                    onUpdate = {
-                        viewModel.updateReport()
-                        if (state.isUpdate){
-                            Toast.makeText(context, context.getString(R.string.toast_update_true),
-                                Toast.LENGTH_SHORT).show()
-                        }else {
-                            Toast.makeText(context, context.getString(R.string.toast_update_false),
-                                Toast.LENGTH_SHORT).show()
+                    contentAlignment = Alignment.Center
+                ){
+                    EditPositionView(
+                        modifier = Modifier.fillMaxSize(),
+                        viewModel = viewModel,
+                        onUpdate = {
+                            viewModel.updateReport()
+                            if (state.wasUpdated){
+                                Toast.makeText(context, context.getString(R.string.toast_update_true),
+                                    Toast.LENGTH_SHORT).show()
+                            }else {
+                                Toast.makeText(context, context.getString(R.string.toast_update_false),
+                                    Toast.LENGTH_SHORT).show()
+                            }
+                            viewModel.clearFlags()
                         }
-                    }
-                )
+                    )
+                    if(state.isLoading) LoadingScreen()
+                }
             }
         }
     }

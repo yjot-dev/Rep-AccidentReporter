@@ -96,24 +96,34 @@ class AppViewModel @Inject constructor(
         }
     }
 
+    fun clearFlags() {
+        _uiState.update { state ->
+            state.copy(wasFound = false, wasInserted = false,
+                wasUpdated = false, wasDeleted = false)
+        }
+    }
+
     /** Obtiene los reportes (marcadores) de la BD **/
     fun getReports(){
+        _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             val result = reportUseCase.invoke()
             when (result) {
                 is Result.Success -> {
                     _uiState.update {
                         it.copy(
+                            isLoading = false,
                             itemsMarker = result.data,
-                            isGetReport = true
+                            wasFound = true
                         )
                     }
                 }
                 is Result.Error -> {
                     _uiState.update {
                         it.copy(
+                            isLoading = false,
                             itemsMarker = null,
-                            isGetReport = false
+                            wasFound = false
                         )
                     }
                 }
@@ -124,6 +134,7 @@ class AppViewModel @Inject constructor(
     /** Inserta un reporte a la BD **/
     fun insertReport() {
         val state = uiState.value
+        _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             val report = ReportEntity(
                 id = 0,
@@ -141,14 +152,16 @@ class AppViewModel @Inject constructor(
                 is Result.Success -> {
                     _uiState.update {
                         it.copy(
-                            isInsert = true
+                            isLoading = false,
+                            wasInserted = true
                         )
                     }
                 }
                 is Result.Error -> {
                     _uiState.update {
                         it.copy(
-                            isInsert = false
+                            isLoading = false,
+                            wasInserted = false
                         )
                     }
                 }
@@ -159,6 +172,7 @@ class AppViewModel @Inject constructor(
     /** Actualiza un reporte de la BD **/
     fun updateReport() {
         val state = uiState.value
+        _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             state.itemsMarker?.let { itemsMarker ->
                 val id = itemsMarker[state.indexMarker].id
@@ -178,14 +192,16 @@ class AppViewModel @Inject constructor(
                     is Result.Success -> {
                         _uiState.update {
                             it.copy(
-                                isUpdate = true
+                                isLoading = false,
+                                wasUpdated = true
                             )
                         }
                     }
                     is Result.Error -> {
                         _uiState.update {
                             it.copy(
-                                isUpdate = false
+                                isLoading = false,
+                                wasUpdated = false
                             )
                         }
                     }
@@ -197,6 +213,7 @@ class AppViewModel @Inject constructor(
     /** Elimina un reporte de la BD **/
     fun deleteReport() {
         val state = uiState.value
+        _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             state.itemsMarker?.let { itemsMarker ->
                 val id = itemsMarker[state.indexMarker].id
@@ -205,14 +222,16 @@ class AppViewModel @Inject constructor(
                     is Result.Success -> {
                         _uiState.update {
                             it.copy(
-                                isDelete = true
+                                isLoading = false,
+                                wasDeleted = true
                             )
                         }
                     }
                     is Result.Error -> {
                         _uiState.update {
                             it.copy(
-                                isDelete = false
+                                isLoading = false,
+                                wasDeleted = false
                             )
                         }
                     }

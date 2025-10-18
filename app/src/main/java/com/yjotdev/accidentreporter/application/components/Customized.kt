@@ -1,5 +1,6 @@
 package com.yjotdev.accidentreporter.application.components
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -16,7 +17,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.yjotdev.accidentreporter.R
+import com.yjotdev.accidentreporter.application.theme.AccidentReporterTheme
 
 @Composable
 fun ButtonAccidentReporter(
@@ -78,6 +81,35 @@ fun TextFieldAccidentReporter(
             ),
             textStyle = MaterialTheme.typography.labelMedium,
             maxLines = 10
+        )
+    }
+}
+
+@Composable
+@Preview(
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+fun PreviewButtonAccidentReporter() {
+    AccidentReporterTheme {
+        ButtonAccidentReporter(
+            onClick = {},
+            text = "Button"
+        )
+    }
+}
+
+@Composable
+@Preview(
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+fun PreviewTextFieldAccidentReporter() {
+    AccidentReporterTheme {
+        TextFieldAccidentReporter(
+            labelText = "Label",
+            value = "",
+            onValueChange = {}
         )
     }
 }

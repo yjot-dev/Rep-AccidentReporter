@@ -14,8 +14,9 @@ data class AppModel(
     val itemsMarker: List<ReportEntity>? = null,
     val token: Int = 0,
     val enableUpdate: Boolean = false,
-    val isGetReport: Boolean = false,
-    val isInsert: Boolean = false,
-    val isUpdate: Boolean = false,
-    val isDelete: Boolean = false
+    val isLoading: Boolean = false,
+    val wasFound: Boolean = false,
+    val wasInserted: Boolean = false,
+    val wasUpdated: Boolean = false,
+    val wasDeleted: Boolean = false
 )

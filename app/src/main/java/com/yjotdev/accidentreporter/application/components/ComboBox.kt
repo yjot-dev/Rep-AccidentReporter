@@ -1,5 +1,6 @@
 package com.yjotdev.accidentreporter.application.components
 
+import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -30,8 +31,16 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import com.yjotdev.accidentreporter.R
+import com.yjotdev.accidentreporter.application.theme.AccidentReporterTheme
 
+/**
+ * Un Composable que simula un ComboBox (o Dropdown) personalizado para la aplicación Accident Reporter.
+ * Muestra una opción seleccionada y, al hacer clic, despliega una lista animada con todas las
+ * opciones disponibles. Cada opción se muestra junto a un indicador de color, que se corresponde
+ * con su posición en la lista.
+ */
 @Composable
 fun ComboBoxAccidentReporter(
     modifier: Modifier = Modifier,
@@ -123,6 +132,21 @@ private fun ComboBoxItem(
             color = MaterialTheme.colorScheme.onSecondary,
             modifier = Modifier.fillMaxWidth()
                 .padding(start = dimensionResource(R.dimen.dp_3))
+        )
+    }
+}
+
+@Composable
+@Preview(
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+fun PreviewComboBoxAccidentReporter() {
+    AccidentReporterTheme {
+        ComboBoxAccidentReporter(
+            optionList = listOf("Item 1", "Item 2", "Item 3"),
+            indexSelected = 0,
+            onIndexSelected = {}
         )
     }
 }
