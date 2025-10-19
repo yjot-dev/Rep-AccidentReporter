@@ -7,7 +7,7 @@ import com.yjotdev.accidentreporter.domain.port.ReportPort
 import com.yjotdev.accidentreporter.domain.core.Result
 
 @Singleton
-class FakeReportRepositoryImpl @Inject constructor(): ReportPort {
+class FakeReportRepository @Inject constructor(): ReportPort {
     private val reportList = mutableListOf(
         ReportEntity(
             id = 2,

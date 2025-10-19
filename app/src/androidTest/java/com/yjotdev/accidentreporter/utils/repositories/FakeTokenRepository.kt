@@ -5,7 +5,7 @@ import javax.inject.Singleton
 import com.yjotdev.accidentreporter.domain.port.TokenPort
 
 @Singleton
-class FakeTokenRepositoryImpl @Inject constructor(): TokenPort {
+class FakeTokenRepository @Inject constructor(): TokenPort {
     private val tokenStorage = mutableMapOf<String, Int>()
 
     override fun createToken(){

@@ -53,9 +53,9 @@
             - Los estilos y temas residen en el directorio `res/values`.
     - `domain` (Capa de Dominio)
         - `core`: Abstracciones y modelos fundamentales que definen la estructura y comunicación del dominio.
-            - `Result.kt`  
+            - `Result.kt`
         - `entity`: Entidades de negocio puras (Data Class).
-          - `NombreDeTablaEntity.kt`
+            - `NombreDeTablaEntity.kt`
         - `port`: Interfaces que definen los contratos para la obtención de datos.
             - `NombreDeTablaPort.kt`
         - `usecase`: Clases que contienen la lógica de negocio.
@@ -74,6 +74,8 @@
             - `NullOnEmptyConverterFactory.kt`
         - `datasource`: Clases que implementan las fuentes de datos.
             - `NombreDeTablaApi.kt`
+        - `core`: Contiene safeApiCall para endpoints que retornan un body o un Unit
+            - `NetworkUtils.kt`
 
 ## A.2 Estilo del ViewModel
 - **Requisito:** Todo el codigo de cada `ViewModel` debe seguir un estilo de implementación.
@@ -96,22 +98,22 @@
         private val getSavedUserUseCase: GetSavedUserUseCase
         ) : ViewModel() {
 
-    // 1. Estado privado y mutable. El nombre del UiState es específico de la pantalla.
-    private val _uiState = MutableStateFlow(LoginUiState())
+  // 1. Estado privado y mutable. El nombre del UiState es específico de la pantalla.
+  private val _uiState = MutableStateFlow(LoginUiState())
 
-    // 2. Estado público e inmutable.
-    val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
+  // 2. Estado público e inmutable.
+  val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
 
-    fun onLoginClicked(user: String, pass: String) {
-    // Lógica que usa los casos de uso para actualizar el _uiState
-    }
+  fun onLoginClicked(user: String, pass: String) {
+  // Lógica que usa los casos de uso para actualizar el _uiState
+  }
 
-    // 3. Limpieza del ViewModel al ser destruido.
-    override fun onCleared() {
-    super.onCleared() // Es buena práctica llamar al método de la superclase.
-    _uiState.value = LoginUiState() // Resetea al estado inicial.
-    }
-    }
+  // 3. Limpieza del ViewModel al ser destruido.
+  override fun onCleared() {
+  super.onCleared() // Es buena práctica llamar al método de la superclase.
+  _uiState.value = LoginUiState() // Resetea al estado inicial.
+  }
+  }
 
 ## A.3 Estilo de Código
 - **Requisito:** Todas las funciones públicas deben seguir una nomenclatura y documentación estandarizada.
@@ -193,5 +195,5 @@
     11. **Habilitar el Cache de Configuración de Gradle:**
         - En el archivo `gradle.properties` a nivel de proyecto, añade la siguiente línea si no existe:
           `org.gradle.configuration-cache=true`
- 
+
 - **Post-condición:** Al finalizar, el proyecto debe estar sincronizado, compilar correctamente y seguir las mejores prácticas de gestión de dependencias y configuración de Android.

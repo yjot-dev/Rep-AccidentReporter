@@ -17,7 +17,7 @@ import com.yjotdev.accidentreporter.domain.core.Result
 import com.yjotdev.accidentreporter.domain.usecase.ReportUseCase
 import com.yjotdev.accidentreporter.domain.usecase.CreateTokenUseCase
 import com.yjotdev.accidentreporter.domain.usecase.GetTokenUseCase
-import com.yjotdev.accidentreporter.domain.utils.Validation
+import com.yjotdev.accidentreporter.application.utils.Validation
 
 @HiltViewModel
 class AppViewModel @Inject constructor(

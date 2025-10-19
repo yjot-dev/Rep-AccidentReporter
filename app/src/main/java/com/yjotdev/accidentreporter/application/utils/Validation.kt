@@ -1,4 +1,4 @@
-package com.yjotdev.accidentreporter.domain.utils
+package com.yjotdev.accidentreporter.application.utils
 
 import android.os.Build
 import androidx.annotation.RequiresApi

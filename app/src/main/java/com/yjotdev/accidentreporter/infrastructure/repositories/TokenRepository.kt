@@ -1,11 +1,11 @@
 package com.yjotdev.accidentreporter.infrastructure.repositories
 
 import android.content.Context
+import androidx.core.content.edit
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Singleton
 import javax.inject.Inject
 import com.yjotdev.accidentreporter.domain.port.TokenPort
-import androidx.core.content.edit
 
 @Singleton
 class TokenRepository @Inject constructor(

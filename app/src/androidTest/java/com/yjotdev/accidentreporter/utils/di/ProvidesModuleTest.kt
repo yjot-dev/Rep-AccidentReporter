@@ -12,8 +12,8 @@ import javax.inject.Singleton
 import com.yjotdev.accidentreporter.domain.port.ReportPort
 import com.yjotdev.accidentreporter.domain.port.TokenPort
 import com.yjotdev.accidentreporter.infrastructure.di.ProvidesModule
-import com.yjotdev.accidentreporter.utils.repositories.FakeReportRepositoryImpl
-import com.yjotdev.accidentreporter.utils.repositories.FakeTokenRepositoryImpl
+import com.yjotdev.accidentreporter.utils.repositories.FakeReportRepository
+import com.yjotdev.accidentreporter.utils.repositories.FakeTokenRepository
 
 @Module
 @TestInstallIn(
@@ -24,13 +24,13 @@ object ProvidesModuleTest {
 
     @Singleton
     @Provides
-    fun provideFakeReportRepositoryImpl(): ReportPort =
-        FakeReportRepositoryImpl()
+    fun provideFakeReportRepository(): ReportPort =
+        FakeReportRepository()
 
     @Singleton
     @Provides
-    fun provideFakeTokenRepositoryImpl(): TokenPort =
-        FakeTokenRepositoryImpl()
+    fun provideFakeTokenRepository(): TokenPort =
+        FakeTokenRepository()
 
     @Singleton
     @Provides

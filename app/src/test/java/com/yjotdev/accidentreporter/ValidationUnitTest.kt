@@ -5,7 +5,7 @@ import org.junit.Test
 import org.junit.Assert.*
 import java.time.LocalDateTime
 import com.yjotdev.accidentreporter.domain.entity.ReportEntity
-import com.yjotdev.accidentreporter.domain.utils.Validation
+import com.yjotdev.accidentreporter.application.utils.Validation
 
 /**
  * Example local unit test, which will execute on the development machine (host).
