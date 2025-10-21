@@ -96,10 +96,19 @@ class AppViewModel @Inject constructor(
         }
     }
 
+    /** Resetea las banderas **/
     fun clearFlags() {
         _uiState.update { state ->
             state.copy(wasFound = false, wasInserted = false,
                 wasUpdated = false, wasDeleted = false)
+        }
+    }
+
+    /** Aumenta el contador de operaciones **/
+    fun setOperationCompletedCount() {
+        _uiState.update { state ->
+            state.copy(operationCompletedCount =
+                state.operationCompletedCount + 1)
         }
     }
 
@@ -114,7 +123,8 @@ class AppViewModel @Inject constructor(
                         it.copy(
                             isLoading = false,
                             itemsMarker = result.data,
-                            wasFound = true
+                            wasFound = true,
+                            operationCompletedCount = it.operationCompletedCount + 1
                         )
                     }
                 }
@@ -123,7 +133,8 @@ class AppViewModel @Inject constructor(
                         it.copy(
                             isLoading = false,
                             itemsMarker = null,
-                            wasFound = false
+                            wasFound = false,
+                            operationCompletedCount = it.operationCompletedCount + 1
                         )
                     }
                 }
@@ -153,7 +164,8 @@ class AppViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            wasInserted = true
+                            wasInserted = true,
+                            operationCompletedCount = it.operationCompletedCount + 1
                         )
                     }
                 }
@@ -161,7 +173,8 @@ class AppViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            wasInserted = false
+                            wasInserted = false,
+                            operationCompletedCount = it.operationCompletedCount + 1
                         )
                     }
                 }
@@ -193,7 +206,8 @@ class AppViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
-                                wasUpdated = true
+                                wasUpdated = true,
+                                operationCompletedCount = it.operationCompletedCount + 1
                             )
                         }
                     }
@@ -201,7 +215,8 @@ class AppViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
-                                wasUpdated = false
+                                wasUpdated = false,
+                                operationCompletedCount = it.operationCompletedCount + 1
                             )
                         }
                     }
@@ -223,7 +238,8 @@ class AppViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
-                                wasDeleted = true
+                                wasDeleted = true,
+                                operationCompletedCount = it.operationCompletedCount + 1
                             )
                         }
                     }
@@ -231,7 +247,8 @@ class AppViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
-                                wasDeleted = false
+                                wasDeleted = false,
+                                operationCompletedCount = it.operationCompletedCount + 1
                             )
                         }
                     }

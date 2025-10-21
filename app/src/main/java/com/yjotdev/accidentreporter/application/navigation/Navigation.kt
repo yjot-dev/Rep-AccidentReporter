@@ -1,5 +1,6 @@
 package com.yjotdev.accidentreporter.application.navigation
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -19,8 +20,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -62,6 +67,8 @@ fun NavigationView(
         stringResource(R.string.combobox_option2),
         stringResource(R.string.combobox_option3)
     )
+    //Variables reactivas locales
+    var operationId by remember { mutableIntStateOf(0) }
     //Navegacion
     Scaffold(
         topBar = {
@@ -72,6 +79,12 @@ fun NavigationView(
             )
         }
     ) { innerPadding ->
+        ObserveViewModelState(
+            viewModel = viewModel,
+            navController = navController,
+            context = context,
+            operationId = operationId
+        )
         NavHost(
             navController = navController,
             startDestination = ViewRoutes.Start.name,
@@ -86,41 +99,38 @@ fun NavigationView(
             modifier = Modifier.padding(innerPadding)
         ){
             composable(route = ViewRoutes.Start.name) {
-                StartView(
+                Box(
                     modifier = Modifier.fillMaxSize(),
-                    onNext = {
-                        if(state.token == 0) viewModel.loadToken()
-                        if(state.itemsComboBox.isEmpty()) viewModel.setItemsComboBox(optionList)
-                        if(state.itemsMarker.isNullOrEmpty()) {
-                            viewModel.getReports()
-                            if(state.wasFound) viewModel.clearFlags()
+                    contentAlignment = Alignment.Center
+                ) {
+                    StartView(
+                        modifier = Modifier.fillMaxSize(),
+                        onNext = {
+                            if (state.token == 0) viewModel.loadToken()
+                            if (state.itemsComboBox.isEmpty()) viewModel.setItemsComboBox(optionList)
+                            state.itemsMarker?.let {
+                                viewModel.setOperationCompletedCount()
+                            } ?: run {
+                                viewModel.getReports()
+                            }
+                            operationId = 1
                         }
-                        navController.navigate(ViewRoutes.Map.name)
-                    }
-                )
+                    )
+                    if(state.isLoading) LoadingScreen()
+                }
             }
             composable(route = ViewRoutes.Map.name) {
-                if(state.isLoading){
-                    LoadingScreen()
-                } else {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
                     MapView(
                         modifier = Modifier.fillMaxSize(),
                         viewModel = viewModel,
                         onToLook = { navController.navigate(ViewRoutes.EditPosition.name) },
                         onDelete = {
                             viewModel.deleteReport()
-                            if(state.wasDeleted){
-                                Toast.makeText(
-                                    context, context.getString(R.string.toast_delete_true),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }else {
-                                Toast.makeText(
-                                    context, context.getString(R.string.toast_delete_false),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                            viewModel.clearFlags()
+                            operationId = 2
                         },
                         onMapClick = {
                             viewModel.setPosMarker(it)
@@ -130,6 +140,7 @@ fun NavigationView(
                             navController.navigate(ViewRoutes.AddPosition.name)
                         }
                     )
+                    if(state.isLoading) LoadingScreen()
                 }
             }
             composable(route = ViewRoutes.AddPosition.name) {
@@ -142,14 +153,7 @@ fun NavigationView(
                         viewModel = viewModel,
                         onAdd = {
                             viewModel.insertReport()
-                            if(state.wasInserted){
-                                Toast.makeText(context, context.getString(R.string.toast_insert_true),
-                                    Toast.LENGTH_SHORT).show()
-                            }else {
-                                Toast.makeText(context, context.getString(R.string.toast_insert_false),
-                                    Toast.LENGTH_SHORT).show()
-                            }
-                            viewModel.clearFlags()
+                            operationId = 3
                         }
                     )
                     if(state.isLoading) LoadingScreen()
@@ -165,14 +169,7 @@ fun NavigationView(
                         viewModel = viewModel,
                         onUpdate = {
                             viewModel.updateReport()
-                            if (state.wasUpdated){
-                                Toast.makeText(context, context.getString(R.string.toast_update_true),
-                                    Toast.LENGTH_SHORT).show()
-                            }else {
-                                Toast.makeText(context, context.getString(R.string.toast_update_false),
-                                    Toast.LENGTH_SHORT).show()
-                            }
-                            viewModel.clearFlags()
+                            operationId = 4
                         }
                     )
                     if(state.isLoading) LoadingScreen()
@@ -217,5 +214,62 @@ private fun TitleBar(
                 titleContentColor = MaterialTheme.colorScheme.onPrimary
             )
         )
+    }
+}
+
+@Composable
+private fun ObserveViewModelState(
+    viewModel: AppViewModel,
+    navController: NavHostController,
+    context: Context,
+    operationId: Int
+){
+    val state by viewModel.uiState.collectAsState()
+    LaunchedEffect(
+        key1 = state.operationCompletedCount
+    ){
+        // No ejecutar si operationCompletedCount es 0 (estado inicial)
+        if (state.operationCompletedCount == 0) return@LaunchedEffect
+
+        when(operationId){
+            1 -> {
+                state.itemsMarker?.let {
+                    if(state.wasFound) viewModel.clearFlags()
+                    navController.navigate(ViewRoutes.Map.name)
+                }
+            }
+            2 -> {
+                if(state.wasDeleted){
+                    Toast.makeText(
+                        context, context.getString(R.string.toast_delete_true),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }else {
+                    Toast.makeText(
+                        context, context.getString(R.string.toast_delete_false),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+            3 -> {
+                if(state.wasInserted){
+                    Toast.makeText(context, context.getString(R.string.toast_insert_true),
+                        Toast.LENGTH_SHORT).show()
+                }else {
+                    Toast.makeText(context, context.getString(R.string.toast_insert_false),
+                        Toast.LENGTH_SHORT).show()
+                }
+            }
+            4 -> {
+                if (state.wasUpdated){
+                    Toast.makeText(context, context.getString(R.string.toast_update_true),
+                        Toast.LENGTH_SHORT).show()
+                }else {
+                    Toast.makeText(context, context.getString(R.string.toast_update_false),
+                        Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+        viewModel.clearFlags()
     }
 }
