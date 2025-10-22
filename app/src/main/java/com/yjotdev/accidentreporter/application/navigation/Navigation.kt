@@ -242,31 +242,34 @@ private fun ObserveViewModelState(
                 if(state.wasDeleted){
                     Toast.makeText(
                         context, context.getString(R.string.toast_delete_true),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }else {
-                    Toast.makeText(
-                        context, context.getString(R.string.toast_delete_false),
-                        Toast.LENGTH_SHORT
-                    ).show()
+                        Toast.LENGTH_SHORT).show()
+                    viewModel.getReports()
+                }
+                state.error?.let { error ->
+                    val msm = "${context.getString(R.string.toast_delete_false)}, $error"
+                    Toast.makeText(context, msm, Toast.LENGTH_SHORT).show()
                 }
             }
             3 -> {
                 if(state.wasInserted){
                     Toast.makeText(context, context.getString(R.string.toast_insert_true),
                         Toast.LENGTH_SHORT).show()
-                }else {
-                    Toast.makeText(context, context.getString(R.string.toast_insert_false),
-                        Toast.LENGTH_SHORT).show()
+                    viewModel.getReports()
+                }
+                state.error?.let { error ->
+                    val msm = "${context.getString(R.string.toast_insert_false)}, $error"
+                    Toast.makeText(context, msm, Toast.LENGTH_SHORT).show()
                 }
             }
             4 -> {
                 if (state.wasUpdated){
                     Toast.makeText(context, context.getString(R.string.toast_update_true),
                         Toast.LENGTH_SHORT).show()
-                }else {
-                    Toast.makeText(context, context.getString(R.string.toast_update_false),
-                        Toast.LENGTH_SHORT).show()
+                    viewModel.getReports()
+                }
+                state.error?.let { error ->
+                    val msm = "${context.getString(R.string.toast_update_false)}, $error"
+                    Toast.makeText(context, msm, Toast.LENGTH_SHORT).show()
                 }
             }
         }

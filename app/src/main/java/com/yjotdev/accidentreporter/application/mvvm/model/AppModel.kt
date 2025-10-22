@@ -19,5 +19,6 @@ data class AppModel(
     val wasInserted: Boolean = false,
     val wasUpdated: Boolean = false,
     val wasDeleted: Boolean = false,
+    val error: String? = null,
     val operationCompletedCount: Int = 0
 )

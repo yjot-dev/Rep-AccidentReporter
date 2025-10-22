@@ -134,6 +134,7 @@ class AppViewModel @Inject constructor(
                             isLoading = false,
                             itemsMarker = null,
                             wasFound = false,
+                            error = result.exception.message,
                             operationCompletedCount = it.operationCompletedCount + 1
                         )
                     }
@@ -174,6 +175,7 @@ class AppViewModel @Inject constructor(
                         it.copy(
                             isLoading = false,
                             wasInserted = false,
+                            error = result.exception.message,
                             operationCompletedCount = it.operationCompletedCount + 1
                         )
                     }
@@ -216,6 +218,7 @@ class AppViewModel @Inject constructor(
                             it.copy(
                                 isLoading = false,
                                 wasUpdated = false,
+                                error = result.exception.message,
                                 operationCompletedCount = it.operationCompletedCount + 1
                             )
                         }
@@ -248,6 +251,7 @@ class AppViewModel @Inject constructor(
                             it.copy(
                                 isLoading = false,
                                 wasDeleted = false,
+                                error = result.exception.message,
                                 operationCompletedCount = it.operationCompletedCount + 1
                             )
                         }

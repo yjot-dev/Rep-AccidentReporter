@@ -11,7 +11,7 @@ import com.yjotdev.accidentreporter.infrastructure.datasource.ReportApi
 
 @Singleton
 class Api @Inject constructor(
-    @ApplicationContext context: Context
+    @field:Inject @ApplicationContext context: Context
 ) {
     private val httpsClient = if (BuildConfig.DEBUG) { Client.getUnsafeClient(context) }
                              else { Client.getSafeClient() }
