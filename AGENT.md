@@ -51,6 +51,8 @@
             - Se omiten los directorios `components` y `theme`.
             - Las vistas (layouts XML) residen en el directorio `res/layout`.
             - Los estilos y temas residen en el directorio `res/values`.
+        - `utils`: Contiene helpers sin estado y funciones puras que realizan tareas de apoyo muy específicas y reutilizables.
+            - `Helper.kt`
     - `domain` (Capa de Dominio)
         - `core`: Abstracciones y modelos fundamentales que definen la estructura y comunicación del dominio.
             - `Result.kt`
@@ -61,21 +63,36 @@
         - `usecase`: Clases que contienen la lógica de negocio.
             - `NombreDeTablaUseCase.kt`
         - `utils`: Contiene helpers sin estado y funciones puras que realizan tareas de apoyo muy específicas y reutilizables.
-            - `Validation.kt`
-    - `infrastructure` (Capa de Datos)
+            - `Helper.kt`
+    - `infrastructure` (Capa de Datos y Servicios)
         - `di`: Configuración de la inyección de dependencias (Hilt, Koin).
-            - `ProvidesModule.kt`
+            - `DiModules.kt`
         - `repository`: Implementaciones concretas de las interfaces del dominio.
             - `NombreDeTablaRepository.kt`
-        - `adapter`: Fuentes de datos remota. (API, bases de datos, etc.)
-            - `Api.kt`
-            - `Client.kt`
-            - `HeaderInterceptor.kt`
-            - `NullOnEmptyConverterFactory.kt`
-        - `datasource`: Clases que implementan las fuentes de datos.
-            - `NombreDeTablaApi.kt`
-        - `core`: Contiene safeApiCall para endpoints que retornan un body o un Unit
-            - `NetworkUtils.kt`
+        - **(Condicional) Si se usa una base de datos local (ej: Room):**
+            - `datasource`: Clases relacionadas con la base de datos local.
+                - `dao`: Contiene los Data Access Objects (DAOs).
+                    - `NombreDeTablaDao.kt`
+                - `converter`: Conversores de tipos para la base de datos.
+                    - `Converters.kt`
+                - `database`: La clase principal que define la base de datos.
+                    - `NombreDeProyectoDatabase.kt`
+                - `model`: Modelos de datos puros (Data Class)
+                    - `NombreDeTablaModel.kt`
+        - **(Condicional) Si se usa una API remota (ej: Retrofit):**
+            - `network`: Clases relacionadas con la comunicación de red.
+                - `client`: Contiene la configuración del cliente HTTP (ej: OkHttpClient).
+                    - `Api.kt`
+                    - `Client.kt`
+                    - `HeaderInterceptor.kt`
+                - `api`: Define los endpoints de la API.
+                    - `NombreDelServicioApi.kt`
+                - `core`: Utilidades de red como `safeApiCall` o conversores.
+                    - `NetworkUtils.kt`
+                    - `NullOnEmptyConverterFactory.kt`
+        - **(Opcional) Si la aplicación requiere servicios en segundo plano:**
+            - `service`: Contiene implementaciones de `Service` de Android.
+                - `NombreDelServicio.kt``
 
 ## A.2 Estilo del ViewModel
 - **Requisito:** Todo el codigo de cada `ViewModel` debe seguir un estilo de implementación.

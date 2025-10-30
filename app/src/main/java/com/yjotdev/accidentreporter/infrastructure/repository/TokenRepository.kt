@@ -1,4 +1,4 @@
-package com.yjotdev.accidentreporter.infrastructure.repositories
+package com.yjotdev.accidentreporter.infrastructure.repository
 
 import android.content.Context
 import androidx.core.content.edit
@@ -9,7 +9,7 @@ import com.yjotdev.accidentreporter.domain.port.TokenPort
 
 @Singleton
 class TokenRepository @Inject constructor(
-    @field:Inject @ApplicationContext context: Context
+    @ApplicationContext val context: Context
 ) : TokenPort {
     private val sharedPreferences = context.getSharedPreferences("save_token", Context.MODE_PRIVATE)
 

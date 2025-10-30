@@ -1,13 +1,13 @@
-package com.yjotdev.accidentreporter.infrastructure.repositories
+package com.yjotdev.accidentreporter.infrastructure.repository
 
 import javax.inject.Inject
 import javax.inject.Singleton
 import com.yjotdev.accidentreporter.domain.entity.ReportEntity
 import com.yjotdev.accidentreporter.domain.port.ReportPort
 import com.yjotdev.accidentreporter.domain.core.Result
-import com.yjotdev.accidentreporter.infrastructure.adapter.Api
-import com.yjotdev.accidentreporter.infrastructure.core.safeApiCallForBody
-import com.yjotdev.accidentreporter.infrastructure.core.safeApiCallForUnit
+import com.yjotdev.accidentreporter.infrastructure.network.client.Api
+import com.yjotdev.accidentreporter.infrastructure.network.core.safeApiCallForBody
+import com.yjotdev.accidentreporter.infrastructure.network.core.safeApiCallForUnit
 
 @Singleton
 class ReportRepository @Inject constructor(

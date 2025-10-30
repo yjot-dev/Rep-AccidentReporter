@@ -1,4 +1,4 @@
-package com.yjotdev.accidentreporter.infrastructure.adapter
+package com.yjotdev.accidentreporter.infrastructure.network.client
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -7,7 +7,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Inject
 import javax.inject.Singleton
 import com.yjotdev.accidentreporter.BuildConfig
-import com.yjotdev.accidentreporter.infrastructure.datasource.ReportApi
+import com.yjotdev.accidentreporter.infrastructure.network.api.ReportApi
+import com.yjotdev.accidentreporter.infrastructure.network.core.NullOnEmptyConverterFactory
 
 @Singleton
 class Api @Inject constructor(

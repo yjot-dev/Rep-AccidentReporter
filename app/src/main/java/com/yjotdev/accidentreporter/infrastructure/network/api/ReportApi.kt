@@ -1,4 +1,4 @@
-package com.yjotdev.accidentreporter.infrastructure.datasource
+package com.yjotdev.accidentreporter.infrastructure.network.api
 
 import retrofit2.Response
 import retrofit2.http.Body

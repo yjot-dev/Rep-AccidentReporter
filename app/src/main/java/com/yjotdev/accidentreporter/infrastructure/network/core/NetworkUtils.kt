@@ -1,4 +1,4 @@
-package com.yjotdev.accidentreporter.infrastructure.core
+package com.yjotdev.accidentreporter.infrastructure.network.core
 
 import retrofit2.Response
 import java.io.IOException

@@ -1,4 +1,4 @@
-package com.yjotdev.accidentreporter.infrastructure.adapter
+package com.yjotdev.accidentreporter.infrastructure.network.client
 
 import android.content.Context
 import android.util.Log

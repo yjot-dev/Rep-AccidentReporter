@@ -12,16 +12,22 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.yjotdev.accidentreporter.application.mvvm.model.AppModel
+import com.yjotdev.accidentreporter.application.utils.Validation
 import com.yjotdev.accidentreporter.domain.entity.ReportEntity
 import com.yjotdev.accidentreporter.domain.core.Result
-import com.yjotdev.accidentreporter.domain.usecase.ReportUseCase
-import com.yjotdev.accidentreporter.domain.usecase.CreateTokenUseCase
-import com.yjotdev.accidentreporter.domain.usecase.GetTokenUseCase
-import com.yjotdev.accidentreporter.application.utils.Validation
+import com.yjotdev.accidentreporter.domain.usecase.token.CreateTokenUseCase
+import com.yjotdev.accidentreporter.domain.usecase.token.GetTokenUseCase
+import com.yjotdev.accidentreporter.domain.usecase.report.SelectReportUseCase
+import com.yjotdev.accidentreporter.domain.usecase.report.DeleteReportUseCase
+import com.yjotdev.accidentreporter.domain.usecase.report.InsertReportUseCase
+import com.yjotdev.accidentreporter.domain.usecase.report.UpdateReportUseCase
 
 @HiltViewModel
 class AppViewModel @Inject constructor(
-    private val reportUseCase: ReportUseCase,
+    private val selectReportUseCase: SelectReportUseCase,
+    private val insertReportUseCase: InsertReportUseCase,
+    private val updateReportUseCase: UpdateReportUseCase,
+    private val deleteReportUseCase: DeleteReportUseCase,
     private val createTokenUseCase: CreateTokenUseCase,
     private val getTokenUseCase: GetTokenUseCase
 ): ViewModel() {
@@ -116,7 +122,7 @@ class AppViewModel @Inject constructor(
     fun getReports(){
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
-            val result = reportUseCase.invoke()
+            val result = selectReportUseCase()
             when (result) {
                 is Result.Success -> {
                     _uiState.update {
@@ -159,7 +165,7 @@ class AppViewModel @Inject constructor(
                 description = state.textDescription,
                 token = state.token
             )
-            val result = reportUseCase.invoke(report)
+            val result = insertReportUseCase(report)
             when (result) {
                 is Result.Success -> {
                     _uiState.update {
@@ -202,7 +208,7 @@ class AppViewModel @Inject constructor(
                     description = state.textDescription,
                     token = state.token
                 )
-                val result = reportUseCase.invoke(id, report)
+                val result = updateReportUseCase(id, report)
                 when (result) {
                     is Result.Success -> {
                         _uiState.update {
@@ -235,7 +241,7 @@ class AppViewModel @Inject constructor(
         viewModelScope.launch {
             state.itemsMarker?.let { itemsMarker ->
                 val id = itemsMarker[state.indexMarker].id
-                val result = reportUseCase.invoke(id)
+                val result = deleteReportUseCase(id)
                 when (result) {
                     is Result.Success -> {
                         _uiState.update {

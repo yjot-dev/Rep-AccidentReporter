@@ -1,4 +1,4 @@
-package com.yjotdev.accidentreporter.infrastructure.adapter
+package com.yjotdev.accidentreporter.infrastructure.network.core
 
 import okhttp3.ResponseBody
 import retrofit2.Converter
@@ -12,6 +12,6 @@ class NullOnEmptyConverterFactory: Converter.Factory() {
         retrofit: Retrofit
     ): Converter<ResponseBody, *> {
         val delegate: Converter<ResponseBody, *> = retrofit.nextResponseBodyConverter<Any>(this, type, annotations)
-        return Converter { body -> if(body.contentLength() == 0L) null else delegate.convert(body) }
+        return Converter { body -> if (body.contentLength() == 0L) null else delegate.convert(body) }
     }
 }

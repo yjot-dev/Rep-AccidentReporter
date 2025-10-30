@@ -1,4 +1,4 @@
-package com.yjotdev.accidentreporter.infrastructure.adapter
+package com.yjotdev.accidentreporter.infrastructure.network.client
 
 import okhttp3.Interceptor
 import okhttp3.Response
