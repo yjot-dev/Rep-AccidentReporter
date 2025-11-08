@@ -14,10 +14,10 @@ import com.yjotdev.accidentreporter.domain.entity.ReportEntity
  * ESTA interfaz pertenece a la capa de Infraestructura y define los endpoints HTTP.
  */
 interface ReportApi {
-    @GET("reports/")
+    @GET("reports")
     suspend fun selectReports(): Response<List<ReportEntity>>
 
-    @POST("reports/")
+    @POST("reports")
     suspend fun insertReport(@Body report:ReportEntity): Response<Unit>
 
     @PUT("reports/{id}")

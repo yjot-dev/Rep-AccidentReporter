@@ -30,7 +30,7 @@ fun PermissionView(
     }
     if(hasPermissions){
         //Navegacion
-        NavigationView(
+        Navigation(
             navController = navController,
             viewModel = viewModel
         )

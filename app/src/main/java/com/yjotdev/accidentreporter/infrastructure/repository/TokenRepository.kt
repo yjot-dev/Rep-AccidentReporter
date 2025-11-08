@@ -25,4 +25,9 @@ class TokenRepository @Inject constructor(
     override fun getToken(): Int {
         return sharedPreferences.getInt("token", 0)
     }
+
+    /** Edita el token **/
+    override fun editToken(token: Int) {
+        sharedPreferences.edit { putInt("token", token) }
+    }
 }

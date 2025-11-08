@@ -1,6 +1,5 @@
 package com.yjotdev.accidentreporter.application.mvvm.view
 
-import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,14 +18,15 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import com.yjotdev.accidentreporter.R
 import com.yjotdev.accidentreporter.application.components.ButtonAccidentReporter
 import com.yjotdev.accidentreporter.application.theme.AccidentReporterTheme
+import com.yjotdev.accidentreporter.application.utils.ComponentPreview
 
 @Composable
 fun StartView(
     modifier: Modifier = Modifier,
+    onTokenConfig: () -> Unit,
     onNext: () -> Unit
 ){
     Column(
@@ -51,25 +51,31 @@ fun StartView(
             modifier = Modifier.fillMaxWidth(0.8f)
         )
         ButtonAccidentReporter(
-            onClick = onNext,
-            text = stringResource(R.string.startview_button),
+            onClick = onTokenConfig,
+            text = stringResource(R.string.startview_button1),
             modifier = Modifier
                 .fillMaxWidth(0.8f)
                 .height(dimensionResource(R.dimen.dp_5))
-                .testTag("startview_button")
+                .testTag("startview_button1")
+        )
+        ButtonAccidentReporter(
+            onClick = onNext,
+            text = stringResource(R.string.startview_button2),
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .height(dimensionResource(R.dimen.dp_5))
+                .testTag("startview_button2")
         )
     }
 }
 
-@Preview(
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO
-)
+@ComponentPreview
 @Composable
 private fun PreviewStartView(){
     AccidentReporterTheme {
         StartView(
             modifier = Modifier.fillMaxSize(),
+            onTokenConfig = {},
             onNext = {}
         )
     }

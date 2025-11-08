@@ -17,6 +17,7 @@ import com.yjotdev.accidentreporter.domain.entity.ReportEntity
 import com.yjotdev.accidentreporter.domain.core.Result
 import com.yjotdev.accidentreporter.domain.usecase.token.CreateTokenUseCase
 import com.yjotdev.accidentreporter.domain.usecase.token.GetTokenUseCase
+import com.yjotdev.accidentreporter.domain.usecase.token.EditTokenUseCase
 import com.yjotdev.accidentreporter.domain.usecase.report.SelectReportUseCase
 import com.yjotdev.accidentreporter.domain.usecase.report.DeleteReportUseCase
 import com.yjotdev.accidentreporter.domain.usecase.report.InsertReportUseCase
@@ -29,7 +30,8 @@ class AppViewModel @Inject constructor(
     private val updateReportUseCase: UpdateReportUseCase,
     private val deleteReportUseCase: DeleteReportUseCase,
     private val createTokenUseCase: CreateTokenUseCase,
-    private val getTokenUseCase: GetTokenUseCase
+    private val getTokenUseCase: GetTokenUseCase,
+    private val editTokenUseCase: EditTokenUseCase
 ): ViewModel() {
 
     private val _uiState = MutableStateFlow(AppModel())
@@ -40,16 +42,32 @@ class AppViewModel @Inject constructor(
         resetViewModel()
     }
 
-    /** Carga el token **/
-    fun loadToken() {
-        createTokenUseCase()
-        setToken(getTokenUseCase())
+    init {
+        loadToken()
     }
 
-    /** Actualiza el texto de la descripcion **/
+    /** Carga el token guardado **/
+    private fun loadToken() {
+        createTokenUseCase()
+        setTextToken(getTokenUseCase().toString())
+    }
+
+    /** Edita el token guardado **/
+    fun editToken(token: String) {
+        editTokenUseCase(token.toInt())
+    }
+
+    /** Actualiza el texto de la descripcion del reporte **/
     fun setTextDescription(text: String){
         _uiState.update { state ->
             state.copy(textDescription = text)
+        }
+    }
+
+    /** Actualiza el texto del token en su configuracion **/
+    fun setTextToken(text: String){
+        _uiState.update { state ->
+            state.copy(textToken = text)
         }
     }
 
@@ -88,14 +106,7 @@ class AppViewModel @Inject constructor(
         }
     }
 
-    /** Actualiza el token **/
-    private fun setToken(token: Int){
-        _uiState.update { state ->
-            state.copy(token = token)
-        }
-    }
-
-    /** Habilita o deshabilita la edicion en EditPositionView **/
+    /** Habilita o deshabilita la edicion en EditPositionView o en TokenConfigView **/
     fun setEnableUpdate(enable: Boolean){
         _uiState.update { state ->
             state.copy(enableUpdate = enable)
@@ -151,7 +162,7 @@ class AppViewModel @Inject constructor(
 
     /** Inserta un reporte a la BD **/
     fun insertReport() {
-        val state = uiState.value
+        val state = _uiState.value
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             val report = ReportEntity(
@@ -163,7 +174,7 @@ class AppViewModel @Inject constructor(
                        }else "",
                 type = state.itemsComboBox[state.indexComboBox],
                 description = state.textDescription,
-                token = state.token
+                token = state.textToken.toInt()
             )
             val result = insertReportUseCase(report)
             when (result) {
@@ -192,21 +203,15 @@ class AppViewModel @Inject constructor(
 
     /** Actualiza un reporte de la BD **/
     fun updateReport() {
-        val state = uiState.value
+        val state = _uiState.value
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             state.itemsMarker?.let { itemsMarker ->
                 val id = itemsMarker[state.indexMarker].id
-                val report = ReportEntity(
-                    id = id,
-                    latitude = state.posMarker.latitude,
-                    longitude = state.posMarker.longitude,
-                    date = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        Validation.getDateToString()
-                    }else "",
+                val report = itemsMarker[state.indexMarker].copy(
                     type = state.itemsComboBox[state.indexComboBox],
                     description = state.textDescription,
-                    token = state.token
+                    token = state.textToken.toInt()
                 )
                 val result = updateReportUseCase(id, report)
                 when (result) {
@@ -236,7 +241,7 @@ class AppViewModel @Inject constructor(
 
     /** Elimina un reporte de la BD **/
     fun deleteReport() {
-        val state = uiState.value
+        val state = _uiState.value
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             state.itemsMarker?.let { itemsMarker ->
@@ -269,21 +274,21 @@ class AppViewModel @Inject constructor(
 
     /** Habilita o deshabilita los botones **/
     fun enabledForm(): Boolean{
-        val state = uiState.value
+        val state = _uiState.value
         return state.indexComboBox != 0 && state.textDescription.isNotBlank()
     }
 
     /** Verifica si el token del usuario corresponde al reporte seleccionado **/
     fun verifyUser(): Boolean{
-        val state = uiState.value
+        val state = _uiState.value
         return if(!state.itemsMarker.isNullOrEmpty()){
-            state.token == state.itemsMarker[state.indexMarker].token }
+            state.textToken.toInt() == state.itemsMarker[state.indexMarker].token }
         else false
     }
 
     /** Muestra y oculta la informacion del marcador seleccionado **/
     fun showMarker(): Boolean{
-        val state = uiState.value
+        val state = _uiState.value
         return if(!state.itemsMarker.isNullOrEmpty()){
             val pos = Validation.convertToPosition(state.itemsMarker[state.indexMarker])
             pos == state.posMarker

@@ -10,19 +10,9 @@ package com.yjotdev.accidentreporter.domain.port
  */
 interface TokenPort {
 
-    /**
-     * Crea o genera un nuevo token y lo persiste.
-     *
-     * La lógica específica de la generación (ej: un número aleatorio, un valor basado en la hora)
-     * es responsabilidad de la implementación en la capa de infraestructura.
-     */
     fun createToken()
 
-    /**
-     * Recupera el token almacenado actualmente.
-     *
-     * @return [Int] El valor numérico del token guardado. Si no existe un token, la
-     * implementación debe decidir qué valor por defecto devolver (ej: 0, -1).
-     */
     fun getToken(): Int
+
+    fun editToken(token: Int)
 }

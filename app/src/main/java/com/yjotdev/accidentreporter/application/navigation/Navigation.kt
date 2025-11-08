@@ -6,19 +6,10 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -28,28 +19,30 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.CameraPositionState
+import com.google.maps.android.compose.rememberCameraPositionState
 import com.yjotdev.accidentreporter.R
 import com.yjotdev.accidentreporter.application.components.LoadingScreen
+import com.yjotdev.accidentreporter.application.components.TitleBar
 import com.yjotdev.accidentreporter.application.mvvm.view.AddPositionView
 import com.yjotdev.accidentreporter.application.mvvm.view.EditPositionView
 import com.yjotdev.accidentreporter.application.mvvm.view.MapView
 import com.yjotdev.accidentreporter.application.mvvm.view.StartView
+import com.yjotdev.accidentreporter.application.mvvm.view.TokenConfigView
 import com.yjotdev.accidentreporter.application.mvvm.viewmodel.AppViewModel
 
 @Composable
-fun NavigationView(
+fun Navigation(
     navController: NavHostController = rememberNavController(),
     viewModel: AppViewModel
 ){
@@ -69,7 +62,25 @@ fun NavigationView(
     )
     //Variables reactivas locales
     var operationId by remember { mutableIntStateOf(0) }
-    //Navegacion
+    //Observa estado de la camara del mapa
+    val elGuabo = LatLng(-3.245274, -79.832028)
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(elGuabo, 18f)
+    }
+    ObserveMapCameraState(
+        viewModel = viewModel,
+        cameraPositionState = cameraPositionState,
+        startPosition = elGuabo
+    )
+    //Observa estados asincronicos
+    ObserveViewModelState(
+        viewModel = viewModel,
+        navController = navController,
+        context = context,
+        operationId = operationId,
+        optionList = optionList
+    )
+    //UI
     Scaffold(
         topBar = {
             TitleBar(
@@ -79,12 +90,6 @@ fun NavigationView(
             )
         }
     ) { innerPadding ->
-        ObserveViewModelState(
-            viewModel = viewModel,
-            navController = navController,
-            context = context,
-            operationId = operationId
-        )
         NavHost(
             navController = navController,
             startDestination = ViewRoutes.Start.name,
@@ -105,9 +110,10 @@ fun NavigationView(
                 ) {
                     StartView(
                         modifier = Modifier.fillMaxSize(),
+                        onTokenConfig = {
+                            navController.navigate(ViewRoutes.TokenConfig.name)
+                        },
                         onNext = {
-                            if (state.token == 0) viewModel.loadToken()
-                            if (state.itemsComboBox.isEmpty()) viewModel.setItemsComboBox(optionList)
                             state.itemsMarker?.let {
                                 viewModel.setOperationCompletedCount()
                             } ?: run {
@@ -119,6 +125,20 @@ fun NavigationView(
                     if(state.isLoading) LoadingScreen()
                 }
             }
+            composable(route = ViewRoutes.TokenConfig.name) {
+                TokenConfigView(
+                    modifier = Modifier.fillMaxSize(),
+                    tokenText = state.textToken,
+                    onTokenText = { viewModel.setTextToken(it) },
+                    enableControls = state.enableUpdate,
+                    onEnableControls = { viewModel.setEnableUpdate(!it) },
+                    onUpdate = {
+                        viewModel.editToken(state.textToken)
+                        viewModel.setOperationCompletedCount()
+                        operationId = 5
+                    }
+                )
+            }
             composable(route = ViewRoutes.Map.name) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -126,18 +146,30 @@ fun NavigationView(
                 ) {
                     MapView(
                         modifier = Modifier.fillMaxSize(),
-                        viewModel = viewModel,
-                        onToLook = { navController.navigate(ViewRoutes.EditPosition.name) },
+                        cameraPositionState = cameraPositionState,
+                        itemsMarker = state.itemsMarker!!,
+                        indexMarker = state.indexMarker,
+                        showPosition = state.showPosition,
+                        enableBtnDelete = viewModel.verifyUser(),
+                        onShowPosition = { viewModel.setShowPosition(it) },
+                        onToLook = {
+                            viewModel.setShowPosition(false)
+                            navController.navigate(ViewRoutes.EditPosition.name)
+                        },
                         onDelete = {
+                            viewModel.setShowPosition(false)
                             viewModel.deleteReport()
                             operationId = 2
                         },
                         onMapClick = {
                             viewModel.setPosMarker(it)
-                            viewModel.setIndexComboBox(0)
-                            viewModel.setTextDescription("")
-                            viewModel.setShowPosition(false)
                             navController.navigate(ViewRoutes.AddPosition.name)
+                        },
+                        onInfoWindowClick = { marker, index ->
+                            viewModel.setPosMarker(marker.position)
+                            viewModel.setIndexMarker(index)
+                            viewModel.setShowPosition(viewModel.showMarker())
+                            viewModel.setEnableUpdate(false)
                         }
                     )
                     if(state.isLoading) LoadingScreen()
@@ -150,7 +182,12 @@ fun NavigationView(
                 ){
                     AddPositionView(
                         modifier = Modifier.fillMaxSize(),
-                        viewModel = viewModel,
+                        itemsComboBox = state.itemsComboBox,
+                        enableBtnReport = viewModel.enabledForm(),
+                        textDescription = state.textDescription,
+                        onTextDescription = { viewModel.setTextDescription(it) },
+                        indexSelected = state.indexComboBox,
+                        onIndexSelected = { viewModel.setIndexComboBox(it) },
                         onAdd = {
                             viewModel.insertReport()
                             operationId = 3
@@ -166,7 +203,17 @@ fun NavigationView(
                 ){
                     EditPositionView(
                         modifier = Modifier.fillMaxSize(),
-                        viewModel = viewModel,
+                        itemsComboBox = state.itemsComboBox,
+                        enableComboBox = state.enableUpdate && viewModel.verifyUser(),
+                        enableTextDescription = state.enableUpdate && viewModel.verifyUser(),
+                        enableBtnEdit = viewModel.verifyUser(),
+                        enableBtnUpdate = viewModel.enabledForm()
+                                && state.enableUpdate && viewModel.verifyUser(),
+                        onEnableBtnUpdate = { viewModel.setEnableUpdate(!it) },
+                        textDescription = state.textDescription,
+                        onTextDescription = { viewModel.setTextDescription(it) },
+                        indexSelected = state.indexComboBox,
+                        onIndexSelected = { viewModel.setIndexComboBox(it) },
                         onUpdate = {
                             viewModel.updateReport()
                             operationId = 4
@@ -179,41 +226,32 @@ fun NavigationView(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TitleBar(
-    viewRoutes: ViewRoutes,
-    canNavigateBack: Boolean,
-    navigateUp: () -> Unit
+private fun ObserveMapCameraState(
+    viewModel: AppViewModel,
+    cameraPositionState: CameraPositionState,
+    startPosition: LatLng
 ){
-    if(canNavigateBack) {
-        TopAppBar(
-            title = {
-                Text(
-                    text = stringResource(id = viewRoutes.idTitle),
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        textAlign = TextAlign.Center
-                    ),
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            },
-            navigationIcon = {
-                Icon(
-                    imageVector = ImageVector.vectorResource(id = R.drawable.arrow_back),
-                    contentDescription = "backbutton",
-                    tint = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier
-                        .size(dimensionResource(R.dimen.dp_4))
-                        .clickable { navigateUp() }
-                        .testTag("backbutton")
-                )
-            },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                titleContentColor = MaterialTheme.colorScheme.onPrimary
-            )
-        )
+    val state by viewModel.uiState.collectAsState()
+    LaunchedEffect(
+        key1 = cameraPositionState,
+        key2 = state.posMarker
+    ) {
+        state.itemsMarker?.let { itemsMarker ->
+            //Obtiene informacion del reporte seleccionado
+            if(viewModel.showMarker()){
+                val type = itemsMarker[state.indexMarker].type
+                viewModel.setIndexComboBox(state.itemsComboBox.indexOf(type))
+                val description = itemsMarker[state.indexMarker].description
+                viewModel.setTextDescription(description)
+            }else{
+                viewModel.setIndexComboBox(0)
+                viewModel.setTextDescription("")
+                viewModel.setShowPosition(false)
+            }
+            //Refresca posicion del mapa
+            cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(startPosition, 18f))
+        }
     }
 }
 
@@ -222,7 +260,8 @@ private fun ObserveViewModelState(
     viewModel: AppViewModel,
     navController: NavHostController,
     context: Context,
-    operationId: Int
+    operationId: Int,
+    optionList: List<String>
 ){
     val state by viewModel.uiState.collectAsState()
     LaunchedEffect(
@@ -235,6 +274,7 @@ private fun ObserveViewModelState(
             1 -> {
                 state.itemsMarker?.let {
                     if(state.wasFound) viewModel.clearFlags()
+                    if(state.itemsComboBox.isEmpty()) viewModel.setItemsComboBox(optionList)
                     navController.navigate(ViewRoutes.Map.name)
                 }
             }
@@ -271,6 +311,10 @@ private fun ObserveViewModelState(
                     val msm = "${context.getString(R.string.toast_update_false)}, $error"
                     Toast.makeText(context, msm, Toast.LENGTH_SHORT).show()
                 }
+            }
+            5 -> {
+                Toast.makeText(context, context.getString(R.string.toast_update_token),
+                    Toast.LENGTH_SHORT).show()
             }
         }
         viewModel.clearFlags()

@@ -39,7 +39,7 @@ fun ButtonAccidentReporter(
         Text(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onPrimary
+            color = MaterialTheme.colorScheme.onSecondary
         )
     }
 }
