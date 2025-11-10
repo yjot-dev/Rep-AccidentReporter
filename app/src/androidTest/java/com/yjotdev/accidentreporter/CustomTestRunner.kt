@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.test.runner.AndroidJUnitRunner
 import dagger.hilt.android.testing.HiltTestApplication
 
+@Suppress("unused")
 class CustomTestRunner: AndroidJUnitRunner() {
     override fun newApplication(
         cl: ClassLoader?,
