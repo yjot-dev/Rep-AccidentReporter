@@ -18,4 +18,8 @@ class FakeTokenRepository @Inject constructor(): TokenPort {
     override fun getToken(): Int {
         return tokenStorage["token"] ?: 0
     }
+
+    override fun editToken(token: Int) {
+        tokenStorage["token"] = token
+    }
 }
