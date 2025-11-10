@@ -92,7 +92,7 @@
                     - `NullOnEmptyConverterFactory.kt`
         - **(Opcional) Si la aplicación requiere servicios en segundo plano:**
             - `service`: Contiene implementaciones de `Service` de Android.
-                - `NombreDelServicio.kt``
+                - `NombreDelServicio.kt`
 
 ## A.2 Estilo del ViewModel
 - **Requisito:** Todo el codigo de cada `ViewModel` debe seguir un estilo de implementación.
