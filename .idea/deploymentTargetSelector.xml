@@ -17,7 +17,7 @@
       <SelectionState runConfigName="navigationToAddPositionViewTest()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="actionsAddPositionViewTest()">
+      <SelectionState runConfigName="navigationToMapViewAndGoBackTest()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

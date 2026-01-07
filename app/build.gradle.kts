@@ -74,7 +74,6 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.uiautomator)
     implementation(libs.kotlin.metadata.jvm)
     //Maps
     implementation(libs.android.play.services.maps)
@@ -90,9 +89,13 @@ dependencies {
     //Hilt
     implementation(libs.dagger.hilt.android)
     implementation(libs.hilt.navigation.compose)
+    implementation(libs.androidx.rules)
     ksp(libs.dagger.hilt.android.compiler)
     //Test
     testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.turbine)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

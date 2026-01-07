@@ -44,7 +44,8 @@ import com.yjotdev.accidentreporter.application.mvvm.viewmodel.AppViewModel
 @Composable
 fun Navigation(
     navController: NavHostController = rememberNavController(),
-    viewModel: AppViewModel
+    viewModel: AppViewModel,
+    isTestMode: Boolean,
 ){
     val context = LocalContext.current
     val state by viewModel.uiState.collectAsState()
@@ -70,7 +71,8 @@ fun Navigation(
     ObserveMapCameraState(
         viewModel = viewModel,
         cameraPositionState = cameraPositionState,
-        startPosition = elGuabo
+        startPosition = elGuabo,
+        isTestMode = isTestMode
     )
     //Observa estados asincronicos
     ObserveViewModelState(
@@ -146,6 +148,7 @@ fun Navigation(
                 ) {
                     MapView(
                         modifier = Modifier.fillMaxSize(),
+                        isTestMode = isTestMode,
                         cameraPositionState = cameraPositionState,
                         itemsMarker = state.itemsMarker!!,
                         indexMarker = state.indexMarker,
@@ -165,8 +168,8 @@ fun Navigation(
                             viewModel.setPosMarker(it)
                             navController.navigate(ViewRoutes.AddPosition.name)
                         },
-                        onInfoWindowClick = { marker, index ->
-                            viewModel.setPosMarker(marker.position)
+                        onInfoWindowClick = { position, index ->
+                            viewModel.setPosMarker(position)
                             viewModel.setIndexMarker(index)
                             viewModel.setShowPosition(viewModel.showMarker())
                             viewModel.setEnableUpdate(false)
@@ -230,7 +233,8 @@ fun Navigation(
 private fun ObserveMapCameraState(
     viewModel: AppViewModel,
     cameraPositionState: CameraPositionState,
-    startPosition: LatLng
+    startPosition: LatLng,
+    isTestMode: Boolean
 ){
     val state by viewModel.uiState.collectAsState()
     LaunchedEffect(
@@ -249,8 +253,10 @@ private fun ObserveMapCameraState(
                 viewModel.setTextDescription("")
                 viewModel.setShowPosition(false)
             }
-            //Refresca posicion del mapa
-            cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(startPosition, 18f))
+            //Refresca posicion del mapa (Solo si no esta en modo Test)
+            if(!isTestMode){
+                cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(startPosition, 18f))
+            }
         }
     }
 }

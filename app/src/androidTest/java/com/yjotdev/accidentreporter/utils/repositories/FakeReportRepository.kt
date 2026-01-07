@@ -10,7 +10,7 @@ import com.yjotdev.accidentreporter.domain.core.Result
 class FakeReportRepository @Inject constructor(): ReportPort {
     private val reportList = mutableListOf(
         ReportEntity(
-            id = 2,
+            id = 0,
             latitude = -3.245448,
             longitude = -79.832331,
             date = "15/03/2025",

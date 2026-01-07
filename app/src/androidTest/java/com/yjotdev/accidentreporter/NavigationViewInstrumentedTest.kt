@@ -1,26 +1,25 @@
 package com.yjotdev.accidentreporter
 
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextInput
-import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.UiSelector
-import com.google.android.gms.maps.model.LatLng
-import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.Before
-import javax.inject.Inject
 import org.junit.runner.RunWith
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltAndroidRule
-import com.yjotdev.accidentreporter.application.mvvm.viewmodel.AppViewModel
+import android.Manifest
+import androidx.compose.ui.test.click
+import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.performTouchInput
+import junit.framework.TestCase.assertEquals
 import com.yjotdev.accidentreporter.application.navigation.PermissionView
 import com.yjotdev.accidentreporter.application.navigation.ViewRoutes
 import com.yjotdev.accidentreporter.application.theme.AccidentReporterTheme
@@ -28,7 +27,7 @@ import com.yjotdev.accidentreporter.application.theme.AccidentReporterTheme
 /**
  * Instrumented test, which will execute on an Android device.
  *
- * See [testing documentation](http://d.android.com/tools/testing).
+ * See [testing documentation](http://d.android.com.yjotdev.accidentreporter/tools/testing).
  */
 
 @HiltAndroidTest
@@ -39,147 +38,170 @@ class NavigationViewInstrumentedTest {
     var hiltRule: HiltAndroidRule = HiltAndroidRule(this)
 
     @get:Rule(order = 1)
-    val composeTestRule = createAndroidComposeRule<MainActivity>()
+    val composeTestRule = createAndroidComposeRule<HiltTestActivity>()
 
-    @Inject
-    lateinit var navController: TestNavHostController // NavController del Test
+    @get:Rule(order = 2)
+    val permissionRule: androidx.test.rule.GrantPermissionRule =
+        androidx.test.rule.GrantPermissionRule.grant(
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION
+    )
+
+    private lateinit var navController: TestNavHostController // NavController del Test
 
     @Before
-    fun setup() {
+    fun init() {
         hiltRule.inject() // Inicializa Hilt
     }
 
     @Test
-    fun navigationToMapViewTest() {
-        //Usa UiDevice para interactuar con el mapa
-        val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        //Usa ViewModelProvider para obtener una instancia del ViewModel
-        val viewModel = ViewModelProvider(composeTestRule.activity)[AppViewModel::class.java]
-        //Contenido de la vista
-        composeTestRule.setContent {
-            AccidentReporterTheme {
-                PermissionView(
-                    navController = navController,
-                    viewModel = viewModel
-                )
-            }
-        }
-        //Hace click en el boton Continuar
-        composeTestRule.onNodeWithTag("startview_button")
+    fun navigationToAddPositionViewTest() {
+        loadTestActivity()
+        // 1. StartView -> Click en Continuar
+        composeTestRule.onNodeWithTag("startview_button2")
             .performClick()
-        //Verifica si la navegacion a MapView fue exitosae
-        assertEquals(ViewRoutes.Map.name, navController.currentDestination?.route)
-        //Espera un momento para que el mapa y los marcadores se carguen
-        composeTestRule.waitForIdle()
-        //Encuentra el marcador mediante su título o descripción
-        val marker = uiDevice.findObject(UiSelector().descriptionContains("1"))
-        //Hace click en el marcador para hacer visible el InfoWindow
-        marker.click()
-        //Espera un momento para que se vea el InfoWindow
-        marker.waitForExists(500)
-        //Hace click en el InfoWindow para hacer visible el AlertDialog
-        composeTestRule.activity.runOnUiThread {
-            //Selecciona el marcador deseado
-            val state = viewModel.uiState.value
-            state.itemsMarker?.let { itemsMarker ->
-                val d = itemsMarker[0]
-                val it = LatLng(d.latitude, d.longitude)
-                viewModel.setPosMarker(it)
-                viewModel.setIndexMarker(0)
-                viewModel.setShowPosition(true)
-                viewModel.setEnableUpdate(false)
-            }
-        }
-        //Espera un momento para que se vea el AlertDialog
-        composeTestRule.waitForIdle()
-    }
 
-    @Test
-    fun navigationToEditPositionViewTest(){
-        navigationToMapViewTest()
-        //Hace click en ver informacion del marcador del AlertDialog
-        composeTestRule.onNodeWithContentDescription("mapview_lookbutton")
-            .performClick()
-        //Verifica si la navegacion a EditPositionView fue exitosae
-        assertEquals(ViewRoutes.EditPosition.name, navController.currentDestination?.route)
-        //Verifica si EditPositionView es visible
-        composeTestRule.onNodeWithTag("editpositionview_combobox")
-            .assertExists()
-        //Hace click en el boton de regresar
-        composeTestRule.onNodeWithTag("backbutton")
-            .performClick()
-        //Espera un momento para que el mapa y los marcadores se carguen
-        composeTestRule.waitForIdle()
-        //Verifica si la navegacion a MapView fue exitosae
-        assertEquals(ViewRoutes.Map.name, navController.currentDestination?.route)
-    }
+        // Esperamos navegación a MapView
+        waitForRoute(ViewRoutes.Map.name)
 
-    @Test
-    fun navigationToAddPositionViewTest(){
-        //Usa UiDevice para interactuar con el mapa
-        val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        //Usa ViewModelProvider para obtener una instancia del ViewModel
-        val viewModel = ViewModelProvider(composeTestRule.activity)[AppViewModel::class.java]
-        //Contenido de la vista
-        composeTestRule.setContent {
-            AccidentReporterTheme {
-                PermissionView(
-                    navController = navController,
-                    viewModel = viewModel
-                )
-            }
+        // 2. MapView -> Click en el Mapa Fake
+        composeTestRule.onNodeWithTag("googleMap").performTouchInput {
+            click(percentOffset(0.1f, 0.1f)) // Click en la esquina superior
         }
-        //Hace click en el boton Continuar
-        composeTestRule.onNodeWithTag("startview_button")
+
+        // 3. Esperamos navegación a AddPositionView
+        waitForRoute(ViewRoutes.AddPosition.name)
+
+        // Selecciono el combobox para desplegar los tipos de incidentes
+        composeTestRule.onNodeWithTag("addpositionview_combobox")
             .performClick()
-        //Verifica si la navegacion a MapView fue exitosae
-        assertEquals(ViewRoutes.Map.name, navController.currentDestination?.route)
-        //Espera un momento para que el mapa y los marcadores se carguen
-        composeTestRule.waitForIdle()
-        //Encuentra el mapa mediante su título o descripción
-        val map = uiDevice.findObject(UiSelector().descriptionContains("googleMap"))
-        //Hace click en el mapa para hacer visible AddPositionView
-        map.click()
-        composeTestRule.activity.runOnUiThread {
-            //Selecciona la ubicacion en el mapa
-            val it = LatLng(-3.245300, -79.832161)
-            viewModel.setPosMarker(it)
-            viewModel.setIndexComboBox(0)
-            viewModel.setTextDescription("")
-            viewModel.setShowPosition(false)
-            navController.navigate(ViewRoutes.AddPosition.name)
-        }
-        //Espera un momento para que se vea AddPositionView
-        composeTestRule.waitForIdle()
-        //Verifica si la navegacion a AddPositionView fue exitosae
+
+        // Elijo el tipo de incidente (Ejemplo item 3, el 1ro es el encabezado)
+        composeTestRule.onNodeWithTag("combobox_item:3")
+            .performClick()
+
+        // Escribo la descripcion del incidente
+        composeTestRule.onNodeWithTag("addpositionview_textfield")
+            .performTextInput("Hay un problema de transito entre la calle A y B.")
+
+        // Hago click en el boton de agregar
+        composeTestRule.onNodeWithTag("addpositionview_button")
+            .performClick()
+
+        // Verificación final
         assertEquals(ViewRoutes.AddPosition.name, navController.currentDestination?.route)
     }
 
     @Test
-    fun actionsAddPositionViewTest(){
-        navigationToAddPositionViewTest()
-        //Despliega el comboBox
-        composeTestRule.onNodeWithTag("addpositionview_combobox")
+    fun navigationToEditPositionViewTest() {
+        loadTestActivity()
+        // 1. StartView -> Click en Continuar
+        composeTestRule.onNodeWithTag("startview_button2")
             .performClick()
-        //Da click en el item 2
-        composeTestRule.onNodeWithTag("combobox_item:2")
+
+        // Esperamos navegación a MapView
+        waitForRoute(ViewRoutes.Map.name)
+
+        // 2. MapView -> Click en un Marcador Existente (Fake Marker)
+        composeTestRule.onNodeWithTag("Market:1")
             .performClick()
-        //Espera un momento para que se vean los cambios
+
         composeTestRule.waitForIdle()
-        //Escribe una descripcion del reporte
-        composeTestRule.onNodeWithTag("addpositionview_textfield")
-            .performTextInput("En la calle A diagonal calle B hay una inundacion.")
-        //Da click en reportar para guardar el reporte
-        composeTestRule.onNodeWithTag("addpositionview_button")
+
+        // 3. Position (AlertDialog) -> Click en "Ver/Editar"
+        composeTestRule.onNodeWithContentDescription("mapview_lookbutton")
             .performClick()
-        //Espera un momento para que se vean los cambios
-        composeTestRule.waitForIdle()
-        //Hace click en el boton de regresar
-        composeTestRule.onNodeWithTag("backbutton")
+
+        // 4. Esperamos navegación a EditPositionView
+        waitForRoute(ViewRoutes.EditPosition.name)
+
+        // Verificamos que exista un combobox
+        composeTestRule.onNodeWithTag("editpositionview_combobox")
+            .assertExists()
+
+        // Verificación final
+        assertEquals(ViewRoutes.EditPosition.name, navController.currentDestination?.route)
+    }
+
+    @Test
+    fun navigationToTokenConfigViewTest() {
+        loadTestActivity()
+        // 1. StartView -> Click en Configurar Token
+        composeTestRule.onNodeWithTag("startview_button1")
             .performClick()
-        //Espera un momento para que el mapa y los marcadores se carguen
-        composeTestRule.waitForIdle()
-        //Verifica si la navegacion a MapView fue exitosae
-        assertEquals(ViewRoutes.Map.name, navController.currentDestination?.route)
+
+        // 2. Esperamos navegación a TokenConfigView
+        waitForRoute(ViewRoutes.TokenConfig.name)
+
+        // Hago click en el boton editar
+        composeTestRule.onNodeWithContentDescription("tokenconfigview_editbutton")
+            .performClick()
+
+        // Escribo el nuevo token
+        composeTestRule.onNodeWithTag("tokenconfigview_textfield")
+            .performTextReplacement("123456789")
+
+        // Hago click en el boton actualizar
+        composeTestRule.onNodeWithTag("tokenconfigview_updatebutton")
+            .performClick()
+
+        // Verificación final
+        assertEquals(ViewRoutes.TokenConfig.name, navController.currentDestination?.route)
+    }
+
+    @Test
+    fun navigationToMapViewAndGoBackTest() {
+        loadTestActivity()
+        // 1. StartView -> Click en Continuar
+        composeTestRule.onNodeWithTag("startview_button2")
+            .performClick()
+
+        // 2. Esperamos navegación a MapView
+        waitForRoute(ViewRoutes.Map.name)
+
+        // 3. Verificamos que existe un marcador
+        composeTestRule.onNodeWithTag("Market:1").assertExists()
+
+        // 4. Volvemos a la vista de inicio
+        composeTestRule.onNodeWithContentDescription("backbutton")
+            .performClick()
+
+        // 5. Esperamos navegación a StartView
+        waitForRoute(ViewRoutes.Start.name)
+
+        // 6. Verificamos que existe un boton "Continuar"
+        composeTestRule.onNodeWithTag("startview_button2")
+            .assertExists()
+
+        // Verificación final
+        assertEquals(ViewRoutes.Start.name, navController.currentDestination?.route)
+    }
+
+    /**
+     * Funcion para cargar la vista de prueba.
+     * Evita errores de aserción inmediata antes de que la vista se cargue.
+     */
+    private fun loadTestActivity() {
+        composeTestRule.setContent {
+            navController = TestNavHostController(LocalContext.current)
+            navController.navigatorProvider.addNavigator(ComposeNavigator())
+
+            AccidentReporterTheme {
+                PermissionView(
+                    navController = navController,
+                    isTestMode = true
+                )
+            }
+        }
+    }
+
+    /**
+     * Función auxiliar para esperar a que cambie la ruta de navegación.
+     * Evita errores de aserción inmediata antes de que la transición termine.
+     */
+    private fun waitForRoute(routeName: String, timeoutMillis: Long = 5000) {
+        composeTestRule.waitUntil(timeoutMillis) {
+            navController.currentDestination?.route == routeName
+        }
     }
 }

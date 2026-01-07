@@ -20,7 +20,8 @@ import com.yjotdev.accidentreporter.application.mvvm.viewmodel.AppViewModel
 @Composable
 fun PermissionView(
     navController: NavHostController = rememberNavController(),
-    viewModel: AppViewModel = hiltViewModel()
+    viewModel: AppViewModel = hiltViewModel(),
+    isTestMode: Boolean = false
 ) {
     val context = LocalContext.current
     var hasPermissions by remember{ mutableStateOf(checkPermissions(context)) }
@@ -32,7 +33,8 @@ fun PermissionView(
         //Navegacion
         Navigation(
             navController = navController,
-            viewModel = viewModel
+            viewModel = viewModel,
+            isTestMode = isTestMode
         )
     }else{
         // Solicitar permisos al usuario
