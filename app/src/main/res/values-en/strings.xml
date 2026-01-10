@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">Accident Reporter</string>
+    <string name="startview_title">Incident Report App</string>
+    <string name="startview_button1">Set up token</string>
+    <string name="startview_button2">Continue</string>
+    <string name="tokenconfigview_title">Token</string>
+    <string name="tokenconfigview_button">Update</string>
+    <string name="mapview_title">Map</string>
+    <string name="mapview_date">Date: %1$s</string>
+    <string name="mapview_type">Type: %1$s</string>
+    <string name="addpositionview_title">Add location</string>
+    <string name="addpositionview_button">Report</string>
+    <string name="editpositionview_title">Edit location</string>
+    <string name="editpositionview_button">Update</string>
+    <string name="textfield_description">Enter accident description</string>
+    <string name="textfield_token">Enter your token</string>
+    <string name="combobox_title">Incident Type</string>
+    <string name="combobox_option1">Traffic</string>
+    <string name="combobox_option2">Accidents</string>
+    <string name="combobox_option3">Public service issues</string>
+    <string name="toast_insert_true">Report inserted</string>
+    <string name="toast_insert_false">Error inserting report</string>
+    <string name="toast_update_true">Report updated</string>
+    <string name="toast_update_false">Error updating report</string>
+    <string name="toast_delete_true">Report deleted</string>
+    <string name="toast_delete_false">Error deleting report</string>
+    <string name="toast_update_token">Token updated</string>
+</resources>
