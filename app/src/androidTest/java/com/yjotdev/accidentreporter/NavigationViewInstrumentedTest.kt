@@ -8,6 +8,7 @@ import androidx.compose.ui.test.performClick
 import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.rule.GrantPermissionRule
 import org.junit.Rule
 import org.junit.Test
 import org.junit.Before
@@ -41,8 +42,8 @@ class NavigationViewInstrumentedTest {
     val composeTestRule = createAndroidComposeRule<HiltTestActivity>()
 
     @get:Rule(order = 2)
-    val permissionRule: androidx.test.rule.GrantPermissionRule =
-        androidx.test.rule.GrantPermissionRule.grant(
+    val permissionRule: GrantPermissionRule =
+        GrantPermissionRule.grant(
         Manifest.permission.ACCESS_FINE_LOCATION,
         Manifest.permission.ACCESS_COARSE_LOCATION
     )

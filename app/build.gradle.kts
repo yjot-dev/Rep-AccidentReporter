@@ -89,7 +89,6 @@ dependencies {
     //Hilt
     implementation(libs.dagger.hilt.android)
     implementation(libs.hilt.navigation.compose)
-    implementation(libs.androidx.rules)
     ksp(libs.dagger.hilt.android.compiler)
     //Test
     testImplementation(libs.junit)
@@ -100,6 +99,9 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation(libs.androidx.test.core.ktx)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.rules)
     androidTestImplementation(libs.dagger.hilt.android.testing)
     androidTestImplementation(libs.androidx.navigation.testing)
     kspAndroidTest(libs.dagger.hilt.android.compiler)

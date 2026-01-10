@@ -21,11 +21,9 @@ class MainActivity : ComponentActivity() {
         // Ajusta la vista a toda la pantalla
         viewEdgeToEdge()
         // Configura la IU de la actividad
-        if (!isRunningTest()){
-            setContent {
-                AccidentReporterTheme {
-                    PermissionView()
-                }
+        setContent {
+            AccidentReporterTheme {
+                PermissionView()
             }
         }
     }
@@ -47,12 +45,6 @@ class MainActivity : ComponentActivity() {
                 window.attributes.layoutInDisplayCutoutMode =
                     WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
             }
-        }
-    }
-
-    private fun isRunningTest(): Boolean {
-        return BuildConfig.DEBUG && Thread.currentThread().stackTrace.any {
-            it.className.contains("androidx.test")
         }
     }
 }
