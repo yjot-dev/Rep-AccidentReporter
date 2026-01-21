@@ -15,5 +15,3 @@
 .cxx
 local.properties
 custom.properties
-/Api/node_modules/
-/Api/src/bd/.env
