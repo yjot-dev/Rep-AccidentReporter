@@ -19,7 +19,7 @@ class Api @Inject constructor(
 
     /** API **/
     fun getRetrofit(): ReportApi = Retrofit.Builder()
-        .baseUrl("https://192.168.1.20:443/api/")
+        .baseUrl("https://api-accidentreporter-production.up.railway.app/api/")
         .client(httpsClient)
         .addConverterFactory(NullOnEmptyConverterFactory())
         .addConverterFactory(GsonConverterFactory.create())
