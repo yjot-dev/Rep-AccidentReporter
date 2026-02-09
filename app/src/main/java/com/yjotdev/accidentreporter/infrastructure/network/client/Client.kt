@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import okhttp3.CertificatePinner
 import java.io.InputStream
 import java.security.KeyStore
 import java.security.cert.CertificateFactory
@@ -11,15 +12,21 @@ import java.security.cert.X509Certificate
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManagerFactory
 import javax.net.ssl.X509TrustManager
+import com.yjotdev.accidentreporter.BuildConfig
 import com.yjotdev.accidentreporter.R
 
 object Client {
     private val loggingInterceptor = HttpLoggingInterceptor{ msm ->
         Log.d("OkHttp", msm)
     }.apply { level = HttpLoggingInterceptor.Level.BODY }
+    private val certificatePinner = CertificatePinner.Builder()
+        .add(BuildConfig.API_DOMAIN, BuildConfig.CERT_PIN_LEAF)
+        .add(BuildConfig.API_DOMAIN, BuildConfig.CERT_PIN_INTERMEDIATE)
+        .build()
 
     /** Cliente para app en producción **/
     fun getSafeClient(): OkHttpClient = OkHttpClient.Builder()
+        .certificatePinner(certificatePinner)
         .addInterceptor(HeaderInterceptor())
         .addInterceptor(loggingInterceptor)
         .build()

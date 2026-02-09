@@ -12,17 +12,19 @@ import com.yjotdev.accidentreporter.infrastructure.network.core.NullOnEmptyConve
 
 @Singleton
 class Api @Inject constructor(
-    @field:Inject @ApplicationContext context: Context
+    @ApplicationContext context: Context
 ) {
+    private val url = if (BuildConfig.DEBUG) { "https://192.168.1.20:3000/api/" }
+                      else { "https://accidentreporter-yjotdev.up.railway.app/api/" }
     private val httpsClient = if (BuildConfig.DEBUG) { Client.getUnsafeClient(context) }
-                             else { Client.getSafeClient() }
+                              else { Client.getSafeClient() }
 
     /** API **/
     fun getRetrofit(): ReportApi = Retrofit.Builder()
-        .baseUrl("https://api-accidentreporter-production.up.railway.app/api/")
+        .baseUrl(url)
         .client(httpsClient)
-        .addConverterFactory(NullOnEmptyConverterFactory())
         .addConverterFactory(GsonConverterFactory.create())
+        .addConverterFactory(NullOnEmptyConverterFactory())
         .build()
         .create(ReportApi::class.java)
 }

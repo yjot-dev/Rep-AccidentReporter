@@ -9,6 +9,7 @@ plugins {
 android {
     namespace = "com.yjotdev.accidentreporter"
     compileSdk = 35
+
     defaultConfig {
         applicationId = "com.yjotdev.accidentreporter"
         minSdk = 24
@@ -16,11 +17,30 @@ android {
         versionCode = 1
         versionName = "1.2"
         testInstrumentationRunner = "com.yjotdev.accidentreporter.CustomTestRunner"
+        // Variables globales en gradle
+        val apiDomain = project.findProperty("APP_API_DOMAIN") as? String
+            ?: error("La propiedad 'APP_API_DOMAIN' no se encontró en gradle.properties")
+        val certPinIntermediate = project.findProperty("APP_CERT_PIN_INTERMEDIATE") as? String
+            ?: error("La propiedad 'APP_CERT_PIN_INTERMEDIATE' no se encontró en gradle.properties")
+        val certPinLeaf = project.findProperty("APP_CERT_PIN_LEAF") as? String
+            ?: error("La propiedad 'APP_CERT_PIN_LEAF' no se encontró en gradle.properties")
+        // Variables en BuildConfig
+        buildConfigField("String", "API_DOMAIN", "\"$apiDomain\"")
+        buildConfigField("String", "CERT_PIN_INTERMEDIATE", "\"$certPinIntermediate\"")
+        buildConfigField("String", "CERT_PIN_LEAF", "\"$certPinLeaf\"")
         manifestPlaceholders.putAll(
             mapOf(
                 "MAPS_API_KEY" to (project.findProperty("MAPS_API_KEY") ?: "")
             )
         )
+    }
+    signingConfigs {
+        create("release") {
+            keyAlias = project.findProperty("APP_KEY_ALIAS") as? String
+            keyPassword = project.findProperty("APP_KEY_PASSWORD") as? String
+            storePassword = project.findProperty("APP_STORE_PASSWORD") as? String
+            storeFile = project.findProperty("APP_STORE_FILE")?.let { rootProject.file(it) }
+        }
     }
     buildTypes {
         debug {
@@ -28,7 +48,9 @@ android {
             isDebuggable = true
         }
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -84,6 +106,7 @@ dependencies {
     //Retrofit
     implementation(libs.squareup.retrofit2)
     implementation(libs.squareup.retrofit2.gson)
+    implementation(libs.google.code.gson)
     //Logging Interceptor
     implementation(libs.squareup.okhttp3.logging.interceptor)
     //Hilt

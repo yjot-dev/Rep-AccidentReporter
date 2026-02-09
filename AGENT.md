@@ -109,36 +109,36 @@
     - Exponer una propiedad pública e inmutable llamada `uiState` de tipo `StateFlow`. Esta propiedad será la versión de solo lectura de `_uiState` obtenida a través de `.asStateFlow()`.
     - Implementar el metodo onCleared()
     - **Ejemplo de código:**
-      /**
-    * Ejemplo de implementación de un ViewModel.
-    * - La clase hereda de `ViewModel`.
-    * - El nombre de la clase sigue el patrón "{NombrePantalla}ViewModel".
-    * - Los casos de uso se inyectan en el constructor (ej: con Hilt).
-    * - Expone el estado de la UI siguiendo el patrón `_uiState` / `uiState`.
-    * - Limpia el estado en `onCleared`.
-        */
-        @HiltViewModel
-        class LoginViewModel @Inject constructor(
+```kotlin
+    /*
+    * La clase hereda de `ViewModel`.
+    * El nombre de la clase sigue el patrón "{NombrePantalla}ViewModel".
+    * Los casos de uso se inyectan en el constructor (ej: con Hilt).
+    * Expone el estado de la UI siguiendo el patrón `_uiState` / `uiState`.
+    * Limpia el estado en `onCleared`.
+    */
+    @HiltViewModel
+    class LoginViewModel @Inject constructor(
         private val loginUserUseCase: LoginUserUseCase,
         private val getSavedUserUseCase: GetSavedUserUseCase
-        ) : ViewModel() {
-
-  // 1. Estado privado y mutable. El nombre del UiState es específico de la pantalla.
-  private val _uiState = MutableStateFlow(LoginUiState())
-
-  // 2. Estado público e inmutable.
-  val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
-
-  fun onLoginClicked(user: String, pass: String) {
-  // Lógica que usa los casos de uso para actualizar el _uiState
-  }
-
-  // 3. Limpieza del ViewModel al ser destruido.
-  override fun onCleared() {
-  super.onCleared() // Es buena práctica llamar al método de la superclase.
-  _uiState.value = LoginUiState() // Resetea al estado inicial.
-  }
-  }
+    ) : ViewModel() {
+        // 1. Estado privado y mutable. El nombre del UiState es específico de la pantalla.
+        private val _uiState = MutableStateFlow(LoginUiState())
+    
+        // 2. Estado público e inmutable.
+        val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
+    
+        fun onLoginClicked(user: String, pass: String) {
+            // Lógica de la función aquí...
+        }
+    
+        // 3. Limpieza del ViewModel al ser destruido.
+        override fun onCleared() {
+            super.onCleared()
+            _uiState.value = LoginUiState()
+        }
+    }
+```
 
 ## A.3 Estilo de Código
 - **Requisito:** Todas las funciones públicas deben seguir una nomenclatura y documentación estandarizada.
@@ -149,24 +149,27 @@
     - Los nombres de las clases deben seguir el estilo **PascalCase**.
     - Los nombres de las constantes deben seguir el estilo **UPPER_SNAKE_CASE**.
     - Cada función debe tener un comentario KDoc en la parte superior que describa su propósito.
-- **Ejemplo de código:**
-  // El nombre de la constante sigue el estilo UPPER_SNAKE_CASE
-  companion object {
-  const val MAX_LOGIN_ATTEMPTS = 5
-  }
-  /**
-    * Valida las credenciales del usuario y actualiza su estado.
-    * @param userEmail El email proporcionado por el usuario.
-    * @param userPassword La contraseña proporcionada.
-    * @return `true` si la autenticación es exitosa, `false` en caso contrario.
-      */
-      // El nombre de la función y sus parámetros siguen el estilo camelCase
-      fun validateUserCredentials(userEmail: String, userPassword: String): Boolean {
-      // El nombre de la variable sigue el estilo camelCase
-      val isValid = userEmail.isNotEmpty() && userPassword.length > 8
-      // Lógica de la función aquí...
-      return isValid
-      }
+    - **Ejemplo de código:**
+```kotlin
+   /* Clase ejemplo de Login */
+   class Login() {
+       // El nombre de la constante sigue el estilo UPPER_SNAKE_CASE
+       const val MAX_LOGIN_ATTEMPTS = 5
+       /**
+        * Valida las credenciales del usuario y actualiza su estado.
+        * @param userEmail El email proporcionado por el usuario.
+        * @param userPassword La contraseña proporcionada.
+        * @return `true` si la autenticación es exitosa, `false` en caso contrario.
+        */
+       // El nombre de la función y sus parámetros siguen el estilo camelCase
+       fun validateUserCredentials(userEmail: String, userPassword: String): Boolean {
+           // El nombre de la variable sigue el estilo camelCase
+           val isValid = userEmail.isNotEmpty() && userPassword.length > 8
+           // Lógica de la función aquí...
+           return isValid
+       }
+   }
+```
 
 # SECCIÓN B: REGLAS DE TAREAS COMPLEJAS
 ## B.1 Tarea: Mantenimiento y Actualización del Proyecto
@@ -199,26 +202,82 @@
         - En el archivo `build.gradle.kts` a nivel de módulo (`app`), dentro de `android { buildTypes { release { ... } } }`, añade lo siguiente si no existe:
           `ndk { debugSymbolLevel = "FULL" }`
 
-    7. **Excluir Metadatos de Licencia Duplicados:**
+    7. **Habilitar Reducción de Código:**
+        - En el archivo `build.gradle.kts` a nivel de módulo (`app`), dentro de `android { buildTypes { release { ... } } }`, añade lo siguiente si no existe:
+          `isMinifyEnabled = true`
+
+    8. **Habilitar Reducción de Recursos:**
+        - En el archivo `build.gradle.kts` a nivel de módulo (`app`), dentro de `android { buildTypes { release { ... } } }`, añade lo siguiente si no existe:
+          `isShrinkResources = true`
+
+    9. **Excluir Metadatos de Licencia Duplicados:**
         - En el archivo `build.gradle.kts` a nivel de módulo (`app`), dentro de `android { packaging { ... } }`, añade lo siguiente si no existe:
           `resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" }`
 
-    8. **Habilitar Advertencias de Deprecación:**
+    10. **Habilitar Advertencias de Deprecación:**
         - En el archivo `build.gradle.kts` a nivel de módulo (`app`), fuera del bloque `android` y antes de `dependencies`, añade lo siguiente si no existe:
           `tasks.withType<JavaCompile> { options.compilerArgs.add("-Xlint:deprecation") }`
 
-    9. **Configurar Features de Compilación (UI_XML):**
+    11. **Configurar Features de Compilación (UI_XML):**
         - **Condición:** Ejecutar solo si el paradigma de UI es `UI_XML` (según A.1.1).
         - En `android { ... }`, localiza o crea el bloque `buildFeatures`.
         - Asegúrate de que contenga `viewBinding = true` y `buildConfig = true`.
 
-    10. **Configurar Features de Compilación (UI_COMPOSE):**
+    12. **Configurar Features de Compilación (UI_COMPOSE):**
         - **Condición:** Ejecutar solo si el paradigma de UI es `UI_COMPOSE` (según A.1.1).
         - En `android { ... }`, localiza o crea el bloque `buildFeatures`.
         - Asegúrate de que contenga `compose = true` y `buildConfig = true`.
 
-    11. **Habilitar el Cache de Configuración de Gradle:**
+    13. **Habilitar el Cache de Configuración de Gradle:**
         - En el archivo `gradle.properties` a nivel de proyecto, añade la siguiente línea si no existe:
           `org.gradle.configuration-cache=true`
+
+## B.2 Tarea: Configurar Firma de la Aplicación para Release
+- **Objetivo:** Configurar de manera segura la firma para la variante de compilación `release`, utilizando un archivo `custom.properties` centralizado para no exponer información sensible en el control de versiones.
+- **Activación:** Esta tarea se debe ejecutar cuando se solicite con un prompt como "Configura la firma para release según la regla B.2" o "Añade las credenciales de desarrollador al proyecto".
+
+    - **Pasos a seguir (en orden estricto):**
+        1.  **Verificar/Crear `keystore`:**
+            -   Se asume que ya existe un archivo de almacén de claves (ej: `release.keystore`) en la raíz del proyecto. Si no es así, se debe notificar al usuario para que lo genere.
+
+        2.  **Crear y Configurar `custom.properties`:**
+            -   En la raíz del proyecto, crear un archivo llamado `custom.properties` si no existe.
+            -   Añadir las siguientes claves a `custom.properties`, cuyos valores deben ser reemplazados por los del usuario:
+                ```properties
+                APP_STORE_FILE=D\:\\Ruta\\release.keystore
+                APP_STORE_PASSWORD=Valor
+                APP_KEY_ALIAS=Valor
+                APP_KEY_PASSWORD=Valor
+                ```
+            -   Verificar que el nombre del archivo `custom.properties` está añadido al archivo `.gitignore` del proyecto.
+
+        3.  **Cargar archivo `custom.properties`:**
+            -   En `build.gradle.kts` a nivel de proyecto se debe cargar el archivo `custom.properties`, añade lo siguiente si no existe:
+                ```kotlin
+                // Carga el archivo custom.properties
+                val customProperties = Properties()
+                file("custom.properties").inputStream().use {
+                    customProperties.load(it)
+                }
+                // Define las propiedades como variables globales del proyecto
+                customProperties.forEach { (key, value) ->
+                    extra[key.toString()] = value
+                }
+                ```
+
+        4. **Configurar `signingConfigs`:**
+            -   En `build.gradle.kts` a nivel de módulo (`app`), dentro de (`android { ... }`), añade lo siguiente si no existe:
+                ```kotlin
+                signingConfigs {
+                    create("release") {
+                        keyAlias = project.findProperty("APP_KEY_ALIAS") as? String
+                        keyPassword = project.findProperty("APP_KEY_PASSWORD") as? String
+                        storePassword = project.findProperty("APP_STORE_PASSWORD") as? String
+                        storeFile = project.findProperty("APP_STORE_FILE")?.let { rootProject.file(it) }
+                    }
+                }
+                ```
+            -   En `build.gradle.kts` a nivel de módulo (`app`), dentro de (`android { buildTypes { release { ... } } }`), añade lo siguiente si no existe:
+                `signingConfig = signingConfigs.getByName("release")`
 
 - **Post-condición:** Al finalizar, el proyecto debe estar sincronizado, compilar correctamente y seguir las mejores prácticas de gestión de dependencias y configuración de Android.
