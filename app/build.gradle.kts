@@ -14,8 +14,8 @@ android {
         applicationId = "com.yjotdev.accidentreporter"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.2"
+        versionCode = 2
+        versionName = "1.3"
         testInstrumentationRunner = "com.yjotdev.accidentreporter.CustomTestRunner"
         // Variables globales en gradle
         val apiDomain = project.findProperty("APP_API_DOMAIN") as? String

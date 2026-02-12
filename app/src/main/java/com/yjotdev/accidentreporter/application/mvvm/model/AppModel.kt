@@ -13,15 +13,8 @@ data class AppModel(
     val showPosition: Boolean = false,
     val posMarker: LatLng = LatLng(0.0, 0.0),
     val indexMarker: Int = 0,
-    //Estados de consultas a BD
     val itemsMarker: List<ReportEntity>? = null,
-    val wasFound: Boolean = false,
-    val wasInserted: Boolean = false,
-    val wasUpdated: Boolean = false,
-    val wasDeleted: Boolean = false,
     //Estados operativos
-    val error: String? = null,
     val isLoading: Boolean = false,
-    val operationCompletedCount: Int = 0,
     val enableUpdate: Boolean = false
 )

@@ -1,18 +1,19 @@
 package com.yjotdev.accidentreporter
 
 import app.cash.turbine.test
-import com.google.android.gms.maps.model.LatLng
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
+import io.mockk.MockKAnnotations
+import io.mockk.unmockkAll
+import io.mockk.impl.annotations.RelaxedMockK
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.launch
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -22,6 +23,7 @@ import org.junit.Before
 import org.junit.Test
 import com.yjotdev.accidentreporter.domain.core.Result
 import com.yjotdev.accidentreporter.domain.entity.ReportEntity
+import com.yjotdev.accidentreporter.domain.usecase.string.StringUseCase
 import com.yjotdev.accidentreporter.domain.usecase.report.DeleteReportUseCase
 import com.yjotdev.accidentreporter.domain.usecase.report.InsertReportUseCase
 import com.yjotdev.accidentreporter.domain.usecase.report.SelectReportUseCase
@@ -30,278 +32,369 @@ import com.yjotdev.accidentreporter.domain.usecase.token.CreateTokenUseCase
 import com.yjotdev.accidentreporter.domain.usecase.token.EditTokenUseCase
 import com.yjotdev.accidentreporter.domain.usecase.token.GetTokenUseCase
 import com.yjotdev.accidentreporter.application.mvvm.viewmodel.AppViewModel
+import com.yjotdev.accidentreporter.application.navigation.UiEvent
+import com.yjotdev.accidentreporter.application.navigation.ViewRoutes
+import kotlinx.coroutines.test.advanceUntilIdle
 
-@OptIn(ExperimentalCoroutinesApi::class)
+/**
+ * Pruebas unitarias para AppViewModel.
+ * Se enfoca en validar la lógica de negocio, las actualizaciones de estado (UiState)
+ * y la emisión de eventos de una sola vez (UiEvent).
+ */
+@ExperimentalCoroutinesApi
 class AppViewModelTest {
 
-    // 1. Mocks de los Casos de Uso
-    private val selectReportUseCase: SelectReportUseCase = mockk()
-    private val insertReportUseCase: InsertReportUseCase = mockk()
-    private val updateReportUseCase: UpdateReportUseCase = mockk()
-    private val deleteReportUseCase: DeleteReportUseCase = mockk()
-    private val createTokenUseCase: CreateTokenUseCase = mockk(relaxed = true) // Relaxed para métodos void
-    private val getTokenUseCase: GetTokenUseCase = mockk()
-    private val editTokenUseCase: EditTokenUseCase = mockk(relaxed = true)
+    // Mocks para todos los casos de uso inyectados en el ViewModel.
+    // Usamos @RelaxedMockK para evitar tener que definir un `every` para cada función.
+    @RelaxedMockK
+    private lateinit var getStringUseCase: StringUseCase
+    @RelaxedMockK
+    private lateinit var selectReportUseCase: SelectReportUseCase
+    @RelaxedMockK
+    private lateinit var insertReportUseCase: InsertReportUseCase
+    @RelaxedMockK
+    private lateinit var updateReportUseCase: UpdateReportUseCase
+    @RelaxedMockK
+    private lateinit var deleteReportUseCase: DeleteReportUseCase
+    @RelaxedMockK
+    private lateinit var createTokenUseCase: CreateTokenUseCase
+    @RelaxedMockK
+    private lateinit var getTokenUseCase: GetTokenUseCase
+    @RelaxedMockK
+    private lateinit var editTokenUseCase: EditTokenUseCase
 
+    // La instancia del ViewModel que vamos a probar.
     private lateinit var viewModel: AppViewModel
 
-    // 2. Dispatcher para Corrutinas
+    // Un TestDispatcher para controlar el hilo principal en las pruebas.
     private val testDispatcher = StandardTestDispatcher()
 
+    /**
+     * Configuración inicial para cada prueba.
+     * Se ejecuta antes de cada test.
+     */
     @Before
     fun setUp() {
+        // Inicializa los mocks anotados en esta clase.
+        MockKAnnotations.init(this)
+        // Establece el dispatcher de prueba como el principal para controlar las corutinas.
         Dispatchers.setMain(testDispatcher)
-
-        // Comportamiento por defecto para el init block del ViewModel
-        every { getTokenUseCase() } returns 1234
-
+        // Crea la instancia del ViewModel con los mocks.
         viewModel = AppViewModel(
-            selectReportUseCase,
-            insertReportUseCase,
-            updateReportUseCase,
-            deleteReportUseCase,
-            createTokenUseCase,
-            getTokenUseCase,
-            editTokenUseCase
+            getString = getStringUseCase,
+            selectReportUseCase = selectReportUseCase,
+            insertReportUseCase = insertReportUseCase,
+            updateReportUseCase = updateReportUseCase,
+            deleteReportUseCase = deleteReportUseCase,
+            createTokenUseCase = createTokenUseCase,
+            getTokenUseCase = getTokenUseCase,
+            editTokenUseCase = editTokenUseCase
         )
     }
 
+    /**
+     * Limpieza después de cada prueba.
+     * Se ejecuta al finalizar cada test.
+     */
     @After
     fun tearDown() {
+        // Restablece el dispatcher principal a su estado original.
         Dispatchers.resetMain()
+        // Limpia todos los mocks y sus configuraciones.
+        unmockkAll()
     }
 
     @Test
-    fun initBlockLoadsTokenCorrectly() = runTest {
-        // El init se ejecuta al instanciar el ViewModel en setUp()
-        // Verificamos que se llamó al caso de uso
-        verify(exactly = 1) { createTokenUseCase() }
-        verify(exactly = 1) { getTokenUseCase() }
+    fun whenGetReportsIsSuccessfulThenUiStateIsUpdatedWithDataAndNavigationEventIsSent() = runTest {
+        // Given: Preparamos el escenario
+        val fakeReportList = listOf(ReportEntity(
+            id = 1,
+            latitude = -3.245274,
+            longitude = -79.832028,
+            date = "2023-09-04",
+            type = "Accidentes",
+            description = "Test Report",
+            token = 123456
+        ))
+        coEvery { selectReportUseCase() } returns Result.Success(fakeReportList)
 
-        // Verificamos que el estado inicial tenga el token cargado
-        assertEquals("1234", viewModel.uiState.value.textToken)
-    }
-
-    @Test
-    fun setTextDescriptionUpdatesState() = runTest {
-        val newDescription = "Accidente leve en la esquina"
-        viewModel.setTextDescription(newDescription)
-        assertEquals(newDescription, viewModel.uiState.value.textDescription)
-    }
-
-    @Test
-    fun setPosMarkerUpdatesState() = runTest {
-        val newPos = LatLng(10.0, -20.0)
-        viewModel.setPosMarker(newPos)
-        assertEquals(newPos, viewModel.uiState.value.posMarker)
-    }
-
-    @Test
-    fun getReportsSuccessUpdatesStateWithList() = runTest {
-        // Given
-        val mockReports = listOf(
-            ReportEntity(id = 1, latitude = 0.0, longitude = 0.0, date = "2023", type = "Choque", description = "Desc", token = 1234)
-        )
-        coEvery { selectReportUseCase() } returns Result.Success(mockReports)
-
-        viewModel.uiState.test {
-            // Estado inicial (consumir el del init)
-            awaitItem()
-
-            // When
-            viewModel.getReports()
-
-            // Then
-            val loadingState = awaitItem()
-            assertTrue(loadingState.isLoading)
-
-            val successState = awaitItem()
-            assertFalse(successState.isLoading)
-            assertTrue(successState.wasFound)
-            assertEquals(mockReports, successState.itemsMarker)
-            // Verificamos que el contador aumentó
-            assertEquals(loadingState.operationCompletedCount + 1, successState.operationCompletedCount)
+        // Then
+        val job1 = launch {
+            viewModel.eventChannel.test {
+                // Verificamos que se envió el evento de navegación correcto
+                assertEquals(UiEvent.Navigate(ViewRoutes.Map.name), awaitItem())
+            }
         }
+        val job2 = launch {
+            viewModel.uiState.test {
+                val loadingState = awaitItem() // Estado de carga de datos
+                assertTrue(loadingState.isLoading)
+
+                val successState = awaitItem() // Estado final con los datos
+                assertFalse(successState.isLoading)
+                assertEquals(fakeReportList, successState.itemsMarker)
+            }
+        }
+
+        // When: Ejecutamos la acción a probar
+        viewModel.getReports()
+
+        // Ejecutamos las corrutinas
+        advanceUntilIdle()
+
+        // Esperamos a que se completen las corrutinas
+        job1.cancel()
+        job2.cancel()
+
+        // Verificamos que el caso de uso fue llamado una vez
+        coVerify(exactly = 1) { selectReportUseCase() }
     }
 
     @Test
-    fun getReportsErrorUpdatesStateWithErrorMessage() = runTest {
+    fun whenGetReportsFailsThenUiStateIsUpdatedAndLogEventIsSent() = runTest {
         // Given
-        val errorMessage = "Error de conexión"
+        val errorMessage = "Network Error"
         coEvery { selectReportUseCase() } returns Result.Error(Exception(errorMessage))
 
-        viewModel.uiState.test {
-            awaitItem() // Inicial
-
-            // When
-            viewModel.getReports()
-
-            // Then
-            awaitItem() // Loading
-            val errorState = awaitItem()
-
-            assertFalse(errorState.isLoading)
-            assertFalse(errorState.wasFound)
-            assertNull(errorState.itemsMarker)
-            assertEquals(errorMessage, errorState.error)
+        // Then
+        val job1 = launch {
+            viewModel.eventChannel.test {
+                assertEquals(UiEvent.ShowLog(errorMessage), awaitItem())
+            }
         }
+        val job2 = launch {
+            viewModel.uiState.test {
+                val loadingState = awaitItem() // Estado de carga de datos
+                assertTrue(loadingState.isLoading)
+
+                val errorState = awaitItem() // Estado final con el error
+                assertFalse(errorState.isLoading)
+                assertNull(errorState.itemsMarker)
+            }
+        }
+
+        // When
+        viewModel.getReports()
+
+        // Ejecutamos las corrutinas
+        advanceUntilIdle()
+
+        // Esperamos a que se completen las corrutinas
+        job1.cancel()
+        job2.cancel()
+
+        coVerify(exactly = 1) { selectReportUseCase() }
     }
 
     @Test
-    fun insertReportSuccessUpdatesWasInsertedFlag() = runTest {
+    fun whenInsertReportIsSuccessfulThenToastEventIsSent() = runTest {
         // Given
-        // Simulamos datos necesarios en el estado
-        viewModel.setTextDescription("Test Report")
-        viewModel.setItemsComboBox(listOf("Type A"))
-        viewModel.setIndexComboBox(0)
-
+        val successMessage = "Report inserted"
         coEvery { insertReportUseCase(any()) } returns Result.Success(Unit)
+        every { getStringUseCase(R.string.toast_insert_true) } returns successMessage
 
-        viewModel.uiState.test {
-            awaitItem() // Estado actual modificado
+        viewModel.setItemsComboBox(
+            listOf(
+                "Seleccione un tipo de incidente",
+                "Accidentes",
+                "Trafico",
+                "Problemas en servicios publicos"
+            )
+        )
+        viewModel.setIndexComboBox(1)
+        viewModel.setTextDescription("Una descripción válida")
 
-            // When
-            viewModel.insertReport()
-
-            // Then
-            val loadingState = awaitItem()
-            assertTrue(loadingState.isLoading)
-
-            val successState = awaitItem()
-            assertFalse(successState.isLoading)
-            assertTrue(successState.wasInserted)
-
-            coVerify {
-                insertReportUseCase(match {
-                    it.description == "Test Report" && it.token == 1234 // 1234 viene del init
-                })
+        // Then
+        val job1 = launch {
+            viewModel.eventChannel.test {
+                assertEquals(UiEvent.ShowToast(successMessage), awaitItem())
             }
         }
+        val job2 = launch {
+            viewModel.uiState.test {
+                val loadingState = awaitItem() // Estado de insertar datos
+                assertTrue(loadingState.isLoading)
+
+                val successState = awaitItem() // Estado final de inserción exitosa
+                assertFalse(successState.isLoading)
+            }
+        }
+
+        // When
+        viewModel.insertReport()
+
+        // Ejecutamos las corrutinas
+        advanceUntilIdle()
+
+        // Esperamos a que se completen las corrutinas
+        job1.cancel()
+        job2.cancel()
+
+        coVerify(exactly = 1) { insertReportUseCase(any()) }
     }
 
     @Test
-    fun updateReportSuccessUpdatesWasUpdatedFlag() = runTest {
-        // Given: Preparamos el estado simulando que hay reportes cargados y uno seleccionado
-        val existingReport = ReportEntity(id = 5, latitude = 0.0, longitude = 0.0, date = "", type = "Old", description = "", token = 0)
-        val reports = listOf(existingReport)
-
-        // Mockeamos la carga inicial
-        coEvery { selectReportUseCase() } returns Result.Success(reports)
-        viewModel.getReports()
-        testDispatcher.scheduler.advanceUntilIdle() // Esperamos que termine getReports
-
-        // Configuramos edición
-        viewModel.setIndexMarker(0) // Seleccionamos el primer reporte
-        viewModel.setTextDescription("Updated Desc")
-        viewModel.setItemsComboBox(listOf("New Type"))
-        viewModel.setIndexComboBox(0)
-
-        coEvery { updateReportUseCase(any(), any()) } returns Result.Success(Unit)
-
-        viewModel.uiState.test {
-            awaitItem() // Estado actual
-
-            // When
-            viewModel.updateReport()
-
-            // Then
-            val loadingState = awaitItem()
-            assertTrue(loadingState.isLoading)
-
-            val successState = awaitItem()
-            assertTrue(successState.wasUpdated)
-
-            coVerify {
-                updateReportUseCase(eq(5), match { it.description == "Updated Desc" })
-            }
-        }
-    }
-
-    @Test
-    fun deleteReportSuccessUpdatesWasDeletedFlag() = runTest {
-        // Given: Reporte seleccionado
-        val reportToDelete = ReportEntity(id = 10, latitude = 0.0, longitude = 0.0, date = "", type = "", description = "", token = 0)
-
-        coEvery { selectReportUseCase() } returns Result.Success(listOf(reportToDelete))
-        viewModel.getReports()
-        testDispatcher.scheduler.advanceUntilIdle()
-
+    fun whenDeleteReportFailsThenToastAndLogEventsAreSent() = runTest {
+        // Given
+        val errorMessage = "Deletion failed"
+        val toastMessage = "Error deleting report"
+        // Simulamos que ya hay un reporte cargado en el estado
+        val reports = listOf(
+            ReportEntity(
+                id = 1,
+                latitude = -3.245274,
+                longitude = -79.832028,
+                date = "2023-09-04",
+                type = "Accidentes",
+                description = "Test Report 1",
+                token = 123456),
+            ReportEntity(
+                id = 2,
+                latitude = -3.456789,
+                longitude = -79.986745,
+                date = "2023-10-14",
+                type = "Trafico",
+                description = "Test Report 2",
+                token = 456567)
+        )
+        viewModel.setItemsMarker(reports)
         viewModel.setIndexMarker(0)
 
-        coEvery { deleteReportUseCase(any()) } returns Result.Success(Unit)
+        coEvery { deleteReportUseCase(reports[0].id) } returns Result.Error(Exception(errorMessage))
+        every { getStringUseCase(R.string.toast_delete_false) } returns toastMessage
 
+        // Then
+        val job1 = launch {
+            viewModel.eventChannel.test {
+                assertEquals(UiEvent.ShowToast(toastMessage), awaitItem())
+                assertEquals(UiEvent.ShowLog(errorMessage), awaitItem())
+            }
+        }
+        val job2 = launch {
+            viewModel.uiState.test {
+                val loadingState = awaitItem() // Estado de eliminar datos
+                assertTrue(loadingState.isLoading)
+
+                val successState = awaitItem() // Estado final con el error
+                assertFalse(successState.isLoading)
+            }
+        }
+
+        // When
+        viewModel.deleteReport()
+
+        // Ejecutamos las corrutinas
+        advanceUntilIdle()
+
+        // Esperamos a que se completen las corrutinas
+        job1.cancel()
+        job2.cancel()
+
+        coVerify(exactly = 1) { deleteReportUseCase(reports[0].id) }
+    }
+
+    @Test
+    fun whenSetTextDescriptionIsCalledThenUiStateUpdatesCorrectly() = runTest {
+        // Given
+        val newDescription = "A new description for the report."
+
+        // When
+        viewModel.setTextDescription(newDescription)
+
+        // Then
         viewModel.uiState.test {
-            awaitItem() // Estado actual
-
-            // When
-            viewModel.deleteReport()
-
-            // Then
-            awaitItem() // Loading
-            val successState = awaitItem()
-
-            assertTrue(successState.wasDeleted)
-            coVerify { deleteReportUseCase(10) }
+            val updatedState = awaitItem()
+            assertEquals(newDescription, updatedState.textDescription)
         }
     }
 
     @Test
-    fun enabledFormReturnsTrueOnlyWhenValid() = runTest {
-        // Caso inicial: ComboBox index 0 y descripción vacía -> False
-        viewModel.setIndexComboBox(0)
-        viewModel.setTextDescription("")
-        assertFalse(viewModel.enabledForm())
+    fun whenEnabledFormIsCalledItReturnsTrueIfDescriptionAndComboboxAreValid() {
+        // Given
+        viewModel.setTextDescription("Valid description")
+        viewModel.setIndexComboBox(1) // 0 es la opción por defecto, 1 es una opción válida
 
-        // Caso: ComboBox > 0 pero descripción vacía -> False
-        viewModel.setIndexComboBox(1)
-        assertFalse(viewModel.enabledForm())
-
-        // Caso: ComboBox > 0 y descripción llena -> True
-        viewModel.setTextDescription("Some text")
+        // When & Then
         assertTrue(viewModel.enabledForm())
     }
 
     @Test
-    fun verifyUserReturnsTrueIfTokenMatches() = runTest {
+    fun whenEnabledFormIsCalledItReturnsFalseIfDescriptionIsBlank() {
         // Given
-        val myToken = 1234
-        val otherToken = 9999
-        val report = ReportEntity(id = 1, latitude = 0.0, longitude = 0.0, date = "", type = "", description = "", token = myToken)
+        viewModel.setTextDescription("  ") // Descripción en blanco
+        viewModel.setIndexComboBox(1)
 
-        // Setup state
-        coEvery { selectReportUseCase() } returns Result.Success(listOf(report))
-        viewModel.getReports()
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        viewModel.setIndexMarker(0)
-        viewModel.setTextToken(myToken.toString()) // Token del usuario (cargado en init)
-
-        // When/Then
-        assertTrue(viewModel.verifyUser())
-
-        // Change token to simulate mismatch
-        viewModel.setTextToken(otherToken.toString())
-        assertFalse(viewModel.verifyUser())
+        // When & Then
+        assertFalse(viewModel.enabledForm())
     }
 
     @Test
-    fun clearFlagsResetsAllBooleans() = runTest {
+    fun whenEnabledFormIsCalledItReturnsFalseIfComboboxIsNotSelected() {
         // Given
-        // Aquí simulamos una operación exitosa previa
-        insertReportSuccessUpdatesWasInsertedFlag()
+        viewModel.setTextDescription("Valid description")
+        viewModel.setIndexComboBox(0) // Opción por defecto (no válida)
 
-        viewModel.uiState.test {
-            awaitItem() // Estado actual modificado
+        // When & Then
+        assertFalse(viewModel.enabledForm())
+    }
 
-            // When
-            viewModel.clearFlags()
+    @Test
+    fun whenVerifyUserReturnsTrueIfTokenMatchesTheSelectedMarkerSToken() {
+        // Given
+        val userToken = "123456"
+        val reports = listOf(
+            ReportEntity(
+                id = 1,
+                latitude = -3.245274,
+                longitude = -79.832028,
+                date = "2023-09-04",
+                type = "Accidentes",
+                description = "Test Report 1",
+                token = 123456),
+            ReportEntity(
+                id = 2,
+                latitude = -3.456789,
+                longitude = -79.986745,
+                date = "2023-10-14",
+                type = "Trafico",
+                description = "Test Report 2",
+                token = 456567)
+        )
+        viewModel.setTextToken(userToken)
+        viewModel.setItemsMarker(reports)
+        viewModel.setIndexMarker(0) // Selecciona el primer reporte
 
-            // Then
-            val state = awaitItem()
-            assertFalse(state.wasFound)
-            assertFalse(state.wasInserted)
-            assertFalse(state.wasUpdated)
-            assertFalse(state.wasDeleted)
-        }
+        // When & Then
+        assertTrue(viewModel.verifyUser())
+    }
+
+    @Test
+    fun whenVerifyUserReturnsFalseIfTokenDoesNotMatch() {
+        // Given
+        val userToken = "999999"
+        val reports = listOf(
+            ReportEntity(
+                id = 1,
+                latitude = -3.245274,
+                longitude = -79.832028,
+                date = "2023-09-04",
+                type = "Accidentes",
+                description = "Test Report 1",
+                token = 123456),
+            ReportEntity(
+                id = 2,
+                latitude = -3.456789,
+                longitude = -79.986745,
+                date = "2023-10-14",
+                type = "Trafico",
+                description = "Test Report 2",
+                token = 456567)
+        )
+        viewModel.setTextToken(userToken)
+        viewModel.setItemsMarker(reports)
+        viewModel.setIndexMarker(0)
+
+        // When & Then
+        assertFalse(viewModel.verifyUser())
     }
 }

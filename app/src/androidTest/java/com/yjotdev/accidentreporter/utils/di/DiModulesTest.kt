@@ -6,9 +6,11 @@ import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
 import javax.inject.Singleton
 import com.yjotdev.accidentreporter.domain.port.ReportPort
+import com.yjotdev.accidentreporter.domain.port.StringPort
 import com.yjotdev.accidentreporter.domain.port.TokenPort
 import com.yjotdev.accidentreporter.infrastructure.di.DiModules
 import com.yjotdev.accidentreporter.utils.repositories.FakeReportRepository
+import com.yjotdev.accidentreporter.utils.repositories.FakeStringRepository
 import com.yjotdev.accidentreporter.utils.repositories.FakeTokenRepository
 
 @Module
@@ -29,4 +31,10 @@ abstract class DiModulesTest {
     abstract fun bindFakeTokenRepository(
         impl: FakeTokenRepository
     ): TokenPort
+
+    @Binds
+    @Singleton
+    abstract fun bindFakeStringRepository(
+        impl: FakeStringRepository
+    ): StringPort
 }

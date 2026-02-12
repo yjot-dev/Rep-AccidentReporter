@@ -1,6 +1,7 @@
 package com.yjotdev.accidentreporter.application.navigation
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -14,9 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -61,8 +59,7 @@ fun Navigation(
         stringResource(R.string.combobox_option2),
         stringResource(R.string.combobox_option3)
     )
-    //Variables reactivas locales
-    var operationId by remember { mutableIntStateOf(0) }
+    viewModel.setItemsComboBox(optionList)
     //Observa estado de la camara del mapa
     val elGuabo = LatLng(-3.245274, -79.832028)
     val cameraPositionState = rememberCameraPositionState {
@@ -78,9 +75,7 @@ fun Navigation(
     ObserveViewModelState(
         viewModel = viewModel,
         navController = navController,
-        context = context,
-        operationId = operationId,
-        optionList = optionList
+        context = context
     )
     //UI
     Scaffold(
@@ -115,14 +110,7 @@ fun Navigation(
                         onTokenConfig = {
                             navController.navigate(ViewRoutes.TokenConfig.name)
                         },
-                        onNext = {
-                            state.itemsMarker?.let {
-                                viewModel.setOperationCompletedCount()
-                            } ?: run {
-                                viewModel.getReports()
-                            }
-                            operationId = 1
-                        }
+                        onNext = { viewModel.getReports() }
                     )
                     if(state.isLoading) LoadingScreen()
                 }
@@ -134,11 +122,7 @@ fun Navigation(
                     onTokenText = { viewModel.setTextToken(it) },
                     enableControls = state.enableUpdate,
                     onEnableControls = { viewModel.setEnableUpdate(!it) },
-                    onUpdate = {
-                        viewModel.editToken(state.textToken)
-                        viewModel.setOperationCompletedCount()
-                        operationId = 5
-                    }
+                    onUpdate = { viewModel.editToken(state.textToken) }
                 )
             }
             composable(route = ViewRoutes.Map.name) {
@@ -162,7 +146,6 @@ fun Navigation(
                         onDelete = {
                             viewModel.setShowPosition(false)
                             viewModel.deleteReport()
-                            operationId = 2
                         },
                         onMapClick = {
                             viewModel.setPosMarker(it)
@@ -191,10 +174,7 @@ fun Navigation(
                         onTextDescription = { viewModel.setTextDescription(it) },
                         indexSelected = state.indexComboBox,
                         onIndexSelected = { viewModel.setIndexComboBox(it) },
-                        onAdd = {
-                            viewModel.insertReport()
-                            operationId = 3
-                        }
+                        onAdd = { viewModel.insertReport() }
                     )
                     if(state.isLoading) LoadingScreen()
                 }
@@ -217,10 +197,7 @@ fun Navigation(
                         onTextDescription = { viewModel.setTextDescription(it) },
                         indexSelected = state.indexComboBox,
                         onIndexSelected = { viewModel.setIndexComboBox(it) },
-                        onUpdate = {
-                            viewModel.updateReport()
-                            operationId = 4
-                        }
+                        onUpdate = { viewModel.updateReport() }
                     )
                     if(state.isLoading) LoadingScreen()
                 }
@@ -265,64 +242,17 @@ private fun ObserveMapCameraState(
 private fun ObserveViewModelState(
     viewModel: AppViewModel,
     navController: NavHostController,
-    context: Context,
-    operationId: Int,
-    optionList: List<String>
+    context: Context
 ){
-    val state by viewModel.uiState.collectAsState()
-    LaunchedEffect(
-        key1 = state.operationCompletedCount
-    ){
-        // No ejecutar si operationCompletedCount es 0 (estado inicial)
-        if (state.operationCompletedCount == 0) return@LaunchedEffect
-
-        when(operationId){
-            1 -> {
-                state.itemsMarker?.let {
-                    if(state.wasFound) viewModel.clearFlags()
-                    if(state.itemsComboBox.isEmpty()) viewModel.setItemsComboBox(optionList)
-                    navController.navigate(ViewRoutes.Map.name)
-                }
-            }
-            2 -> {
-                if(state.wasDeleted){
-                    Toast.makeText(
-                        context, context.getString(R.string.toast_delete_true),
-                        Toast.LENGTH_SHORT).show()
-                    viewModel.getReports()
-                }
-                state.error?.let { error ->
-                    val msm = "${context.getString(R.string.toast_delete_false)}, $error"
-                    Toast.makeText(context, msm, Toast.LENGTH_SHORT).show()
-                }
-            }
-            3 -> {
-                if(state.wasInserted){
-                    Toast.makeText(context, context.getString(R.string.toast_insert_true),
-                        Toast.LENGTH_SHORT).show()
-                    viewModel.getReports()
-                }
-                state.error?.let { error ->
-                    val msm = "${context.getString(R.string.toast_insert_false)}, $error"
-                    Toast.makeText(context, msm, Toast.LENGTH_SHORT).show()
-                }
-            }
-            4 -> {
-                if (state.wasUpdated){
-                    Toast.makeText(context, context.getString(R.string.toast_update_true),
-                        Toast.LENGTH_SHORT).show()
-                    viewModel.getReports()
-                }
-                state.error?.let { error ->
-                    val msm = "${context.getString(R.string.toast_update_false)}, $error"
-                    Toast.makeText(context, msm, Toast.LENGTH_SHORT).show()
-                }
-            }
-            5 -> {
-                Toast.makeText(context, context.getString(R.string.toast_update_token),
-                    Toast.LENGTH_SHORT).show()
+    LaunchedEffect(key1 = true) {
+        viewModel.eventChannel.collect { event ->
+            when (event) {
+                is UiEvent.Navigate -> navController.navigate(event.route)
+                is UiEvent.ShowToast -> Toast.makeText(
+                        context, event.message, Toast.LENGTH_SHORT
+                    ).show()
+                is UiEvent.ShowLog -> Log.d("Test",event.message)
             }
         }
-        viewModel.clearFlags()
     }
 }

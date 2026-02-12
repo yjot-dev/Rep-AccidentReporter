@@ -6,8 +6,10 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 import com.yjotdev.accidentreporter.domain.port.ReportPort
+import com.yjotdev.accidentreporter.domain.port.StringPort
 import com.yjotdev.accidentreporter.domain.port.TokenPort
 import com.yjotdev.accidentreporter.infrastructure.repository.ReportRepository
+import com.yjotdev.accidentreporter.infrastructure.repository.StringRepository
 import com.yjotdev.accidentreporter.infrastructure.repository.TokenRepository
 
 @Module
@@ -25,4 +27,10 @@ abstract class DiModules {
     abstract fun bindTokenRepository(
         impl: TokenRepository
     ): TokenPort
+
+    @Binds
+    @Singleton
+    abstract fun bindStringRepository(
+        impl: StringRepository
+    ): StringPort
 }

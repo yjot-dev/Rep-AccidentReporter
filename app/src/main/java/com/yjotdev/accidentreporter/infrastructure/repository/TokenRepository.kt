@@ -9,7 +9,7 @@ import com.yjotdev.accidentreporter.domain.port.TokenPort
 
 @Singleton
 class TokenRepository @Inject constructor(
-    @ApplicationContext val context: Context
+    @ApplicationContext context: Context
 ) : TokenPort {
     private val sharedPreferences = context.getSharedPreferences("save_token", Context.MODE_PRIVATE)
 
