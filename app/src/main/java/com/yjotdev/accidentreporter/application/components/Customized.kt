@@ -1,6 +1,7 @@
 package com.yjotdev.accidentreporter.application.components
 
 import android.content.res.Configuration
+import androidx.annotation.DimenRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -47,6 +48,7 @@ fun ButtonAccidentReporter(
 @Composable
 fun TextFieldAccidentReporter(
     modifier: Modifier = Modifier,
+    @DimenRes idHeight: Int = R.dimen.dp_6,
     labelText: String,
     enabled: Boolean = true,
     value: String,
@@ -59,7 +61,7 @@ fun TextFieldAccidentReporter(
                 color = MaterialTheme.colorScheme.secondary,
                 shape = MaterialTheme.shapes.medium
             )
-            .height(dimensionResource(R.dimen.dp_6))
+            .height(dimensionResource(idHeight))
             .verticalScroll(rememberScrollState())
             .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.CenterStart

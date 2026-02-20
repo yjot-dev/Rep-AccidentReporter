@@ -7,7 +7,6 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.GET
 import retrofit2.http.Path
-import retrofit2.http.Headers
 import com.yjotdev.accidentreporter.domain.entity.ReportEntity
 
 /**
@@ -15,7 +14,6 @@ import com.yjotdev.accidentreporter.domain.entity.ReportEntity
  * ESTA interfaz pertenece a la capa de Infraestructura y define los endpoints HTTP.
  */
 interface ReportApi {
-    @Headers("Content-Type: application/json")
     @GET("reports")
     suspend fun selectReports(): Response<List<ReportEntity>>
 

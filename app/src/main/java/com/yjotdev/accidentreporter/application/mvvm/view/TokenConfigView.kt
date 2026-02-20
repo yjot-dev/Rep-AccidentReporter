@@ -37,10 +37,11 @@ fun TokenConfigView(
         verticalArrangement = Arrangement.SpaceEvenly
     ){
         TextFieldAccidentReporter(
+            enabled = enableControls,
+            idHeight = R.dimen.dp_5,
+            labelText = stringResource(R.string.textfield_token),
             value = tokenText,
             onValueChange = { onTokenText(it) },
-            labelText = stringResource(R.string.textfield_token),
-            enabled = enableControls,
             modifier = Modifier
                 .fillMaxWidth(0.8f)
                 .testTag("tokenconfigview_textfield")

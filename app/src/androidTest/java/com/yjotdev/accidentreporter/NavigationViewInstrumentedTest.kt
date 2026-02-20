@@ -57,20 +57,22 @@ class NavigationViewInstrumentedTest {
 
     @Test
     fun navigationToAddPositionViewTest() {
-        loadTestActivity()
-        // 1. StartView -> Click en Continuar
-        composeTestRule.onNodeWithTag("startview_button2")
+        // Navegacion de StartView -> CountryConfigView -> MapView
+        navigationToCountryConfigViewTest()
+
+        // Hago click en continuar
+        composeTestRule.onNodeWithTag("countryview_button2")
             .performClick()
 
         // Esperamos navegación a MapView
         waitForRoute(ViewRoutes.Map.name)
 
-        // 2. MapView -> Click en el Mapa Fake
+        // MapView -> Click en el Mapa Fake
         composeTestRule.onNodeWithTag("googleMap").performTouchInput {
             click(percentOffset(0.1f, 0.1f)) // Click en la esquina superior
         }
 
-        // 3. Esperamos navegación a AddPositionView
+        // Esperamos navegación a AddPositionView
         waitForRoute(ViewRoutes.AddPosition.name)
 
         // Selecciono el combobox para desplegar los tipos de incidentes
@@ -95,25 +97,27 @@ class NavigationViewInstrumentedTest {
 
     @Test
     fun navigationToEditPositionViewTest() {
-        loadTestActivity()
-        // 1. StartView -> Click en Continuar
-        composeTestRule.onNodeWithTag("startview_button2")
+        // Navegacion de StartView -> CountryConfigView -> MapView
+        navigationToCountryConfigViewTest()
+
+        // Hago click en continuar
+        composeTestRule.onNodeWithTag("countryview_button2")
             .performClick()
 
         // Esperamos navegación a MapView
         waitForRoute(ViewRoutes.Map.name)
 
-        // 2. MapView -> Click en un Marcador Existente (Fake Marker)
+        // MapView -> Click en un Marcador Existente (Fake Marker)
         composeTestRule.onNodeWithTag("Market:1")
             .performClick()
 
         composeTestRule.waitForIdle()
 
-        // 3. Position (AlertDialog) -> Click en "Ver/Editar"
+        // Position (AlertDialog) -> Click en "Ver/Editar"
         composeTestRule.onNodeWithContentDescription("mapview_lookbutton")
             .performClick()
 
-        // 4. Esperamos navegación a EditPositionView
+        // Esperamos navegación a EditPositionView
         waitForRoute(ViewRoutes.EditPosition.name)
 
         // Verificamos que exista un combobox
@@ -127,11 +131,11 @@ class NavigationViewInstrumentedTest {
     @Test
     fun navigationToTokenConfigViewTest() {
         loadTestActivity()
-        // 1. StartView -> Click en Configurar Token
+        // StartView -> Click en Configurar Token
         composeTestRule.onNodeWithTag("startview_button1")
             .performClick()
 
-        // 2. Esperamos navegación a TokenConfigView
+        // Esperamos navegación a TokenConfigView
         waitForRoute(ViewRoutes.TokenConfig.name)
 
         // Hago click en el boton editar
@@ -151,31 +155,63 @@ class NavigationViewInstrumentedTest {
     }
 
     @Test
-    fun navigationToMapViewAndGoBackTest() {
+    fun navigationToCountryConfigViewTest() {
         loadTestActivity()
-        // 1. StartView -> Click en Continuar
+        // StartView -> Click en Configurar Pais
         composeTestRule.onNodeWithTag("startview_button2")
             .performClick()
 
-        // 2. Esperamos navegación a MapView
+        // Esperamos navegación a CountryConfigView
+        waitForRoute(ViewRoutes.CountryConfig.name)
+
+        // Escribo el pais
+        composeTestRule.onNodeWithTag("countryview_textfield1")
+            .performTextReplacement("Ecuador")
+
+        // Escribo la provincia
+        composeTestRule.onNodeWithTag("countryview_textfield2")
+            .performTextReplacement("El Oro")
+
+        // Escribo la ciudad
+        composeTestRule.onNodeWithTag("countryview_textfield3")
+            .performTextReplacement("El Guabo")
+
+        // Hago click en el boton buscar ubicacion
+        composeTestRule.onNodeWithTag("countryview_button1")
+            .performClick()
+
+        // Verificación final
+        assertEquals(ViewRoutes.CountryConfig.name, navController.currentDestination?.route)
+    }
+
+    @Test
+    fun navigationToMapViewAndGoBackTest() {
+        // Navegacion de StartView -> CountryConfigView -> MapView
+        navigationToCountryConfigViewTest()
+
+        // Hago click en continuar
+        composeTestRule.onNodeWithTag("countryview_button2")
+            .performClick()
+
+        // Esperamos navegación a MapView
         waitForRoute(ViewRoutes.Map.name)
 
-        // 3. Verificamos que existe un marcador
+        // Verificamos que existe un marcador
         composeTestRule.onNodeWithTag("Market:1").assertExists()
 
-        // 4. Volvemos a la vista de inicio
+        // Volvemos a la vista de inicio
         composeTestRule.onNodeWithContentDescription("backbutton")
             .performClick()
 
-        // 5. Esperamos navegación a StartView
-        waitForRoute(ViewRoutes.Start.name)
+        // Esperamos navegación a CountryConfigView
+        waitForRoute(ViewRoutes.CountryConfig.name)
 
-        // 6. Verificamos que existe un boton "Continuar"
-        composeTestRule.onNodeWithTag("startview_button2")
+        // Verificamos que existe un boton "Continuar"
+        composeTestRule.onNodeWithTag("countryview_button2")
             .assertExists()
 
         // Verificación final
-        assertEquals(ViewRoutes.Start.name, navController.currentDestination?.route)
+        assertEquals(ViewRoutes.CountryConfig.name, navController.currentDestination?.route)
     }
 
     /**

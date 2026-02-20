@@ -13,20 +13,17 @@ class TokenRepository @Inject constructor(
 ) : TokenPort {
     private val sharedPreferences = context.getSharedPreferences("save_token", Context.MODE_PRIVATE)
 
-    /** Crea un token **/
     override fun createToken() {
         if (getToken() == 0) {
-            val tokenRandom = (1000000000..9999999999).random().toInt()
+            val tokenRandom = (100000000..999999999).random()
             sharedPreferences.edit { putInt("token", tokenRandom) }
         }
     }
 
-    /** Obtiene el token **/
     override fun getToken(): Int {
         return sharedPreferences.getInt("token", 0)
     }
 
-    /** Edita el token **/
     override fun editToken(token: Int) {
         sharedPreferences.edit { putInt("token", token) }
     }

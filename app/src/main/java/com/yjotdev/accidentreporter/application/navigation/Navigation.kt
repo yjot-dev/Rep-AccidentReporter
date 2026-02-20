@@ -24,20 +24,17 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.CameraPositionState
-import com.google.maps.android.compose.rememberCameraPositionState
-import com.yjotdev.accidentreporter.R
 import com.yjotdev.accidentreporter.application.components.LoadingScreen
 import com.yjotdev.accidentreporter.application.components.TitleBar
 import com.yjotdev.accidentreporter.application.mvvm.view.AddPositionView
+import com.yjotdev.accidentreporter.application.mvvm.view.CountryConfigView
 import com.yjotdev.accidentreporter.application.mvvm.view.EditPositionView
 import com.yjotdev.accidentreporter.application.mvvm.view.MapView
 import com.yjotdev.accidentreporter.application.mvvm.view.StartView
 import com.yjotdev.accidentreporter.application.mvvm.view.TokenConfigView
 import com.yjotdev.accidentreporter.application.mvvm.viewmodel.AppViewModel
+import com.yjotdev.accidentreporter.R
 
 @Composable
 fun Navigation(
@@ -60,17 +57,8 @@ fun Navigation(
         stringResource(R.string.combobox_option3)
     )
     viewModel.setItemsComboBox(optionList)
-    //Observa estado de la camara del mapa
-    val elGuabo = LatLng(-3.245274, -79.832028)
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(elGuabo, 18f)
-    }
-    ObserveMapCameraState(
-        viewModel = viewModel,
-        cameraPositionState = cameraPositionState,
-        startPosition = elGuabo,
-        isTestMode = isTestMode
-    )
+    //Observa clicks en el mapa
+    ObserveClickOnMap(viewModel = viewModel)
     //Observa estados asincronicos
     ObserveViewModelState(
         viewModel = viewModel,
@@ -101,19 +89,11 @@ fun Navigation(
             modifier = Modifier.padding(innerPadding)
         ){
             composable(route = ViewRoutes.Start.name) {
-                Box(
+                StartView(
                     modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    StartView(
-                        modifier = Modifier.fillMaxSize(),
-                        onTokenConfig = {
-                            navController.navigate(ViewRoutes.TokenConfig.name)
-                        },
-                        onNext = { viewModel.getReports() }
-                    )
-                    if(state.isLoading) LoadingScreen()
-                }
+                    onTokenConfig = { navController.navigate(ViewRoutes.TokenConfig.name) },
+                    onCountryConfig = { navController.navigate(ViewRoutes.CountryConfig.name) }
+                )
             }
             composable(route = ViewRoutes.TokenConfig.name) {
                 TokenConfigView(
@@ -125,6 +105,26 @@ fun Navigation(
                     onUpdate = { viewModel.editToken(state.textToken) }
                 )
             }
+            composable(route = ViewRoutes.CountryConfig.name) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CountryConfigView(
+                        modifier = Modifier.fillMaxSize(),
+                        country = state.textCountry,
+                        province = state.textProvince,
+                        city = state.textCity,
+                        enableOnMap = state.location != LatLng(0.0, 0.0),
+                        onCountry = { viewModel.setTextCountry(it) },
+                        onProvince = { viewModel.setTextProvince(it) },
+                        onCity = { viewModel.setTextCity(it) },
+                        onSearchLocation = { viewModel.selectGeocoding() },
+                        onMap = { viewModel.selectReports() }
+                    )
+                    if(state.isLoading) LoadingScreen()
+                }
+            }
             composable(route = ViewRoutes.Map.name) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -133,8 +133,8 @@ fun Navigation(
                     MapView(
                         modifier = Modifier.fillMaxSize(),
                         isTestMode = isTestMode,
-                        cameraPositionState = cameraPositionState,
-                        itemsMarker = state.itemsMarker!!,
+                        location = state.location,
+                        itemsMarker = state.itemsMarker,
                         indexMarker = state.indexMarker,
                         showPosition = state.showPosition,
                         enableBtnDelete = viewModel.verifyUser(),
@@ -207,33 +207,21 @@ fun Navigation(
 }
 
 @Composable
-private fun ObserveMapCameraState(
-    viewModel: AppViewModel,
-    cameraPositionState: CameraPositionState,
-    startPosition: LatLng,
-    isTestMode: Boolean
+private fun ObserveClickOnMap(
+    viewModel: AppViewModel
 ){
     val state by viewModel.uiState.collectAsState()
-    LaunchedEffect(
-        key1 = cameraPositionState,
-        key2 = state.posMarker
-    ) {
-        state.itemsMarker?.let { itemsMarker ->
-            //Obtiene informacion del reporte seleccionado
-            if(viewModel.showMarker()){
-                val type = itemsMarker[state.indexMarker].type
-                viewModel.setIndexComboBox(state.itemsComboBox.indexOf(type))
-                val description = itemsMarker[state.indexMarker].description
-                viewModel.setTextDescription(description)
-            }else{
-                viewModel.setIndexComboBox(0)
-                viewModel.setTextDescription("")
-                viewModel.setShowPosition(false)
-            }
-            //Refresca posicion del mapa (Solo si no esta en modo Test)
-            if(!isTestMode){
-                cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(startPosition, 18f))
-            }
+    LaunchedEffect(key1 = state.posMarker) {
+        //Obtiene informacion del reporte seleccionado
+        if(viewModel.showMarker()){
+            val type = state.itemsMarker[state.indexMarker].type
+            viewModel.setIndexComboBox(state.itemsComboBox.indexOf(type))
+            val description = state.itemsMarker[state.indexMarker].description
+            viewModel.setTextDescription(description)
+        }else{
+            viewModel.setIndexComboBox(0)
+            viewModel.setTextDescription("")
+            viewModel.setShowPosition(false)
         }
     }
 }
@@ -247,11 +235,14 @@ private fun ObserveViewModelState(
     LaunchedEffect(key1 = true) {
         viewModel.eventChannel.collect { event ->
             when (event) {
+                // Country -> Map (Revisar AppViewModel.kt lineas 208 - 210)
                 is UiEvent.Navigate -> navController.navigate(event.route)
+                // Muestra un mensaje de exito o error en el Toast
                 is UiEvent.ShowToast -> Toast.makeText(
                         context, event.message, Toast.LENGTH_SHORT
                     ).show()
-                is UiEvent.ShowLog -> Log.d("Test",event.message)
+                // Muestra el error en el Log
+                is UiEvent.ShowLog -> Log.d("Https",event.message)
             }
         }
     }

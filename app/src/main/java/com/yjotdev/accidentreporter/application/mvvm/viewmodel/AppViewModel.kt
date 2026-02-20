@@ -4,7 +4,6 @@ import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
-import com.yjotdev.accidentreporter.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,6 +19,7 @@ import com.yjotdev.accidentreporter.application.navigation.ViewRoutes
 import com.yjotdev.accidentreporter.application.utils.Validation
 import com.yjotdev.accidentreporter.domain.entity.ReportEntity
 import com.yjotdev.accidentreporter.domain.core.Result
+import com.yjotdev.accidentreporter.domain.usecase.geocoding.SelectGeocodingUseCase
 import com.yjotdev.accidentreporter.domain.usecase.string.StringUseCase
 import com.yjotdev.accidentreporter.domain.usecase.token.CreateTokenUseCase
 import com.yjotdev.accidentreporter.domain.usecase.token.GetTokenUseCase
@@ -28,10 +28,16 @@ import com.yjotdev.accidentreporter.domain.usecase.report.SelectReportUseCase
 import com.yjotdev.accidentreporter.domain.usecase.report.DeleteReportUseCase
 import com.yjotdev.accidentreporter.domain.usecase.report.InsertReportUseCase
 import com.yjotdev.accidentreporter.domain.usecase.report.UpdateReportUseCase
+import com.yjotdev.accidentreporter.R
+import com.yjotdev.accidentreporter.domain.usecase.geocoding.EditLocationUseCase
+import com.yjotdev.accidentreporter.domain.usecase.geocoding.GetLocationUseCase
 
 @HiltViewModel
 class AppViewModel @Inject constructor(
     private val getString: StringUseCase,
+    private val selectGeocodingUseCase: SelectGeocodingUseCase,
+    private val getLocationUseCase: GetLocationUseCase,
+    private val editLocationUseCase: EditLocationUseCase,
     private val selectReportUseCase: SelectReportUseCase,
     private val insertReportUseCase: InsertReportUseCase,
     private val updateReportUseCase: UpdateReportUseCase,
@@ -52,13 +58,25 @@ class AppViewModel @Inject constructor(
     }
 
     init {
-        loadToken()
+        getToken()
+        getLocation()
     }
 
     /** Carga el token guardado **/
-    private fun loadToken() {
+    private fun getToken() {
         createTokenUseCase()
         setTextToken(getTokenUseCase().toString())
+    }
+
+    /** Carga la ubicacion guardada **/
+    private fun getLocation() {
+        val location = getLocationUseCase()
+        if(location != "") {
+            location.split(",")
+            setTextCountry(location[0].toString())
+            setTextProvince(location[1].toString())
+            setTextCity(location[2].toString())
+        }
     }
 
     /** Edita el token guardado **/
@@ -69,6 +87,16 @@ class AppViewModel @Inject constructor(
                 getString(R.string.toast_update_token))
             )
         }
+    }
+
+    /** Edita la ubicacion guardada **/
+    fun editLocation() {
+        val state = _uiState.value
+        val country = state.textCountry
+        val province = state.textProvince
+        val city = state.textCity
+        val location = "$country,$province,$city"
+        editLocationUseCase(location)
     }
 
     /** Actualiza la lista de reportes **/
@@ -89,6 +117,27 @@ class AppViewModel @Inject constructor(
     fun setTextToken(text: String){
         _uiState.update { state ->
             state.copy(textToken = text)
+        }
+    }
+
+    /** Actualiza el texto del pais en su configuracion **/
+    fun setTextCountry(text: String){
+        _uiState.update { state ->
+            state.copy(textCountry = text)
+        }
+    }
+
+    /** Actualiza el texto de la provincia en su configuracion **/
+    fun setTextProvince(text: String){
+        _uiState.update { state ->
+            state.copy(textProvince = text)
+        }
+    }
+
+    /** Actualiza el texto de la ciudad en su configuracion **/
+    fun setTextCity(text: String){
+        _uiState.update { state ->
+            state.copy(textCity = text)
         }
     }
 
@@ -134,8 +183,45 @@ class AppViewModel @Inject constructor(
         }
     }
 
+    /** Obtiene la ubicacion del usuario en base a su pais, provincia y ciudad **/
+    fun selectGeocoding(){
+        val state = _uiState.value
+        val country = state.textCountry
+        val province = state.textProvince
+        val city = state.textCity
+        _uiState.update { it.copy(isLoading = true) }
+        viewModelScope.launch {
+            when(val result = selectGeocodingUseCase(country, province, city)) {
+                is Result.Success -> {
+                    editLocation()
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            location = LatLng(
+                                result.data.lat,
+                                result.data.lng
+                            )
+                        )
+                    }
+                    _eventChannel.send(UiEvent.ShowToast(
+                        getString(R.string.toast_geocoding_true))
+                    )
+                }
+                is Result.Error -> {
+                    _uiState.update { it.copy(isLoading = false) }
+                    _eventChannel.send(UiEvent.ShowToast(
+                        getString(R.string.toast_geocoding_false))
+                    )
+                    _eventChannel.send(UiEvent.ShowLog(
+                        result.exception.message!!)
+                    )
+                }
+            }
+        }
+    }
+
     /** Obtiene los reportes (marcadores) de la BD **/
-    fun getReports(){
+    fun selectReports(){
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             when (val result = selectReportUseCase()) {
@@ -154,7 +240,7 @@ class AppViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            itemsMarker = null
+                            itemsMarker = emptyList()
                         )
                     }
                     _eventChannel.send(UiEvent.ShowLog(
@@ -168,32 +254,28 @@ class AppViewModel @Inject constructor(
     /** Inserta un reporte a la BD **/
     fun insertReport() {
         val state = _uiState.value
+        val report = ReportEntity(
+            id = 0,
+            latitude = state.posMarker.latitude,
+            longitude = state.posMarker.longitude,
+            date = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Validation.getDateToString()
+            }else "",
+            type = state.itemsComboBox[state.indexComboBox],
+            description = state.textDescription,
+            token = state.textToken.toInt()
+        )
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
-            val report = ReportEntity(
-                id = 0,
-                latitude = state.posMarker.latitude,
-                longitude = state.posMarker.longitude,
-                date = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                           Validation.getDateToString()
-                       }else "",
-                type = state.itemsComboBox[state.indexComboBox],
-                description = state.textDescription,
-                token = state.textToken.toInt()
-            )
             when (val result = insertReportUseCase(report)) {
                 is Result.Success -> {
-                    _uiState.update {
-                        it.copy(isLoading = false)
-                    }
+                    _uiState.update { it.copy(isLoading = false) }
                     _eventChannel.send(UiEvent.ShowToast(
                         getString(R.string.toast_insert_true))
                     )
                 }
                 is Result.Error -> {
-                    _uiState.update {
-                        it.copy(isLoading = false)
-                    }
+                    _uiState.update { it.copy(isLoading = false) }
                     _eventChannel.send(UiEvent.ShowToast(
                         getString(R.string.toast_insert_false))
                     )
@@ -208,35 +290,29 @@ class AppViewModel @Inject constructor(
     /** Actualiza un reporte de la BD **/
     fun updateReport() {
         val state = _uiState.value
+        val id = state.itemsMarker[state.indexMarker].id
+        val report = state.itemsMarker[state.indexMarker].copy(
+            type = state.itemsComboBox[state.indexComboBox],
+            description = state.textDescription,
+            token = state.textToken.toInt()
+        )
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
-            state.itemsMarker?.let { itemsMarker ->
-                val id = itemsMarker[state.indexMarker].id
-                val report = itemsMarker[state.indexMarker].copy(
-                    type = state.itemsComboBox[state.indexComboBox],
-                    description = state.textDescription,
-                    token = state.textToken.toInt()
-                )
-                when (val result = updateReportUseCase(id, report)) {
-                    is Result.Success -> {
-                        _uiState.update {
-                            it.copy(isLoading = false)
-                        }
-                        _eventChannel.send(UiEvent.ShowToast(
-                            getString(R.string.toast_update_true))
-                        )
-                    }
-                    is Result.Error -> {
-                        _uiState.update {
-                            it.copy(isLoading = false)
-                        }
-                        _eventChannel.send(UiEvent.ShowToast(
-                            getString(R.string.toast_update_false))
-                        )
-                        _eventChannel.send(UiEvent.ShowLog(
-                            result.exception.message!!)
-                        )
-                    }
+            when (val result = updateReportUseCase(id, report)) {
+                is Result.Success -> {
+                    _uiState.update { it.copy(isLoading = false) }
+                    _eventChannel.send(UiEvent.ShowToast(
+                        getString(R.string.toast_update_true))
+                    )
+                }
+                is Result.Error -> {
+                    _uiState.update { it.copy(isLoading = false) }
+                    _eventChannel.send(UiEvent.ShowToast(
+                        getString(R.string.toast_update_false))
+                    )
+                    _eventChannel.send(UiEvent.ShowLog(
+                        result.exception.message!!)
+                    )
                 }
             }
         }
@@ -245,27 +321,24 @@ class AppViewModel @Inject constructor(
     /** Elimina un reporte de la BD **/
     fun deleteReport() {
         val state = _uiState.value
+        val id = state.itemsMarker[state.indexMarker].id
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
-            state.itemsMarker?.let { itemsMarker ->
-                val id = itemsMarker[state.indexMarker].id
-                when (val result = deleteReportUseCase(id)) {
-                    is Result.Success -> {
-                        _uiState.update {
-                            it.copy(isLoading = false)
-                        }
-                        _eventChannel.send(UiEvent.ShowToast(
-                            getString(R.string.toast_delete_true))
-                        )
-                    }
-                    is Result.Error -> {
-                        _eventChannel.send(UiEvent.ShowToast(
-                            getString(R.string.toast_delete_false))
-                        )
-                        _eventChannel.send(UiEvent.ShowLog(
-                            result.exception.message!!)
-                        )
-                    }
+            when (val result = deleteReportUseCase(id)) {
+                is Result.Success -> {
+                    _uiState.update { it.copy(isLoading = false) }
+                    _eventChannel.send(UiEvent.ShowToast(
+                        getString(R.string.toast_delete_true))
+                    )
+                }
+                is Result.Error -> {
+                    _uiState.update { it.copy(isLoading = false) }
+                    _eventChannel.send(UiEvent.ShowToast(
+                        getString(R.string.toast_delete_false))
+                    )
+                    _eventChannel.send(UiEvent.ShowLog(
+                        result.exception.message!!)
+                    )
                 }
             }
         }
@@ -280,7 +353,7 @@ class AppViewModel @Inject constructor(
     /** Verifica si el token del usuario corresponde al reporte seleccionado **/
     fun verifyUser(): Boolean{
         val state = _uiState.value
-        return if(!state.itemsMarker.isNullOrEmpty()){
+        return if(!state.itemsMarker.isEmpty()){
             state.textToken.toInt() == state.itemsMarker[state.indexMarker].token }
         else false
     }
@@ -288,7 +361,7 @@ class AppViewModel @Inject constructor(
     /** Muestra y oculta la informacion del marcador seleccionado **/
     fun showMarker(): Boolean{
         val state = _uiState.value
-        return if(!state.itemsMarker.isNullOrEmpty()){
+        return if(!state.itemsMarker.isEmpty()){
             val pos = Validation.convertToPosition(state.itemsMarker[state.indexMarker])
             pos == state.posMarker
         }else{ false }

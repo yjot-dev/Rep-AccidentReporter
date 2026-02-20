@@ -14,18 +14,18 @@ class ReportRepository @Inject constructor(
     private val api: Api
 ) : ReportPort {
     override suspend fun selectReports(): Result<List<ReportEntity>> {
-        return safeApiCallForBody { api.getRetrofit().selectReports() }
+        return safeApiCallForBody { api.getReportsRetrofit().selectReports() }
     }
 
     override suspend fun insertReport(report: ReportEntity): Result<Unit> {
-        return safeApiCallForUnit{ api.getRetrofit().insertReport(report) }
+        return safeApiCallForUnit{ api.getReportsRetrofit().insertReport(report) }
     }
 
     override suspend fun updateReport(id: Int, report: ReportEntity): Result<Unit> {
-        return safeApiCallForUnit{ api.getRetrofit().updateReport(id, report) }
+        return safeApiCallForUnit{ api.getReportsRetrofit().updateReport(id, report) }
     }
 
     override suspend fun deleteReport(id: Int): Result<Unit> {
-        return safeApiCallForUnit{ api.getRetrofit().deleteReport(id) }
+        return safeApiCallForUnit{ api.getReportsRetrofit().deleteReport(id) }
     }
 }

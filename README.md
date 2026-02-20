@@ -1,5 +1,5 @@
 # APP PARA REPORTAR INCIDENTES (ARI)
-Esta app le permite al usuario elegir una ubicación en el mapa para reportar algún incidente; luego de elegir una ubicación, se mostrará un formulario donde debe elegir el tipo de incidente y describir el incidente; luego la app obtiene la fecha actual del dispositivo y guarda el reporte en una BD.
+ARI es una aplicación móvil intuitiva diseñada para que los ciudadanos puedan reportar incidentes de manera rápida y geolocalizada. El objetivo principal es crear un mapa comunitario de sucesos, permitiendo a los usuarios visualizar y gestionar reportes de forma sencilla.
 
 # Características principales
 - 🪟 Interfaz moderna con Jetpack Compose
@@ -23,17 +23,24 @@ Esta app le permite al usuario elegir una ubicación en el mapa para reportar al
 - Material 3
 
 # Uso
-- Al abrir la app, se muestra la vista *Inicio* para avanzar da click en el boton Continuar, luego se mostrara la vista *Mapa*
-- La vista *Mapa* muestra la ubicacion actual pre-configurada de mi pais, hay puede cambiar las coordenadas para adaptaro a su ubicacion, si hay reportes se mostraran puntos de ubicacion
-  de color rojo, en donde se podra hacer click para revisar su informacion, primero saldra una vista emergente mostrando el titulo del aviso y la fecha de publicacion, tambien ofrecera dos
-  opciones, la primera es para ir a la vista *Editar Ubicacion* y la segunda es para borrar el aviso (solo permitido para el propietario del aviso).
-- La vista *Editar Ubicacion* muestra la informacion completa del aviso en modo lectura para todos los usuario excepto para el propietario del aviso, al propietario se le permite actualizar
-  dicha informacion.
-- La vista *Agregar Ubicacion* aparece cuando se hace click en cualquier zona del mapa que no tenga un punto de ubicacion de color rojo, luego el usuario podra crear su propio aviso y ser
-  el propietario del mismo, ademas al agregar el aviso usted puede elegir entre tres tipos de incidentes: 1. Trafico, 2. Accidentes y 3. Problemas en servicios publicos.
-  
+El flujo de uso de la aplicación está pensado para ser directo y eficiente, guiando al usuario a través de los siguientes pasos:
+
+1. Configuración Inicial Sencilla: Al iniciar la aplicación por primera vez, el usuario tiene dos opciones claras:
+   - Configurar Ubicación: Para nuevos usuarios, este es el punto de partida. Se les permite definir su país, provincia y ciudad. La aplicación utiliza esta información para obtener las coordenadas geográficas exactas, personalizando el mapa a su área de interés.
+   - Configurar Token: Para usuarios recurrentes, esta función les permite reingresar un token personal único. Esto les devuelve el control sobre los incidentes que han reportado previamente, permitiéndoles editarlos o eliminarlos.
+2. Visualización en el Mapa Interactivo: Una vez configurada la ubicación, el usuario accede a la vista principal: un mapa interactivo. En este mapa, se muestran con marcadores rojos todos los incidentes reportados por la comunidad. Al seleccionar un marcador, se puede obtener una vista previa con la información básica del incidente.
+3. Gestión de Incidentes: Al hacer clic en la vista previa de un incidente, el sistema ofrece dos posibilidades:
+   - Borrar el Reporte: Si el usuario es el "propietario" original del aviso, puede eliminarlo del mapa.
+   - Ver/Editar Detalles: Esta opción lleva a una pantalla con toda la información del incidente. Para la mayoría de los usuarios, la información es de solo lectura. Sin embargo, para el propietario del reporte, esta pantalla se transforma en un formulario editable, permitiéndole actualizar la información según sea necesario.
+4. Creación de un Nuevo Reporte: La característica central de ARI es la facilidad para añadir nuevos incidentes. El usuario simplemente debe pulsar en cualquier zona libre del mapa. Esto abre un formulario de "Agregar Ubicación", donde puede:
+   - Seleccionar el tipo de incidente de una lista predefinida (ej: Tráfico, Accidentes, Problemas de servicios públicos).
+   - Añadir una descripción detallada del suceso.
+
+Al confirmar, el reporte se guarda, la aplicación registra la fecha automáticamente y el nuevo incidente aparece en el mapa para que toda la comunidad pueda verlo.
+En resumen, ARI empodera a los usuarios para que sean participantes activos en el monitoreo de su comunidad, ofreciendo una herramienta fácil de usar para reportar, visualizar y gestionar incidentes locales de manera efectiva.
+
 # Ver video Demo
-[Ver en YouTube](https://youtu.be/kb6ayPs6utI)
+[Ver en YouTube](https://youtu.be/zd-f3FNwjHA)
 
 # Contribución
 - Haz un fork del repositorio

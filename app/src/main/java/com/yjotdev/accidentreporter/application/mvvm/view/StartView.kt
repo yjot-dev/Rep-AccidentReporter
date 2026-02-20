@@ -27,7 +27,7 @@ import com.yjotdev.accidentreporter.application.utils.ComponentPreview
 fun StartView(
     modifier: Modifier = Modifier,
     onTokenConfig: () -> Unit,
-    onNext: () -> Unit
+    onCountryConfig: () -> Unit
 ){
     Column(
         modifier = modifier.padding(
@@ -59,7 +59,7 @@ fun StartView(
                 .testTag("startview_button1")
         )
         ButtonAccidentReporter(
-            onClick = onNext,
+            onClick = onCountryConfig,
             text = stringResource(R.string.startview_button2),
             modifier = Modifier
                 .fillMaxWidth(0.8f)
@@ -76,7 +76,7 @@ private fun PreviewStartView(){
         StartView(
             modifier = Modifier.fillMaxSize(),
             onTokenConfig = {},
-            onNext = {}
+            onCountryConfig = {}
         )
     }
 }

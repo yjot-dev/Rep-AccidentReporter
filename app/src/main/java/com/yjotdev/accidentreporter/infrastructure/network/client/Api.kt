@@ -7,6 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Inject
 import javax.inject.Singleton
 import com.yjotdev.accidentreporter.BuildConfig
+import com.yjotdev.accidentreporter.infrastructure.network.api.GeocodingApi
 import com.yjotdev.accidentreporter.infrastructure.network.api.ReportApi
 import com.yjotdev.accidentreporter.infrastructure.network.core.NullOnEmptyConverterFactory
 
@@ -19,12 +20,21 @@ class Api @Inject constructor(
     private val httpsClient = if (BuildConfig.DEBUG) { Client.getUnsafeClient(context) }
                               else { Client.getSafeClient() }
 
-    /** API **/
-    fun getRetrofit(): ReportApi = Retrofit.Builder()
+    /** API Tabla Reportes **/
+    fun getReportsRetrofit(): ReportApi = Retrofit.Builder()
         .baseUrl(url)
         .client(httpsClient)
         .addConverterFactory(GsonConverterFactory.create())
         .addConverterFactory(NullOnEmptyConverterFactory())
         .build()
         .create(ReportApi::class.java)
+
+    /** API Geocoding **/
+    fun getGeocodingRetrofit(): GeocodingApi = Retrofit.Builder()
+        .baseUrl(url)
+        .client(httpsClient)
+        .addConverterFactory(GsonConverterFactory.create())
+        .addConverterFactory(NullOnEmptyConverterFactory())
+        .build()
+        .create(GeocodingApi::class.java)
 }

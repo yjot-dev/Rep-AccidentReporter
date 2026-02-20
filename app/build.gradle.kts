@@ -17,22 +17,6 @@ android {
         versionCode = 2
         versionName = "1.3"
         testInstrumentationRunner = "com.yjotdev.accidentreporter.CustomTestRunner"
-        // Variables globales en gradle
-        val apiDomain = project.findProperty("APP_API_DOMAIN") as? String
-            ?: error("La propiedad 'APP_API_DOMAIN' no se encontró en gradle.properties")
-        val certPinIntermediate = project.findProperty("APP_CERT_PIN_INTERMEDIATE") as? String
-            ?: error("La propiedad 'APP_CERT_PIN_INTERMEDIATE' no se encontró en gradle.properties")
-        val certPinLeaf = project.findProperty("APP_CERT_PIN_LEAF") as? String
-            ?: error("La propiedad 'APP_CERT_PIN_LEAF' no se encontró en gradle.properties")
-        // Variables en BuildConfig
-        buildConfigField("String", "API_DOMAIN", "\"$apiDomain\"")
-        buildConfigField("String", "CERT_PIN_INTERMEDIATE", "\"$certPinIntermediate\"")
-        buildConfigField("String", "CERT_PIN_LEAF", "\"$certPinLeaf\"")
-        manifestPlaceholders.putAll(
-            mapOf(
-                "MAPS_API_KEY" to (project.findProperty("MAPS_API_KEY") ?: "")
-            )
-        )
     }
     signingConfigs {
         create("release") {
@@ -46,6 +30,10 @@ android {
         debug {
             applicationIdSuffix = ".debug"
             isDebuggable = true
+            // Key de Google enviada al manifesto
+            val mapsApiKey = project.findProperty("APP_MAPS_API_KEY_DEBUG") as? String
+                ?: error("La propiedad 'APP_MAPS_API_KEY_DEBUG' no se encontró en custom.properties")
+            manifestPlaceholders.putAll(mapOf("MAPS_API_KEY" to mapsApiKey))
         }
         release {
             signingConfig = signingConfigs.getByName("release")
@@ -58,6 +46,10 @@ android {
             ndk {
                 debugSymbolLevel = "FULL"
             }
+            // Key de Google enviada al manifesto
+            val mapsApiKey = project.findProperty("APP_MAPS_API_KEY_RELEASE") as? String
+                ?: error("La propiedad 'APP_MAPS_API_KEY_RELEASE' no se encontró en custom.properties")
+            manifestPlaceholders.putAll(mapOf("MAPS_API_KEY" to mapsApiKey))
         }
     }
     compileOptions {

@@ -12,15 +12,17 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberUpdatedMarkerState
 import com.yjotdev.accidentreporter.R
 import com.yjotdev.accidentreporter.application.components.Position
@@ -33,7 +35,7 @@ import com.yjotdev.accidentreporter.domain.entity.ReportEntity
 fun MapView(
     modifier: Modifier = Modifier,
     isTestMode: Boolean,
-    cameraPositionState: CameraPositionState? = null,
+    location: LatLng,
     itemsMarker: List<ReportEntity>,
     indexMarker: Int,
     showPosition: Boolean,
@@ -65,9 +67,17 @@ fun MapView(
             }
         }
     }else {
+        //Observa estado de la camara del mapa
+        val cameraPositionState = rememberCameraPositionState()
+        LaunchedEffect(key1 = location) {
+            cameraPositionState.animate(
+                CameraUpdateFactory.newLatLngZoom(location, 18f),
+                1000
+            )
+        }
         GoogleMap(
             modifier = modifier,
-            cameraPositionState = cameraPositionState!!,
+            cameraPositionState = cameraPositionState,
             contentDescription = "googleMap",
             onMapClick = onMapClick
         ) {
@@ -123,6 +133,7 @@ private fun PreviewMapView(){
         MapView(
             modifier = Modifier.fillMaxSize(),
             isTestMode = true,
+            location = LatLng(-3.245, -79.832),
             itemsMarker = listOf(
                 ReportEntity(
                     id = 0,
