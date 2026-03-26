@@ -162,7 +162,7 @@ class NavigationViewInstrumentedTest {
             .performClick()
 
         // Esperamos navegación a CountryConfigView
-        waitForRoute(ViewRoutes.CountryConfig.name)
+        waitForRoute(ViewRoutes.LocationConfig.name)
 
         // Escribo el pais
         composeTestRule.onNodeWithTag("countryview_textfield1")
@@ -181,7 +181,7 @@ class NavigationViewInstrumentedTest {
             .performClick()
 
         // Verificación final
-        assertEquals(ViewRoutes.CountryConfig.name, navController.currentDestination?.route)
+        assertEquals(ViewRoutes.LocationConfig.name, navController.currentDestination?.route)
     }
 
     @Test
@@ -204,14 +204,14 @@ class NavigationViewInstrumentedTest {
             .performClick()
 
         // Esperamos navegación a CountryConfigView
-        waitForRoute(ViewRoutes.CountryConfig.name)
+        waitForRoute(ViewRoutes.LocationConfig.name)
 
         // Verificamos que existe un boton "Continuar"
         composeTestRule.onNodeWithTag("countryview_button2")
             .assertExists()
 
         // Verificación final
-        assertEquals(ViewRoutes.CountryConfig.name, navController.currentDestination?.route)
+        assertEquals(ViewRoutes.LocationConfig.name, navController.currentDestination?.route)
     }
 
     /**

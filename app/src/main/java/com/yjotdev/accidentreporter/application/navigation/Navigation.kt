@@ -28,7 +28,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.yjotdev.accidentreporter.application.components.LoadingScreen
 import com.yjotdev.accidentreporter.application.components.TitleBar
 import com.yjotdev.accidentreporter.application.mvvm.view.AddPositionView
-import com.yjotdev.accidentreporter.application.mvvm.view.CountryConfigView
+import com.yjotdev.accidentreporter.application.mvvm.view.LocationConfigView
 import com.yjotdev.accidentreporter.application.mvvm.view.EditPositionView
 import com.yjotdev.accidentreporter.application.mvvm.view.MapView
 import com.yjotdev.accidentreporter.application.mvvm.view.StartView
@@ -92,8 +92,14 @@ fun Navigation(
             composable(route = ViewRoutes.Start.name) {
                 StartView(
                     modifier = Modifier.fillMaxSize(),
-                    onTokenConfig = { navController.navigate(ViewRoutes.TokenConfig.name) },
-                    onCountryConfig = { navController.navigate(ViewRoutes.CountryConfig.name) }
+                    onTokenConfig = {
+                        viewModel.getToken()
+                        navController.navigate(ViewRoutes.TokenConfig.name)
+                    },
+                    onLocationConfig = {
+                        viewModel.getLocation()
+                        navController.navigate(ViewRoutes.LocationConfig.name)
+                    }
                 )
             }
             composable(route = ViewRoutes.TokenConfig.name) {
@@ -120,12 +126,12 @@ fun Navigation(
                     }
                 )
             }
-            composable(route = ViewRoutes.CountryConfig.name) {
+            composable(route = ViewRoutes.LocationConfig.name) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    CountryConfigView(
+                    LocationConfigView(
                         modifier = Modifier.fillMaxSize(),
                         country = state.textCountry,
                         province = state.textProvince,

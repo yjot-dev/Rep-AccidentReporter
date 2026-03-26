@@ -42,7 +42,7 @@ class AppViewModel @Inject constructor(
     private val insertReportUseCase: InsertReportUseCase,
     private val updateReportUseCase: UpdateReportUseCase,
     private val deleteReportUseCase: DeleteReportUseCase,
-    private val createTokenUseCase: CreateTokenUseCase,
+    createTokenUseCase: CreateTokenUseCase,
     private val getTokenUseCase: GetTokenUseCase,
     private val editTokenUseCase: EditTokenUseCase
 ): ViewModel() {
@@ -58,24 +58,30 @@ class AppViewModel @Inject constructor(
     }
 
     init {
+        createTokenUseCase()
         getToken()
         getLocation()
     }
 
     /** Carga el token guardado **/
-    private fun getToken() {
-        createTokenUseCase()
-        setTextToken(getTokenUseCase().toString())
+    fun getToken() {
+        _uiState.update { state ->
+            state.copy(textToken = getTokenUseCase().toString())
+        }
     }
 
     /** Carga la ubicacion guardada **/
-    private fun getLocation() {
+    fun getLocation() {
         val location = getLocationUseCase()
         if(location != "") {
             location.split(",")
-            setTextCountry(location[0].toString())
-            setTextProvince(location[1].toString())
-            setTextCity(location[2].toString())
+            _uiState.update { state ->
+                state.copy(
+                    textCountry = location[0].toString(),
+                    textProvince = location[1].toString(),
+                    textCity = location[2].toString()
+                )
+            }
         }
     }
 

@@ -5,9 +5,9 @@
     <string name="startview_button2">Set up country</string>
     <string name="tokenconfigview_title">Token</string>
     <string name="tokenconfigview_button">Update</string>
-    <string name="countryconfigview_title">Country</string>
-    <string name="countryconfigview_button1">Search location</string>
-    <string name="countryconfigview_button2">Continue</string>
+    <string name="locationconfigview_title">Country</string>
+    <string name="locationconfigview_button1">Search location</string>
+    <string name="locationconfigview_button2">Continue</string>
     <string name="mapview_title">Map</string>
     <string name="mapview_date">Date: %1$s</string>
     <string name="mapview_type">Type: %1$s</string>

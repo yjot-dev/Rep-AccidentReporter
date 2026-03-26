@@ -18,7 +18,7 @@ import com.yjotdev.accidentreporter.application.theme.AccidentReporterTheme
 import com.yjotdev.accidentreporter.application.utils.ComponentPreview
 
 @Composable
-fun CountryConfigView(
+fun LocationConfigView(
     modifier: Modifier = Modifier,
     country: String,
     province: String,
@@ -64,7 +64,7 @@ fun CountryConfigView(
         )
         ButtonAccidentReporter(
             onClick = onSearchLocation,
-            text = stringResource(R.string.countryconfigview_button1),
+            text = stringResource(R.string.locationconfigview_button1),
             modifier = Modifier
                 .fillMaxWidth(0.8f)
                 .height(dimensionResource(R.dimen.dp_5))
@@ -73,7 +73,7 @@ fun CountryConfigView(
         ButtonAccidentReporter(
             enabled = enableOnMap,
             onClick = onMap,
-            text = stringResource(R.string.countryconfigview_button2),
+            text = stringResource(R.string.locationconfigview_button2),
             modifier = Modifier
                 .fillMaxWidth(0.8f)
                 .height(dimensionResource(R.dimen.dp_5))
@@ -84,9 +84,9 @@ fun CountryConfigView(
 
 @ComponentPreview
 @Composable
-private fun PreviewCountryConfigView() {
+private fun PreviewLocationConfigView() {
     AccidentReporterTheme {
-        CountryConfigView(
+        LocationConfigView(
             modifier = Modifier.fillMaxSize(),
             country = "Ecuador",
             province = "El Oro",
