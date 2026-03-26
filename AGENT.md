@@ -15,26 +15,29 @@
 
 ### A.1.2 Perfil de Estructura: MVVM Simple
 - **Uso:** Ideal para aplicaciones pequeñas, de una sola capa, que no se conectan a APIs o bases de datos complejas y gestionan su lógica principalmente en la capa de presentación.
-- **Estructura de Directorios (`application`):**
-    - `mvvm`: Contiene las view, viewmodel y model de la aplicación.
-        - `view`: Contiene las UI (pantallas) de la aplicación.
-            - `NombreDePantallaView.kt`
-        - `viewmodel`: Contiene la lógica de UI de la aplicación.
-            - `UiViewModel.kt`
-        - `model`: Contiene los modelos de datos de la UI (Data Class, `UiState`).
-            - `UiModel.kt`
-    - `navigation`: Lógica de navegación.
-    - **(Condicional) Si el paradigma es `UI_COMPOSE`:**
-        - `components`: Composables reutilizables en varias UI.
-        - `theme`: Tema de la aplicación.
-    - **(Condicional) Si el paradigma es `UI_XML`:**
-        - Se omiten los directorios `components` y `theme`.
-        - Las vistas (layouts XML) residen en el directorio `res/layout`.
-        - Los estilos y temas residen en el directorio `res/values`.
+- **Estructura de Directorios:**
+    - `application` (Capa de Presentación)
+        - `mvvm`: Contiene las view, viewmodel y model de la aplicación.
+            - `view`: Contiene las UI (pantallas) de la aplicación.
+                - `NombreDePantallaView.kt`
+            - `viewmodel`: Contiene la lógica de UI de la aplicación.
+                - `UiViewModel.kt`
+            - `model`: Contiene los modelos de datos de la UI (Data Class, `UiState`).
+                - `UiModel.kt`
+        - `navigation`: Lógica de navegación.
+        - **(Condicional) Si el paradigma es `UI_COMPOSE`:**
+            - `components`: Composables reutilizables en varias UI.
+            - `theme`: Tema de la aplicación.
+        - **(Condicional) Si el paradigma es `UI_XML`:**
+            - Se omiten los directorios `components` y `theme`.
+            - Las vistas (layouts XML) residen en el directorio `res/layout`.
+            - Los estilos y temas residen en el directorio `res/values`.
+        - `utils`: Contiene helpers sin estado y funciones puras que realizan tareas de apoyo muy específicas y reutilizables.
+            - `Helper.kt`
 
 ### A.1.3 Perfil de Estructura: Arquitectura Hexagonal
 - **Uso:** Para aplicaciones completas que requieren una separación estricta de responsabilidades, con capas de dominio, datos (infraestructura) y aplicación bien definidas. Ideal para proyectos con APIs, bases de datos, etc.
-- **Estructura de Módulos/Paquetes:**
+- **Estructura de Directorios:**
     - `application` (Capa de Presentación)
         - `mvvm`: Contiene las view, viewmodel y model de la aplicación.
             - `view`: Contiene las UI (pantallas) de la aplicación.

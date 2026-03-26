@@ -35,6 +35,7 @@ import com.yjotdev.accidentreporter.application.mvvm.view.StartView
 import com.yjotdev.accidentreporter.application.mvvm.view.TokenConfigView
 import com.yjotdev.accidentreporter.application.mvvm.viewmodel.AppViewModel
 import com.yjotdev.accidentreporter.R
+import com.yjotdev.accidentreporter.application.utils.Helper
 
 @Composable
 fun Navigation(
@@ -102,7 +103,21 @@ fun Navigation(
                     onTokenText = { viewModel.setTextToken(it) },
                     enableControls = state.enableUpdate,
                     onEnableControls = { viewModel.setEnableUpdate(!it) },
-                    onUpdate = { viewModel.editToken(state.textToken) }
+                    onUpdate = {
+                        if (state.textToken.isNotEmpty()) {
+                            if (Helper.isValidNumber(state.textToken)) {
+                                viewModel.editToken(state.textToken)
+                            } else {
+                                Toast.makeText(
+                                    context, context.getString(R.string.toast_invalid_data), Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        } else {
+                            Toast.makeText(
+                                context, context.getString(R.string.toast_empty_field), Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
                 )
             }
             composable(route = ViewRoutes.CountryConfig.name) {
@@ -119,7 +134,25 @@ fun Navigation(
                         onCountry = { viewModel.setTextCountry(it) },
                         onProvince = { viewModel.setTextProvince(it) },
                         onCity = { viewModel.setTextCity(it) },
-                        onSearchLocation = { viewModel.selectGeocoding() },
+                        onSearchLocation = {
+                            if (state.textCountry.isNotEmpty()
+                                && state.textProvince.isNotEmpty()
+                                && state.textCity.isNotEmpty()) {
+                                if (Helper.isValidText(state.textCountry)
+                                    && Helper.isValidText(state.textProvince)
+                                    && Helper.isValidText(state.textCity)) {
+                                    viewModel.selectGeocoding()
+                                } else {
+                                    Toast.makeText(
+                                        context, context.getString(R.string.toast_invalid_data), Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            } else {
+                                Toast.makeText(
+                                    context, context.getString(R.string.toast_empty_field), Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        },
                         onMap = { viewModel.selectReports() }
                     )
                     if(state.isLoading) LoadingScreen()
@@ -174,7 +207,21 @@ fun Navigation(
                         onTextDescription = { viewModel.setTextDescription(it) },
                         indexSelected = state.indexComboBox,
                         onIndexSelected = { viewModel.setIndexComboBox(it) },
-                        onAdd = { viewModel.insertReport() }
+                        onAdd = {
+                            if (state.textDescription.isNotEmpty()) {
+                                if (Helper.isValidText(state.textDescription)) {
+                                    viewModel.insertReport()
+                                } else {
+                                    Toast.makeText(
+                                        context, context.getString(R.string.toast_invalid_data), Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            } else {
+                                Toast.makeText(
+                                    context, context.getString(R.string.toast_empty_field), Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
                     )
                     if(state.isLoading) LoadingScreen()
                 }
@@ -197,7 +244,21 @@ fun Navigation(
                         onTextDescription = { viewModel.setTextDescription(it) },
                         indexSelected = state.indexComboBox,
                         onIndexSelected = { viewModel.setIndexComboBox(it) },
-                        onUpdate = { viewModel.updateReport() }
+                        onUpdate = {
+                            if (state.textDescription.isNotEmpty()) {
+                                if (Helper.isValidText(state.textDescription)) {
+                                    viewModel.updateReport()
+                                } else {
+                                    Toast.makeText(
+                                        context, context.getString(R.string.toast_invalid_data), Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            } else {
+                                Toast.makeText(
+                                    context, context.getString(R.string.toast_empty_field), Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
                     )
                     if(state.isLoading) LoadingScreen()
                 }

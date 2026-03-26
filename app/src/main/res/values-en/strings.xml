@@ -33,4 +33,6 @@
     <string name="toast_delete_true">Report deleted</string>
     <string name="toast_delete_false">Error deleting report</string>
     <string name="toast_update_token">Token updated</string>
+    <string name="toast_empty_field">Empty field</string>
+    <string name="toast_invalid_data">Invalid Data</string>
 </resources>

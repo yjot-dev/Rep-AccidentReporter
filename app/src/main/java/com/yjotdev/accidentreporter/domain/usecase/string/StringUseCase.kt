@@ -11,4 +11,8 @@ class StringUseCase @Inject constructor(
     operator fun invoke(resId: Int): String {
         return stringPort.getString(resId)
     }
+
+    operator fun invoke(resId: Int, vararg args: Any): String {
+        return stringPort.getString(resId, *args)
+    }
 }

@@ -16,7 +16,7 @@ import javax.inject.Inject
 import com.yjotdev.accidentreporter.application.mvvm.model.AppModel
 import com.yjotdev.accidentreporter.application.navigation.UiEvent
 import com.yjotdev.accidentreporter.application.navigation.ViewRoutes
-import com.yjotdev.accidentreporter.application.utils.Validation
+import com.yjotdev.accidentreporter.application.utils.Helper
 import com.yjotdev.accidentreporter.domain.entity.ReportEntity
 import com.yjotdev.accidentreporter.domain.core.Result
 import com.yjotdev.accidentreporter.domain.usecase.geocoding.SelectGeocodingUseCase
@@ -28,9 +28,9 @@ import com.yjotdev.accidentreporter.domain.usecase.report.SelectReportUseCase
 import com.yjotdev.accidentreporter.domain.usecase.report.DeleteReportUseCase
 import com.yjotdev.accidentreporter.domain.usecase.report.InsertReportUseCase
 import com.yjotdev.accidentreporter.domain.usecase.report.UpdateReportUseCase
-import com.yjotdev.accidentreporter.R
 import com.yjotdev.accidentreporter.domain.usecase.geocoding.EditLocationUseCase
 import com.yjotdev.accidentreporter.domain.usecase.geocoding.GetLocationUseCase
+import com.yjotdev.accidentreporter.R
 
 @HiltViewModel
 class AppViewModel @Inject constructor(
@@ -259,7 +259,7 @@ class AppViewModel @Inject constructor(
             latitude = state.posMarker.latitude,
             longitude = state.posMarker.longitude,
             date = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                Validation.getDateToString()
+                Helper.getDateToString()
             }else "",
             type = state.itemsComboBox[state.indexComboBox],
             description = state.textDescription,
@@ -362,7 +362,7 @@ class AppViewModel @Inject constructor(
     fun showMarker(): Boolean{
         val state = _uiState.value
         return if(!state.itemsMarker.isEmpty()){
-            val pos = Validation.convertToPosition(state.itemsMarker[state.indexMarker])
+            val pos = Helper.convertToPosition(state.itemsMarker[state.indexMarker])
             pos == state.posMarker
         }else{ false }
     }

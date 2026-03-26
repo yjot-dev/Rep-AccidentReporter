@@ -7,7 +7,17 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import com.yjotdev.accidentreporter.domain.entity.ReportEntity
 
-object Validation {
+object Helper {
+    /** Valida si un string es un numero **/
+    fun isValidNumber(input: String): Boolean{
+        return Regex("^[0-9]+\$").matches(input)
+    }
+
+    /** Valida si un string es un texto **/
+    fun isValidText(input: String): Boolean{
+        return Regex("^[A-Za-z ]+\$").matches(input)
+    }
+
     /** Convierte un marcador a posicion **/
     fun convertToPosition(marker: ReportEntity): LatLng {
         return LatLng(marker.latitude, marker.longitude)

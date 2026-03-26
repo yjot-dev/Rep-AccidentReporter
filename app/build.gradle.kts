@@ -14,7 +14,7 @@ android {
         applicationId = "com.yjotdev.accidentreporter"
         minSdk = 24
         targetSdk = 35
-        versionCode = 2
+        versionCode = 3
         versionName = "1.3"
         testInstrumentationRunner = "com.yjotdev.accidentreporter.CustomTestRunner"
     }
