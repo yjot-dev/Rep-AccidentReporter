@@ -31,9 +31,9 @@ android {
             applicationIdSuffix = ".debug"
             isDebuggable = true
             // Key de Google enviada al manifesto
-            val mapsApiKey = project.findProperty("APP_MAPS_API_KEY_DEBUG") as? String
-                ?: error("La propiedad 'APP_MAPS_API_KEY_DEBUG' no se encontró en custom.properties")
+            val mapsApiKey = project.findProperty("APP_MAPS_API_KEY_DEBUG") as String
             manifestPlaceholders.putAll(mapOf("MAPS_API_KEY" to mapsApiKey))
+            buildConfigField("String", "API_BASE_URL", "\"${project.findProperty("API_BASE_URL_DEBUG")}\"")
         }
         release {
             signingConfig = signingConfigs.getByName("release")
@@ -47,9 +47,9 @@ android {
                 debugSymbolLevel = "FULL"
             }
             // Key de Google enviada al manifesto
-            val mapsApiKey = project.findProperty("APP_MAPS_API_KEY_RELEASE") as? String
-                ?: error("La propiedad 'APP_MAPS_API_KEY_RELEASE' no se encontró en custom.properties")
+            val mapsApiKey = project.findProperty("APP_MAPS_API_KEY_RELEASE") as String
             manifestPlaceholders.putAll(mapOf("MAPS_API_KEY" to mapsApiKey))
+            buildConfigField("String", "API_BASE_URL", "\"${project.findProperty("API_BASE_URL_RELEASE")}\"")
         }
     }
     compileOptions {

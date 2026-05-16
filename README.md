@@ -5,9 +5,10 @@ ARI es una aplicación móvil intuitiva diseñada para que los ciudadanos puedan
 - 🪟 Interfaz moderna con Jetpack Compose
 - 🌐 Navegación con Navigation Component
 - 📊 Integración con ViewModel + StateFlow
-- 🎨 Patrón de diseño arquitectónico con MVVM + Hexagonal
-- 🧩 Inyección de dependencias con Hilt
-- 💽 Base de datos remota con MySQL, la API RESTful con Node y la API de Google Maps
+- 🎨 Patrón de diseño arquitectónico con MVVM + Clean Architecture
+- 💉 Inyección de dependencias con Hilt
+- 💽 Base de datos remota con MySQL
+- 🧩 API RESTful con Node.JS y la API de Google Maps
 - 📱 Compatible con Android 7.0 (API 24) en adelante
 
 # Instalación

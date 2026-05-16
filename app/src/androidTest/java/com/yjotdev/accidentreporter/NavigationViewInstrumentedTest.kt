@@ -21,9 +21,9 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import junit.framework.TestCase.assertEquals
-import com.yjotdev.accidentreporter.application.navigation.PermissionView
-import com.yjotdev.accidentreporter.application.navigation.ViewRoutes
-import com.yjotdev.accidentreporter.application.theme.AccidentReporterTheme
+import com.yjotdev.accidentreporter.presentation.navigation.PermissionView
+import com.yjotdev.accidentreporter.presentation.navigation.ViewRoutes
+import com.yjotdev.accidentreporter.presentation.theme.AccidentReporterTheme
 
 /**
  * Instrumented test, which will execute on an Android device.

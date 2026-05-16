@@ -3,14 +3,14 @@ package com.yjotdev.accidentreporter.domain.usecase.report
 import javax.inject.Inject
 import javax.inject.Singleton
 import com.yjotdev.accidentreporter.domain.core.Result
-import com.yjotdev.accidentreporter.domain.port.ReportPort
-import com.yjotdev.accidentreporter.domain.entity.ReportEntity
+import com.yjotdev.accidentreporter.domain.repository.ReportRepository
+import com.yjotdev.accidentreporter.domain.model.ReportModel
 
 @Singleton
 class InsertReportUseCase @Inject constructor(
-    private val reportPort: ReportPort
+    private val reportRepository: ReportRepository
 ) {
-    suspend operator fun invoke(report: ReportEntity): Result<Unit> {
-        return reportPort.insertReport(report)
+    suspend operator fun invoke(report: ReportModel): Result<Unit> {
+        return reportRepository.insertReport(report)
     }
 }

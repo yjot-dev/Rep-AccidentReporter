@@ -5,15 +5,15 @@ import dagger.Binds
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
 import javax.inject.Singleton
-import com.yjotdev.accidentreporter.domain.port.ReportPort
-import com.yjotdev.accidentreporter.domain.port.StringPort
-import com.yjotdev.accidentreporter.domain.port.TokenPort
-import com.yjotdev.accidentreporter.domain.port.GeocodingPort
-import com.yjotdev.accidentreporter.infrastructure.di.DiModules
-import com.yjotdev.accidentreporter.utils.repositories.FakeGeocodingRepository
-import com.yjotdev.accidentreporter.utils.repositories.FakeReportRepository
-import com.yjotdev.accidentreporter.utils.repositories.FakeStringRepository
-import com.yjotdev.accidentreporter.utils.repositories.FakeTokenRepository
+import com.yjotdev.accidentreporter.domain.repository.ReportRepository
+import com.yjotdev.accidentreporter.domain.repository.StringRepository
+import com.yjotdev.accidentreporter.domain.repository.TokenRepository
+import com.yjotdev.accidentreporter.domain.repository.GeocodingRepository
+import com.yjotdev.accidentreporter.data.di.DiModules
+import com.yjotdev.accidentreporter.utils.repositories.FakeGeocodingRepositoryImpl
+import com.yjotdev.accidentreporter.utils.repositories.FakeReportRepositoryImpl
+import com.yjotdev.accidentreporter.utils.repositories.FakeStringRepositoryImpl
+import com.yjotdev.accidentreporter.utils.repositories.FakeTokenRepositoryImpl
 
 @Module
 @TestInstallIn(
@@ -22,27 +22,32 @@ import com.yjotdev.accidentreporter.utils.repositories.FakeTokenRepository
 )
 @Suppress("unused")
 abstract class DiModulesTest {
+
+    // --- BINDINGS (Abstracciones) ---
     @Binds
     @Singleton
     abstract fun bindFakeReportRepository(
-        impl: FakeReportRepository
-    ): ReportPort
+        impl: FakeReportRepositoryImpl
+    ): ReportRepository
 
     @Binds
     @Singleton
     abstract fun bindFakeTokenRepository(
-        impl: FakeTokenRepository
-    ): TokenPort
+        impl: FakeTokenRepositoryImpl
+    ): TokenRepository
 
     @Binds
     @Singleton
     abstract fun bindFakeStringRepository(
-        impl: FakeStringRepository
-    ): StringPort
+        impl: FakeStringRepositoryImpl
+    ): StringRepository
 
     @Binds
     @Singleton
     abstract fun bindFakeGeocodingRepository(
-        impl: FakeGeocodingRepository
-    ): GeocodingPort
+        impl: FakeGeocodingRepositoryImpl
+    ): GeocodingRepository
+
+    // --- PROVIDERS (Instancias externas) ---
+    // No son necesarios aqui
 }

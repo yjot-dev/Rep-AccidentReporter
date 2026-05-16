@@ -26,8 +26,8 @@ import io.mockk.Runs
 import io.mockk.just
 import io.mockk.verify
 import com.yjotdev.accidentreporter.domain.core.Result
-import com.yjotdev.accidentreporter.domain.entity.ReportEntity
-import com.yjotdev.accidentreporter.domain.entity.GeocodingEntity
+import com.yjotdev.accidentreporter.domain.model.ReportModel
+import com.yjotdev.accidentreporter.domain.model.GeocodingModel
 import com.yjotdev.accidentreporter.domain.usecase.string.StringUseCase
 import com.yjotdev.accidentreporter.domain.usecase.geocoding.SelectGeocodingUseCase
 import com.yjotdev.accidentreporter.domain.usecase.geocoding.EditLocationUseCase
@@ -39,9 +39,9 @@ import com.yjotdev.accidentreporter.domain.usecase.report.UpdateReportUseCase
 import com.yjotdev.accidentreporter.domain.usecase.token.CreateTokenUseCase
 import com.yjotdev.accidentreporter.domain.usecase.token.EditTokenUseCase
 import com.yjotdev.accidentreporter.domain.usecase.token.GetTokenUseCase
-import com.yjotdev.accidentreporter.application.mvvm.viewmodel.AppViewModel
-import com.yjotdev.accidentreporter.application.navigation.UiEvent
-import com.yjotdev.accidentreporter.application.navigation.ViewRoutes
+import com.yjotdev.accidentreporter.presentation.mvvm.viewmodel.UiViewModel
+import com.yjotdev.accidentreporter.presentation.navigation.UiEvent
+import com.yjotdev.accidentreporter.presentation.navigation.ViewRoutes
 
 /**
  * Pruebas unitarias para los metodos del ViewModel.
@@ -74,7 +74,7 @@ class ViewModelTest {
     private lateinit var editTokenUseCase: EditTokenUseCase
 
     // La instancia del ViewModel que vamos a probar.
-    private lateinit var viewModel: AppViewModel
+    private lateinit var viewModel: UiViewModel
 
     // Un TestDispatcher para controlar el hilo principal en las pruebas.
     private val testDispatcher = StandardTestDispatcher()
@@ -86,7 +86,7 @@ class ViewModelTest {
         // Establece el dispatcher de prueba como el principal para controlar las corutinas.
         Dispatchers.setMain(testDispatcher)
         // Crea la instancia del ViewModel con los mocks.
-        viewModel = AppViewModel(
+        viewModel = UiViewModel(
             getString = getStringUseCase,
             selectGeocodingUseCase = selectGeocodingUseCase,
             getLocationUseCase = getLocationUseCase,
@@ -113,7 +113,7 @@ class ViewModelTest {
     fun whenSelectGeocodingIsSuccessfulThenUiStateIsUpdatedWithDataAndNavigationEventIsSent() = runTest {
         // Given: Preparamos el escenario
         val successMessage = "Ubicacion encontrada"
-        val fakeLocation = GeocodingEntity(lat = -3.245274, lng = -79.832028)
+        val fakeLocation = GeocodingModel(lat = -3.245274, lng = -79.832028)
         coEvery { selectGeocodingUseCase(any(),any(),any()) } returns Result.Success(fakeLocation)
         every { getStringUseCase(R.string.toast_geocoding_true) } returns successMessage
 
@@ -196,7 +196,7 @@ class ViewModelTest {
     @Test
     fun whenSelectReportsIsSuccessfulThenUiStateIsUpdatedWithDataAndNavigationEventIsSent() = runTest {
         // Given: Preparamos el escenario
-        val fakeReportList = listOf(ReportEntity(
+        val fakeReportList = listOf(ReportModel(
             id = 1,
             latitude = -3.245274,
             longitude = -79.832028,
@@ -258,7 +258,7 @@ class ViewModelTest {
 
                 val errorState = awaitItem() // Estado final con el error
                 assertFalse(errorState.isLoading)
-                assertEquals(emptyList<ReportEntity>(), errorState.itemsMarker)
+                assertEquals(emptyList<ReportModel>(), errorState.itemsMarker)
             }
         }
 
@@ -376,7 +376,7 @@ class ViewModelTest {
     fun whenUpdateReportIsSuccessfulThenToastEventIsSent() = runTest {
         // Given
         val successMessage = "Report updated"
-        val reportToUpdate = ReportEntity(id = 1, description = "Old Description", token = 123)
+        val reportToUpdate = ReportModel(id = 1, description = "Old Description", token = 123)
 
         // Configuramos el estado inicial del ViewModel
         viewModel.setItemsMarker(listOf(reportToUpdate))
@@ -425,7 +425,7 @@ class ViewModelTest {
         // Given
         val errorMessage = "Database Error"
         val toastMessage = "Error updating report"
-        val reportToUpdate = ReportEntity(id = 1, description = "Old Description", token = 123)
+        val reportToUpdate = ReportModel(id = 1, description = "Old Description", token = 123)
 
         // Configuramos el estado inicial del ViewModel
         viewModel.setItemsMarker(listOf(reportToUpdate))
@@ -475,7 +475,7 @@ class ViewModelTest {
     fun whenDeleteReportIsSuccessfulThenToastEventIsSent() = runTest {
         // Given
         val successMessage = "Report deleted"
-        val reportToDelete = ReportEntity(id = 5, description = "Report to be deleted", token = 123)
+        val reportToDelete = ReportModel(id = 5, description = "Report to be deleted", token = 123)
 
         // Configuramos el estado inicial
         viewModel.setItemsMarker(listOf(reportToDelete))
@@ -520,7 +520,7 @@ class ViewModelTest {
         // Given
         val errorMessage = "Deletion failed"
         val toastMessage = "Error deleting report"
-        val reportToDelete = ReportEntity(id = 5, description = "Report to be deleted", token = 123)
+        val reportToDelete = ReportModel(id = 5, description = "Report to be deleted", token = 123)
 
         // Configuramos el estado inicial
         viewModel.setItemsMarker(listOf(reportToDelete))
@@ -692,7 +692,7 @@ class ViewModelTest {
         // Given
         val userToken = "123456"
         val reports = listOf(
-            ReportEntity(
+            ReportModel(
                 id = 1,
                 latitude = -3.245274,
                 longitude = -79.832028,
@@ -700,7 +700,7 @@ class ViewModelTest {
                 type = "Accidentes",
                 description = "Test Report 1",
                 token = 123456),
-            ReportEntity(
+            ReportModel(
                 id = 2,
                 latitude = -3.456789,
                 longitude = -79.986745,
@@ -722,7 +722,7 @@ class ViewModelTest {
         // Given
         val userToken = "999999"
         val reports = listOf(
-            ReportEntity(
+            ReportModel(
                 id = 1,
                 latitude = -3.245274,
                 longitude = -79.832028,
@@ -730,7 +730,7 @@ class ViewModelTest {
                 type = "Accidentes",
                 description = "Test Report 1",
                 token = 123456),
-            ReportEntity(
+            ReportModel(
                 id = 2,
                 latitude = -3.456789,
                 longitude = -79.986745,

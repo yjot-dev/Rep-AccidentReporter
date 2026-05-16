@@ -3,14 +3,14 @@ package com.yjotdev.accidentreporter.domain.usecase.geocoding
 import javax.inject.Inject
 import javax.inject.Singleton
 import com.yjotdev.accidentreporter.domain.core.Result
-import com.yjotdev.accidentreporter.domain.entity.GeocodingEntity
-import com.yjotdev.accidentreporter.domain.port.GeocodingPort
+import com.yjotdev.accidentreporter.domain.model.GeocodingModel
+import com.yjotdev.accidentreporter.domain.repository.GeocodingRepository
 
 @Singleton
 class SelectGeocodingUseCase @Inject constructor(
-    private val geocodingPort: GeocodingPort
+    private val geocodingRepository: GeocodingRepository
 ) {
-    suspend operator fun invoke(country: String, province: String, city: String): Result<GeocodingEntity> {
-        return geocodingPort.selectGeocoding(country, province, city)
+    suspend operator fun invoke(country: String, province: String, city: String): Result<GeocodingModel> {
+        return geocodingRepository.selectGeocoding(country, province, city)
     }
 }

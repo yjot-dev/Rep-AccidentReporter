@@ -15,8 +15,8 @@ import kotlinx.coroutines.test.runTest
 import com.yjotdev.accidentreporter.domain.usecase.geocoding.EditLocationUseCase
 import com.yjotdev.accidentreporter.domain.usecase.geocoding.GetLocationUseCase
 import com.yjotdev.accidentreporter.domain.usecase.geocoding.SelectGeocodingUseCase
-import com.yjotdev.accidentreporter.domain.port.GeocodingPort
-import com.yjotdev.accidentreporter.domain.entity.GeocodingEntity
+import com.yjotdev.accidentreporter.domain.repository.GeocodingRepository
+import com.yjotdev.accidentreporter.domain.model.GeocodingModel
 import com.yjotdev.accidentreporter.domain.core.Result
 
 /**
@@ -25,7 +25,7 @@ import com.yjotdev.accidentreporter.domain.core.Result
 @ExperimentalCoroutinesApi
 class GeocodingUseCaseTest {
 
-    private lateinit var geocodingPort: GeocodingPort
+    private lateinit var geocodingRepository: GeocodingRepository
 
     private lateinit var selectGeocodingUseCase: SelectGeocodingUseCase
     private lateinit var getLocationUseCase: GetLocationUseCase
@@ -34,51 +34,51 @@ class GeocodingUseCaseTest {
     @Before
     fun setUp() {
         // Inicializamos el mock antes de cada test
-        geocodingPort = mockk()
+        geocodingRepository = mockk()
         // Creamos las instancias de los casos de uso con el mock
-        selectGeocodingUseCase = SelectGeocodingUseCase(geocodingPort)
-        getLocationUseCase = GetLocationUseCase(geocodingPort)
-        editLocationUseCase = EditLocationUseCase(geocodingPort)
+        selectGeocodingUseCase = SelectGeocodingUseCase(geocodingRepository)
+        getLocationUseCase = GetLocationUseCase(geocodingRepository)
+        editLocationUseCase = EditLocationUseCase(geocodingRepository)
     }
 
     @Test
     fun whenSelectGeocodingUseCaseIsInvokedThenPortMethodIsCalledAndReturnsData() = runTest {
         // Given: Configuramos el mock para que devuelva un resultado exitoso
-        val fakeResponse: GeocodingEntity = mockk()
-        coEvery { geocodingPort.selectGeocoding(any(), any(), any()) } returns Result.Success(fakeResponse)
+        val fakeResponse: GeocodingModel = mockk()
+        coEvery { geocodingRepository.selectGeocoding(any(), any(), any()) } returns Result.Success(fakeResponse)
 
         // When: Invocamos el caso de uso
         val result = selectGeocodingUseCase("Ecuador", "El Oro", "El Guabo")
 
         // Then: Verificamos que el resultado es el esperado y que se llamó al puerto
         assertEquals(fakeResponse, (result as Result.Success).data)
-        coVerify(exactly = 1) { geocodingPort.selectGeocoding("Ecuador", "El Oro", "El Guabo") }
+        coVerify(exactly = 1) { geocodingRepository.selectGeocoding("Ecuador", "El Oro", "El Guabo") }
     }
 
     @Test
     fun whenGetLocationUseCaseIsInvokedThenItReturnsLocationFromPort() {
         // Given
         val expectedLocation = "Ecuador,El Oro,El Guabo"
-        every { geocodingPort.getLocation() } returns expectedLocation
+        every { geocodingRepository.getLocation() } returns expectedLocation
 
         // When
         val actualLocation = getLocationUseCase()
 
         // Then
         assertEquals(expectedLocation, actualLocation)
-        verify(exactly = 1) { geocodingPort.getLocation() }
+        verify(exactly = 1) { geocodingRepository.getLocation() }
     }
 
     @Test
     fun whenEditLocationUseCaseIsInvokedThenPortMethodIsCalledWithCorrectData() {
         // Given
         val newLocation = "Ecuador,Pichincha,Quito"
-        every { geocodingPort.editLocation(newLocation) } just runs
+        every { geocodingRepository.editLocation(newLocation) } just runs
 
         // When
         editLocationUseCase(newLocation)
 
         // Then
-        verify(exactly = 1) { geocodingPort.editLocation(newLocation) }
+        verify(exactly = 1) { geocodingRepository.editLocation(newLocation) }
     }
 }
