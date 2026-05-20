@@ -19,15 +19,15 @@ import com.yjotdev.accidentreporter.presentation.navigation.ViewRoutes
 import com.yjotdev.accidentreporter.presentation.utils.Helper
 import com.yjotdev.accidentreporter.domain.model.ReportModel
 import com.yjotdev.accidentreporter.domain.core.Result
-import com.yjotdev.accidentreporter.domain.usecase.geocoding.SelectGeocodingUseCase
 import com.yjotdev.accidentreporter.domain.usecase.string.StringUseCase
-import com.yjotdev.accidentreporter.domain.usecase.token.CreateTokenUseCase
 import com.yjotdev.accidentreporter.domain.usecase.token.GetTokenUseCase
 import com.yjotdev.accidentreporter.domain.usecase.token.EditTokenUseCase
+import com.yjotdev.accidentreporter.domain.usecase.report.CreateTokenUseCase
 import com.yjotdev.accidentreporter.domain.usecase.report.SelectReportUseCase
 import com.yjotdev.accidentreporter.domain.usecase.report.DeleteReportUseCase
 import com.yjotdev.accidentreporter.domain.usecase.report.InsertReportUseCase
 import com.yjotdev.accidentreporter.domain.usecase.report.UpdateReportUseCase
+import com.yjotdev.accidentreporter.domain.usecase.geocoding.SelectGeocodingUseCase
 import com.yjotdev.accidentreporter.domain.usecase.geocoding.EditLocationUseCase
 import com.yjotdev.accidentreporter.domain.usecase.geocoding.GetLocationUseCase
 import com.yjotdev.accidentreporter.R
@@ -42,7 +42,7 @@ class UiViewModel @Inject constructor(
     private val insertReportUseCase: InsertReportUseCase,
     private val updateReportUseCase: UpdateReportUseCase,
     private val deleteReportUseCase: DeleteReportUseCase,
-    createTokenUseCase: CreateTokenUseCase,
+    private val createTokenUseCase: CreateTokenUseCase,
     private val getTokenUseCase: GetTokenUseCase,
     private val editTokenUseCase: EditTokenUseCase
 ): ViewModel() {
@@ -58,28 +58,49 @@ class UiViewModel @Inject constructor(
     }
 
     init {
-        createTokenUseCase()
         getToken()
         getLocation()
     }
 
     /** Carga el token guardado **/
     fun getToken() {
-        _uiState.update { state ->
-            state.copy(textToken = getTokenUseCase().toString())
+        if (getTokenUseCase().isEmpty()) {
+            _uiState.update { it.copy(isLoading = true) }
+            viewModelScope.launch {
+                when (val result = createTokenUseCase()) {
+                    is Result.Success -> {
+                        editTokenUseCase(result.data)
+                        _uiState.update { it.copy(
+                            isLoading = false,
+                            textToken = result.data)
+                        }
+                    }
+                    is Result.Error -> {
+                        _uiState.update { it.copy(isLoading = false) }
+                        _eventChannel.send(UiEvent.ShowToast(
+                            getString(R.string.toast_create_token_false))
+                        )
+                        _eventChannel.send(UiEvent.ShowLog(
+                            "getToken: ${result.exception.message!!}")
+                        )
+                    }
+                }
+            }
+        } else {
+            _uiState.update { it.copy(textToken = getTokenUseCase()) }
         }
     }
 
     /** Carga la ubicacion guardada **/
     fun getLocation() {
         val location = getLocationUseCase()
-        if(location != "") {
-            location.split(",")
+        if(location.isNotEmpty()) {
+            val item = location.split(",")
             _uiState.update { state ->
                 state.copy(
-                    textCountry = location[0].toString(),
-                    textProvince = location[1].toString(),
-                    textCity = location[2].toString()
+                    textCountry = item[0],
+                    textProvince = item[1],
+                    textCity = item[2]
                 )
             }
         }
@@ -87,20 +108,16 @@ class UiViewModel @Inject constructor(
 
     /** Edita el token guardado **/
     fun editToken(token: String) {
-        editTokenUseCase(token.toInt())
+        editTokenUseCase(token)
         viewModelScope.launch {
             _eventChannel.send(UiEvent.ShowToast(
-                getString(R.string.toast_update_token))
+                getString(R.string.toast_update_token_true))
             )
         }
     }
 
     /** Edita la ubicacion guardada **/
-    fun editLocation() {
-        val state = _uiState.value
-        val country = state.textCountry
-        val province = state.textProvince
-        val city = state.textCity
+    fun editLocation(country: String, province: String, city: String) {
         val location = "$country,$province,$city"
         editLocationUseCase(location)
     }
@@ -199,7 +216,7 @@ class UiViewModel @Inject constructor(
         viewModelScope.launch {
             when(val result = selectGeocodingUseCase(country, province, city)) {
                 is Result.Success -> {
-                    editLocation()
+                    editLocation(country, province, city)
                     _uiState.update {
                         it.copy(
                             isLoading = false,
@@ -219,7 +236,7 @@ class UiViewModel @Inject constructor(
                         getString(R.string.toast_geocoding_false))
                     )
                     _eventChannel.send(UiEvent.ShowLog(
-                        result.exception.message!!)
+                        "selectGeocoding: ${result.exception.message!!}")
                     )
                 }
             }
@@ -250,7 +267,7 @@ class UiViewModel @Inject constructor(
                         )
                     }
                     _eventChannel.send(UiEvent.ShowLog(
-                        result.exception.message!!)
+                        "selectReports: ${result.exception.message!!}")
                     )
                 }
             }
@@ -269,7 +286,7 @@ class UiViewModel @Inject constructor(
             }else "",
             type = state.itemsComboBox[state.indexComboBox],
             description = state.textDescription,
-            token = state.textToken.toInt()
+            token = state.textToken
         )
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
@@ -286,7 +303,7 @@ class UiViewModel @Inject constructor(
                         getString(R.string.toast_insert_false))
                     )
                     _eventChannel.send(UiEvent.ShowLog(
-                        result.exception.message!!)
+                        "insertReport: ${result.exception.message!!}")
                     )
                 }
             }
@@ -300,7 +317,7 @@ class UiViewModel @Inject constructor(
         val report = state.itemsMarker[state.indexMarker].copy(
             type = state.itemsComboBox[state.indexComboBox],
             description = state.textDescription,
-            token = state.textToken.toInt()
+            token = state.textToken
         )
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
@@ -317,7 +334,7 @@ class UiViewModel @Inject constructor(
                         getString(R.string.toast_update_false))
                     )
                     _eventChannel.send(UiEvent.ShowLog(
-                        result.exception.message!!)
+                        "updateReport: ${result.exception.message!!}")
                     )
                 }
             }
@@ -343,7 +360,7 @@ class UiViewModel @Inject constructor(
                         getString(R.string.toast_delete_false))
                     )
                     _eventChannel.send(UiEvent.ShowLog(
-                        result.exception.message!!)
+                        "deleteReport: ${result.exception.message!!}")
                     )
                 }
             }
@@ -360,7 +377,7 @@ class UiViewModel @Inject constructor(
     fun verifyUser(): Boolean{
         val state = _uiState.value
         return if(!state.itemsMarker.isEmpty()){
-            state.textToken.toInt() == state.itemsMarker[state.indexMarker].token }
+            state.textToken == state.itemsMarker[state.indexMarker].token }
         else false
     }
 

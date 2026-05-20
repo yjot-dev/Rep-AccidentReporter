@@ -11,6 +11,7 @@ import org.junit.Test
 import com.yjotdev.accidentreporter.domain.core.Result
 import com.yjotdev.accidentreporter.domain.model.ReportModel
 import com.yjotdev.accidentreporter.domain.repository.ReportRepository
+import com.yjotdev.accidentreporter.domain.usecase.report.CreateTokenUseCase
 import com.yjotdev.accidentreporter.domain.usecase.report.DeleteReportUseCase
 import com.yjotdev.accidentreporter.domain.usecase.report.InsertReportUseCase
 import com.yjotdev.accidentreporter.domain.usecase.report.SelectReportUseCase
@@ -22,11 +23,11 @@ import com.yjotdev.accidentreporter.domain.usecase.report.UpdateReportUseCase
 class ReportUseCaseTest {
 
     private lateinit var reportRepository: ReportRepository
-
     private lateinit var selectReportUseCase: SelectReportUseCase
     private lateinit var insertReportUseCase: InsertReportUseCase
     private lateinit var updateReportUseCase: UpdateReportUseCase
     private lateinit var deleteReportUseCase: DeleteReportUseCase
+    private lateinit var createTokenUseCase: CreateTokenUseCase
 
     @Before
     fun setUp() {
@@ -35,12 +36,13 @@ class ReportUseCaseTest {
         insertReportUseCase = InsertReportUseCase(reportRepository)
         updateReportUseCase = UpdateReportUseCase(reportRepository)
         deleteReportUseCase = DeleteReportUseCase(reportRepository)
+        createTokenUseCase = CreateTokenUseCase(reportRepository)
     }
 
     @Test
     fun whenSelectReportUseCaseIsInvokedSuccessfullyThenItReturnsListOfReports() = runTest {
         // Given
-        val fakeReportList = listOf(ReportModel(id = 1, description = "Test", token = 123))
+        val fakeReportList = listOf(ReportModel(id = 1, description = "Test", token = "a7cf5ac786824acaccff4d533832f1f5"))
         coEvery { reportRepository.selectReports() } returns Result.Success(fakeReportList)
 
         // When
@@ -55,7 +57,7 @@ class ReportUseCaseTest {
     @Test
     fun whenInsertReportUseCaseIsInvokedThenPortMethodIsCalled() = runTest {
         // Given
-        val newReport = ReportModel(id = 0, description = "New Report", token = 456)
+        val newReport = ReportModel(id = 0, description = "New Report", token = "a7cf5ac786824acaccff4d533832f1f5")
         coEvery { reportRepository.insertReport(newReport) } returns Result.Success(Unit)
 
         // When
@@ -69,7 +71,7 @@ class ReportUseCaseTest {
     fun whenUpdateReportUseCaseIsInvokedThenPortMethodIsCalledWithCorrectData() = runTest {
         // Given
         val reportId = 1
-        val updatedReport = ReportModel(id = 1, description = "Updated Report", token = 789)
+        val updatedReport = ReportModel(id = 1, description = "Updated Report", token = "a7cf5ac786824acaccff4d533832f1f5")
         coEvery { reportRepository.updateReport(reportId, updatedReport) } returns Result.Success(Unit)
 
         // When
@@ -90,5 +92,17 @@ class ReportUseCaseTest {
 
         // Then
         coVerify(exactly = 1) { reportRepository.deleteReport(reportId) }
+    }
+
+    @Test
+    fun whenCreateTokenUseCaseIsInvokedThenPortCreateTokenIsCalled() = runTest {
+        // Given
+        coEvery { reportRepository.createToken() } returns Result.Success("a7cf5ac786824acaccff4d533832f1f5")
+
+        // When
+        createTokenUseCase()
+
+        // Then
+        coVerify(exactly = 1) { reportRepository.createToken() }
     }
 }

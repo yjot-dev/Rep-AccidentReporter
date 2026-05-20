@@ -144,7 +144,7 @@ class NavigationViewInstrumentedTest {
 
         // Escribo el nuevo token
         composeTestRule.onNodeWithTag("tokenconfigview_textfield")
-            .performTextReplacement("123456789")
+            .performTextReplacement("a7cf5ac786824acaccff4d533832f1f5")
 
         // Hago click en el boton actualizar
         composeTestRule.onNodeWithTag("tokenconfigview_updatebutton")

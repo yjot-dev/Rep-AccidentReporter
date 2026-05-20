@@ -23,7 +23,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.google.maps.android.compose.rememberUpdatedMarkerState
+import com.google.maps.android.compose.rememberMarkerState
 import com.yjotdev.accidentreporter.R
 import com.yjotdev.accidentreporter.presentation.components.Position
 import com.yjotdev.accidentreporter.presentation.theme.AccidentReporterTheme
@@ -85,7 +85,7 @@ fun MapView(
                 //Coordenada de marcador en mapa
                 val marker = LatLng(pos.latitude, pos.longitude)
                 Marker(
-                    state = rememberUpdatedMarkerState(
+                    state = rememberMarkerState(
                         position = marker
                     ),
                     title = "${index + 1}: ${pos.type}",
@@ -142,7 +142,7 @@ private fun PreviewMapView(){
                     date = "15/03/2025",
                     type = "Accidentes",
                     description = "Hubo un accidente en la calle 12",
-                    token = 1224567844
+                    token = "a7cf5ac786824acaccff4d533832f1f5"
                 )
             ),
             indexMarker = 0,

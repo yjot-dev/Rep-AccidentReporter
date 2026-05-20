@@ -32,4 +32,9 @@ class ReportRepositoryImpl @Inject constructor(
     override suspend fun deleteReport(id: Int): Result<Unit> {
         return safeApiCallForUnit{ reportApi.deleteReport(id) }
     }
+
+    override suspend fun createToken(): Result<String> {
+        return safeApiCallForBody { reportApi.createToken() }
+            .mapSuccess { result -> result.token }
+    }
 }

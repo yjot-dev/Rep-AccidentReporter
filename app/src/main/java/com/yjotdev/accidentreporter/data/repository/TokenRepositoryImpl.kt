@@ -13,18 +13,11 @@ class TokenRepositoryImpl @Inject constructor(
 ) : TokenRepository {
     private val sharedPreferences = context.getSharedPreferences("save_token", Context.MODE_PRIVATE)
 
-    override fun createToken() {
-        if (getToken() == 0) {
-            val tokenRandom = (100000000..999999999).random()
-            sharedPreferences.edit { putInt("token", tokenRandom) }
-        }
+    override fun getToken(): String {
+        return sharedPreferences.getString("token", "") ?: ""
     }
 
-    override fun getToken(): Int {
-        return sharedPreferences.getInt("token", 0)
-    }
-
-    override fun editToken(token: Int) {
-        sharedPreferences.edit { putInt("token", token) }
+    override fun editToken(token: String) {
+        sharedPreferences.edit { putString("token", token) }
     }
 }

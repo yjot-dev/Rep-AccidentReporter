@@ -8,6 +8,7 @@ import retrofit2.http.PUT
 import retrofit2.http.GET
 import retrofit2.http.Path
 import com.yjotdev.accidentreporter.data.remote.dto.ReportDto
+import com.yjotdev.accidentreporter.data.remote.dto.TokenDto
 
 /**
  * Interfaz de Retrofit para las operaciones de la API de reportes.
@@ -25,4 +26,7 @@ interface ReportApi {
 
     @DELETE("reports/{id}")
     suspend fun deleteReport(@Path("id") id:Int): Response<Unit>
+
+    @GET("reports/token")
+    suspend fun createToken(): Response<TokenDto>
 }

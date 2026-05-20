@@ -32,7 +32,8 @@
     <string name="toast_update_false">Error al actualizar reporte</string>
     <string name="toast_delete_true">Reporte eliminado</string>
     <string name="toast_delete_false">Error al eliminar reporte</string>
-    <string name="toast_update_token">Token actualizado</string>
+    <string name="toast_create_token_false">Error al crear token</string>
+    <string name="toast_update_token_true">Token actualizado</string>
     <string name="toast_empty_field">Campo vacio</string>
     <string name="toast_invalid_data">Dato invalido</string>
 </resources>

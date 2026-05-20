@@ -16,7 +16,7 @@ class FakeReportRepositoryImpl @Inject constructor(): ReportRepository {
             date = "15/03/2025",
             type = "Accidentes",
             description = "Hubo un accidente en la calle 12",
-            token = 1224567844
+            token = "a7cf5ac786824acaccff4d533832f1f5"
         )
     )
 
@@ -50,5 +50,9 @@ class FakeReportRepositoryImpl @Inject constructor(): ReportRepository {
         }else {
             Result.Error(Exception("Error al eliminar el reporte"))
         }
+    }
+
+    override suspend fun createToken(): Result<String>{
+        return Result.Success("a7cf5ac786824acaccff4d533832f1f5")
     }
 }

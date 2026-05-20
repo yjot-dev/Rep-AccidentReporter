@@ -10,5 +10,5 @@ data class ReportDto(
     @SerializedName("date") val date: String = "",
     @SerializedName("type") val type: String = "",
     @SerializedName("description") val description: String = "",
-    @SerializedName("token") val token: Int = 0
+    @SerializedName("token") val token: String = ""
 )

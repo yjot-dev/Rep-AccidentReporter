@@ -9,7 +9,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import com.yjotdev.accidentreporter.domain.repository.TokenRepository
-import com.yjotdev.accidentreporter.domain.usecase.token.CreateTokenUseCase
 import com.yjotdev.accidentreporter.domain.usecase.token.EditTokenUseCase
 import com.yjotdev.accidentreporter.domain.usecase.token.GetTokenUseCase
 
@@ -19,35 +18,20 @@ import com.yjotdev.accidentreporter.domain.usecase.token.GetTokenUseCase
 class TokenUseCaseTest {
 
     private lateinit var tokenRepository: TokenRepository
-
-    private lateinit var createTokenUseCase: CreateTokenUseCase
     private lateinit var getTokenUseCase: GetTokenUseCase
     private lateinit var editTokenUseCase: EditTokenUseCase
 
     @Before
     fun setUp() {
         tokenRepository = mockk()
-        createTokenUseCase = CreateTokenUseCase(tokenRepository)
         getTokenUseCase = GetTokenUseCase(tokenRepository)
         editTokenUseCase = EditTokenUseCase(tokenRepository)
     }
 
     @Test
-    fun whenCreateTokenUseCaseIsInvokedThenPortCreateTokenIsCalled() {
-        // Given
-        every { tokenRepository.createToken() } just runs
-
-        // When
-        createTokenUseCase()
-
-        // Then
-        verify(exactly = 1) { tokenRepository.createToken() }
-    }
-
-    @Test
     fun whenGetTokenUseCaseIsInvokedThenItReturnsTokenFromPort() {
         // Given
-        val expectedToken = 123456
+        val expectedToken = "a7cf5ac786824acaccff4d533832f1f5"
         every { tokenRepository.getToken() } returns expectedToken
 
         // When
@@ -61,7 +45,7 @@ class TokenUseCaseTest {
     @Test
     fun whenEditTokenUseCaseIsInvokedThenPortEditTokenIsCalledWithCorrectToken() {
         // Given
-        val newToken = 654321
+        val newToken = "a7cf5ac786824acaccff4d533832f1f5"
         every { tokenRepository.editToken(newToken) } just runs
 
         // When

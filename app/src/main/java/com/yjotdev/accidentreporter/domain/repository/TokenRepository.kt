@@ -10,9 +10,7 @@ package com.yjotdev.accidentreporter.domain.repository
  */
 interface TokenRepository {
 
-    fun createToken()
+    fun getToken(): String
 
-    fun getToken(): Int
-
-    fun editToken(token: Int)
+    fun editToken(token: String)
 }

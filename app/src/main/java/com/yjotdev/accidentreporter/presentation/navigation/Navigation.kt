@@ -111,7 +111,7 @@ fun Navigation(
                     onEnableControls = { viewModel.setEnableUpdate(!it) },
                     onUpdate = {
                         if (state.textToken.isNotEmpty()) {
-                            if (Helper.isValidNumber(state.textToken)) {
+                            if (Helper.isValidToken(state.textToken)) {
                                 viewModel.editToken(state.textToken)
                             } else {
                                 Toast.makeText(

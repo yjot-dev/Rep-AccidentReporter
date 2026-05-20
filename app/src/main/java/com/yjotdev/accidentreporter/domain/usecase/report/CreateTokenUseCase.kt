@@ -4,10 +4,10 @@ import javax.inject.Inject
 import com.yjotdev.accidentreporter.domain.core.Result
 import com.yjotdev.accidentreporter.domain.repository.ReportRepository
 
-class DeleteReportUseCase @Inject constructor(
+class CreateTokenUseCase @Inject constructor(
     private val reportRepository: ReportRepository
 ) {
-    suspend operator fun invoke(id: Int): Result<Unit> {
-        return reportRepository.deleteReport(id)
+    suspend operator fun invoke(): Result<String> {
+        return reportRepository.createToken()
     }
 }

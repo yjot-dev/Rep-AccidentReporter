@@ -8,14 +8,14 @@ import java.time.format.DateTimeFormatter
 import com.yjotdev.accidentreporter.domain.model.ReportModel
 
 object Helper {
-    /** Valida si un string es un numero **/
-    fun isValidNumber(input: String): Boolean{
-        return Regex("^[0-9]+\$").matches(input)
+    /** Valida si un string es un token Hexadecimal **/
+    fun isValidToken(input: String): Boolean{
+        return Regex("^[a-fA-F0-9]{32}$").matches(input)
     }
 
     /** Valida si un string es un texto **/
     fun isValidText(input: String): Boolean{
-        return Regex("^[A-Za-z ]+\$").matches(input)
+        return Regex("^[A-Za-z ]+$").matches(input)
     }
 
     /** Convierte un marcador a posicion **/

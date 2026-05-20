@@ -26,7 +26,6 @@ import com.yjotdev.accidentreporter.domain.core.Result
 class GeocodingUseCaseTest {
 
     private lateinit var geocodingRepository: GeocodingRepository
-
     private lateinit var selectGeocodingUseCase: SelectGeocodingUseCase
     private lateinit var getLocationUseCase: GetLocationUseCase
     private lateinit var editLocationUseCase: EditLocationUseCase

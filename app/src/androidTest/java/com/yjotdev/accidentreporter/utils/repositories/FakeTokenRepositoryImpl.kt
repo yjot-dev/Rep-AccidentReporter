@@ -6,20 +6,13 @@ import com.yjotdev.accidentreporter.domain.repository.TokenRepository
 
 @Singleton
 class FakeTokenRepositoryImpl @Inject constructor(): TokenRepository {
-    private val tokenStorage = mutableMapOf<String, Int>()
+    private val tokenStorage = mutableMapOf<String, String>()
 
-    override fun createToken(){
-        if (getToken() == 0) {
-            val tokenRandom = 1000000000
-            tokenStorage["token"] = tokenRandom
-        }
+    override fun getToken(): String {
+        return tokenStorage["token"] ?: ""
     }
 
-    override fun getToken(): Int {
-        return tokenStorage["token"] ?: 0
-    }
-
-    override fun editToken(token: Int) {
+    override fun editToken(token: String) {
         tokenStorage["token"] = token
     }
 }

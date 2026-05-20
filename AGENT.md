@@ -154,36 +154,36 @@
     - Exponer una propiedad pública e inmutable llamada `uiState` de tipo `StateFlow`. Esta propiedad será la versión de solo lectura de `_uiState` obtenida a través de `.asStateFlow()`.
     - Implementar el metodo onCleared()
     - **Ejemplo de código:**
-```kotlin
-    /*
-    * La clase hereda de `ViewModel`.
-    * El nombre de la clase sigue el patrón "{NombrePantalla}ViewModel".
-    * Los casos de uso se inyectan en el constructor (ej: con Hilt).
-    * Expone el estado de la UI siguiendo el patrón `_uiState` / `uiState`.
-    * Limpia el estado en `onCleared`.
-    */
-    @HiltViewModel
-    class LoginViewModel @Inject constructor(
-        private val loginUserUseCase: LoginUserUseCase,
-        private val getSavedUserUseCase: GetSavedUserUseCase
-    ) : ViewModel() {
-        // 1. Estado privado y mutable. El nombre del UiState es específico de la pantalla.
-        private val _uiState = MutableStateFlow(LoginUiState())
-    
-        // 2. Estado público e inmutable.
-        val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
-    
-        fun onLoginClicked(user: String, pass: String) {
-            // Lógica de la función aquí...
-        }
-    
-        // 3. Limpieza del ViewModel al ser destruido.
-        override fun onCleared() {
-            super.onCleared()
-            _uiState.value = LoginUiState()
-        }
-    }
-```
+        ```kotlin
+            /*
+            * La clase hereda de `ViewModel`.
+            * El nombre de la clase sigue el patrón "{NombrePantalla}ViewModel".
+            * Los casos de uso se inyectan en el constructor (ej: con Hilt).
+            * Expone el estado de la UI siguiendo el patrón `_uiState` / `uiState`.
+            * Limpia el estado en `onCleared`.
+            */
+            @HiltViewModel
+            class LoginViewModel @Inject constructor(
+                private val loginUserUseCase: LoginUserUseCase,
+                private val getSavedUserUseCase: GetSavedUserUseCase
+            ) : ViewModel() {
+                // 1. Estado privado y mutable. El nombre del UiState es específico de la pantalla.
+                private val _uiState = MutableStateFlow(LoginUiState())
+            
+                // 2. Estado público e inmutable.
+                val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
+            
+                fun onLoginClicked(user: String, pass: String) {
+                    // Lógica de la función aquí...
+                }
+            
+                // 3. Limpieza del ViewModel al ser destruido.
+                override fun onCleared() {
+                    super.onCleared()
+                    _uiState.value = LoginUiState()
+                }
+            }
+        ```
 
 ## A.3 Estilo de Código
 - **Requisito:** Todas las funciones públicas deben seguir una nomenclatura y documentación estandarizada.
@@ -195,26 +195,26 @@
     - Los nombres de las constantes deben seguir el estilo **UPPER_SNAKE_CASE**.
     - Cada función debe tener un comentario KDoc en la parte superior que describa su propósito.
     - **Ejemplo de código:**
-```kotlin
-   /* Clase ejemplo de Login */
-   class Login() {
-       // El nombre de la constante sigue el estilo UPPER_SNAKE_CASE
-       const val MAX_LOGIN_ATTEMPTS = 5
-       /**
-        * Valida las credenciales del usuario y actualiza su estado.
-        * @param userEmail El email proporcionado por el usuario.
-        * @param userPassword La contraseña proporcionada.
-        * @return `true` si la autenticación es exitosa, `false` en caso contrario.
-        */
-       // El nombre de la función y sus parámetros siguen el estilo camelCase
-       fun validateUserCredentials(userEmail: String, userPassword: String): Boolean {
-           // El nombre de la variable sigue el estilo camelCase
-           val isValid = userEmail.isNotEmpty() && userPassword.length > 8
-           // Lógica de la función aquí...
-           return isValid
-       }
-   }
-```
+        ```kotlin
+        /* Clase ejemplo de Login */
+        class Login() {
+            // El nombre de la constante sigue el estilo UPPER_SNAKE_CASE
+            const val MAX_LOGIN_ATTEMPTS = 5
+            /**
+                * Valida las credenciales del usuario y actualiza su estado.
+                * @param userEmail El email proporcionado por el usuario.
+                * @param userPassword La contraseña proporcionada.
+                * @return `true` si la autenticación es exitosa, `false` en caso contrario.
+                */
+            // El nombre de la función y sus parámetros siguen el estilo camelCase
+            fun validateUserCredentials(userEmail: String, userPassword: String): Boolean {
+                // El nombre de la variable sigue el estilo camelCase
+                val isValid = userEmail.isNotEmpty() && userPassword.length > 8
+                // Lógica de la función aquí...
+                return isValid
+            }
+        }
+        ```
 
 # SECCIÓN B: REGLAS DE TAREAS COMPLEJAS
 ## B.1 Tarea: Mantenimiento y Actualización del Proyecto
@@ -233,7 +233,7 @@
 
     3. **Alinear la Versión de JVM de Kotlin:**
         - En el archivo `build.gradle.kts` a nivel de módulo (`app`), dentro del bloque `android { ... }`, localiza o añade el bloque `kotlinOptions`.
-        - Asegúrate de que el valor de `jvmTarget` sea coherente con la `sourceCompatibility` y `targetCompatibility` definidas en `compileOptions` (usualmente "11", "17" o "21").
+        - Asegúrate de que el valor de `jvmTarget` sea coherente con la `sourceCompatibility` y `targetCompatibility` definidas en `compileOptions`.
 
     4. **Actualizar Dependencias:**
         - Revisa todas las dependencias declaradas en `libs.versions.toml`.
@@ -273,9 +273,21 @@
         - En `android { ... }`, localiza o crea el bloque `buildFeatures`.
         - Asegúrate de que contenga `compose = true` y `buildConfig = true`.
 
-    13. **Habilitar el Cache de Configuración de Gradle:**
-        - En el archivo `gradle.properties` a nivel de proyecto, añade la siguiente línea si no existe:
-          `org.gradle.configuration-cache=true`
+    13. **Configuración de Gradle local:**
+        - En el archivo `gradle.properties` a nivel de proyecto, remplaza el contenido existente por el siguiente:
+            ```properties
+            # Obliga al proyecto a usar librerias AndroidX en lugar de Support Libraries
+            android.useAndroidX=true
+
+            # Define el estilo oficial de Kotlin (convenciones de codigo)
+            kotlin.code.style=official
+
+            # Hace que las clases R no sean transitivas, mejora tiempos de compilacion en proyectos grandes
+            android.nonTransitiveRClass=true
+
+            # Activa el cache de configuracion de Gradle para acelerar builds repetidos
+            org.gradle.configuration-cache=true
+            ```
 
 ## B.2 Tarea: Configurar Firma de la Aplicación para Release
 - **Objetivo:** Configurar de manera segura la firma para la variante de compilación `release`, utilizando un archivo `custom.properties` centralizado para no exponer información sensible en el control de versiones.

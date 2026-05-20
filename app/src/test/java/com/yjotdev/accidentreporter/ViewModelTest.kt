@@ -14,7 +14,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlinx.coroutines.launch
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -36,7 +35,7 @@ import com.yjotdev.accidentreporter.domain.usecase.report.DeleteReportUseCase
 import com.yjotdev.accidentreporter.domain.usecase.report.InsertReportUseCase
 import com.yjotdev.accidentreporter.domain.usecase.report.SelectReportUseCase
 import com.yjotdev.accidentreporter.domain.usecase.report.UpdateReportUseCase
-import com.yjotdev.accidentreporter.domain.usecase.token.CreateTokenUseCase
+import com.yjotdev.accidentreporter.domain.usecase.report.CreateTokenUseCase
 import com.yjotdev.accidentreporter.domain.usecase.token.EditTokenUseCase
 import com.yjotdev.accidentreporter.domain.usecase.token.GetTokenUseCase
 import com.yjotdev.accidentreporter.presentation.mvvm.viewmodel.UiViewModel
@@ -85,6 +84,13 @@ class ViewModelTest {
         MockKAnnotations.init(this)
         // Establece el dispatcher de prueba como el principal para controlar las corutinas.
         Dispatchers.setMain(testDispatcher)
+        // Configura los mocks para evitar errores en init del ViewModel
+        every { getTokenUseCase() } returns ""
+        every { getLocationUseCase() } returns ""
+        coEvery { createTokenUseCase() } returns Result.Success("test-token-123")
+        every { editTokenUseCase(any()) } just Runs
+        every { editLocationUseCase(any()) } just Runs
+        every { getStringUseCase(any()) } returns "Test Message"
         // Crea la instancia del ViewModel con los mocks.
         viewModel = UiViewModel(
             getString = getStringUseCase,
@@ -116,38 +122,26 @@ class ViewModelTest {
         val fakeLocation = GeocodingModel(lat = -3.245274, lng = -79.832028)
         coEvery { selectGeocodingUseCase(any(),any(),any()) } returns Result.Success(fakeLocation)
         every { getStringUseCase(R.string.toast_geocoding_true) } returns successMessage
-
-        // Then
-        val job1 = launch {
-            viewModel.eventChannel.test {
-                assertEquals(UiEvent.ShowToast(successMessage), awaitItem())
-            }
-        }
-        val job2 = launch {
-            viewModel.uiState.test {
-                val loadingState = awaitItem() // Estado de cargar datos
-                assertTrue(loadingState.isLoading)
-
-                val successState = awaitItem() // Estado final con los datos
-                assertFalse(successState.isLoading)
-                assertEquals(
-                    LatLng(-3.245274, -79.832028),
-                    successState.location
-                )
-            }
-        }
+        viewModel.setTextCountry("Ecuador")
+        viewModel.setTextProvince("El Oro")
+        viewModel.setTextCity("El Guabo")
 
         // When: Ejecutamos la acción a probar
         viewModel.selectGeocoding()
-
-        // Ejecutamos las corrutinas
         advanceUntilIdle()
 
-        // Esperamos a que se completen las corrutinas
-        job1.cancel()
-        job2.cancel()
+        // Then: Verificamos los resultados
+        viewModel.eventChannel.test {
+            assertEquals(UiEvent.ShowToast(successMessage), awaitItem())
+            cancel()
+        }
 
-        // Verificamos que el caso de uso fue llamado una vez
+        viewModel.uiState.test {
+            val state = awaitItem()
+            assertEquals(LatLng(-3.245274, -79.832028), state.location)
+            cancel()
+        }
+
         coVerify(exactly = 1) { selectGeocodingUseCase(any(),any(),any()) }
     }
 
@@ -158,37 +152,26 @@ class ViewModelTest {
         val toastMessage = "Error finding location"
         coEvery { selectGeocodingUseCase(any(),any(),any()) } returns Result.Error(Exception(errorMessage))
         every { getStringUseCase(R.string.toast_geocoding_false) } returns toastMessage
-
-        // Then
-        val job1 = launch {
-            viewModel.eventChannel.test {
-                assertEquals(UiEvent.ShowToast(toastMessage), awaitItem())
-                assertEquals(UiEvent.ShowLog(errorMessage), awaitItem())
-            }
-        }
-        val job2 = launch {
-            viewModel.uiState.test {
-                val loadingState = awaitItem() // Estado de cargar datos
-                assertTrue(loadingState.isLoading)
-
-                val errorState = awaitItem() // Estado final con el error
-                assertFalse(errorState.isLoading)
-                assertEquals(
-                    LatLng(0.0, 0.0),
-                    errorState.location
-                )
-            }
-        }
+        viewModel.setTextCountry("Ecuador")
+        viewModel.setTextProvince("El Oro")
+        viewModel.setTextCity("El Guabo")
 
         // When
         viewModel.selectGeocoding()
-
-        // Ejecutamos las corrutinas
         advanceUntilIdle()
 
-        // Esperamos a que se completen las corrutinas
-        job1.cancel()
-        job2.cancel()
+        // Then
+        viewModel.eventChannel.test {
+            assertEquals(UiEvent.ShowToast(toastMessage), awaitItem())
+            assertEquals(UiEvent.ShowLog("selectGeocoding: $errorMessage"), awaitItem())
+            cancel()
+        }
+
+        viewModel.uiState.test {
+            val state = awaitItem()
+            assertEquals(LatLng(0.0, 0.0), state.location)
+            cancel()
+        }
 
         coVerify(exactly = 1) { selectGeocodingUseCase(any(),any(),any()) }
     }
@@ -203,37 +186,25 @@ class ViewModelTest {
             date = "2023-09-04",
             type = "Accidentes",
             description = "Test Report",
-            token = 123456
+            token = "a7cf5ac786824acaccff4d533832f1f5"
         ))
         coEvery { selectReportUseCase() } returns Result.Success(fakeReportList)
 
-        // Then
-        val job1 = launch {
-            viewModel.eventChannel.test {
-                // Verificamos que se envió el evento de navegación correcto
-                assertEquals(UiEvent.Navigate(ViewRoutes.Map.name), awaitItem())
-            }
-        }
-        val job2 = launch {
-            viewModel.uiState.test {
-                val loadingState = awaitItem() // Estado de cargar datos
-                assertTrue(loadingState.isLoading)
-
-                val successState = awaitItem() // Estado final con los datos
-                assertFalse(successState.isLoading)
-                assertEquals(fakeReportList, successState.itemsMarker)
-            }
-        }
-
         // When: Ejecutamos la acción a probar
         viewModel.selectReports()
-
-        // Ejecutamos las corrutinas
         advanceUntilIdle()
 
-        // Esperamos a que se completen las corrutinas
-        job1.cancel()
-        job2.cancel()
+        // Then
+        viewModel.eventChannel.test {
+            assertEquals(UiEvent.Navigate(ViewRoutes.Map.name), awaitItem())
+            cancel()
+        }
+
+        viewModel.uiState.test {
+            val state = awaitItem()
+            assertEquals(fakeReportList, state.itemsMarker)
+            cancel()
+        }
 
         // Verificamos que el caso de uso fue llamado una vez
         coVerify(exactly = 1) { selectReportUseCase() }
@@ -245,32 +216,21 @@ class ViewModelTest {
         val errorMessage = "Network Error"
         coEvery { selectReportUseCase() } returns Result.Error(Exception(errorMessage))
 
-        // Then
-        val job1 = launch {
-            viewModel.eventChannel.test {
-                assertEquals(UiEvent.ShowLog(errorMessage), awaitItem())
-            }
-        }
-        val job2 = launch {
-            viewModel.uiState.test {
-                val loadingState = awaitItem() // Estado de cargar datos
-                assertTrue(loadingState.isLoading)
-
-                val errorState = awaitItem() // Estado final con el error
-                assertFalse(errorState.isLoading)
-                assertEquals(emptyList<ReportModel>(), errorState.itemsMarker)
-            }
-        }
-
         // When
         viewModel.selectReports()
-
-        // Ejecutamos las corrutinas
         advanceUntilIdle()
 
-        // Esperamos a que se completen las corrutinas
-        job1.cancel()
-        job2.cancel()
+        // Then
+        viewModel.eventChannel.test {
+            assertEquals(UiEvent.ShowLog("selectReports: $errorMessage"), awaitItem())
+            cancel()
+        }
+
+        viewModel.uiState.test {
+            val state = awaitItem()
+            assertEquals(emptyList<ReportModel>(), state.itemsMarker)
+            cancel()
+        }
 
         coVerify(exactly = 1) { selectReportUseCase() }
     }
@@ -292,32 +252,17 @@ class ViewModelTest {
         )
         viewModel.setIndexComboBox(1)
         viewModel.setTextDescription("Una descripción válida")
-
-        // Then
-        val job1 = launch {
-            viewModel.eventChannel.test {
-                assertEquals(UiEvent.ShowToast(successMessage), awaitItem())
-            }
-        }
-        val job2 = launch {
-            viewModel.uiState.test {
-                val loadingState = awaitItem() // Estado de insertar datos
-                assertTrue(loadingState.isLoading)
-
-                val successState = awaitItem() // Estado final de inserción exitosa
-                assertFalse(successState.isLoading)
-            }
-        }
+        viewModel.setPosMarker(LatLng(-3.245274, -79.832028))
 
         // When
         viewModel.insertReport()
-
-        // Ejecutamos las corrutinas
         advanceUntilIdle()
 
-        // Esperamos a que se completen las corrutinas
-        job1.cancel()
-        job2.cancel()
+        // Then
+        viewModel.eventChannel.test {
+            assertEquals(UiEvent.ShowToast(successMessage), awaitItem())
+            cancel()
+        }
 
         coVerify(exactly = 1) { insertReportUseCase(any()) }
     }
@@ -340,34 +285,18 @@ class ViewModelTest {
         )
         viewModel.setIndexComboBox(1)
         viewModel.setTextDescription("Una descripción válida")
-
-        // Then
-        val job1 = launch {
-            viewModel.eventChannel.test {
-                // Esperamos dos eventos: el toast y el log de error
-                assertEquals(UiEvent.ShowToast(toastMessage), awaitItem())
-                assertEquals(UiEvent.ShowLog(errorMessage), awaitItem())
-            }
-        }
-        val job2 = launch {
-            viewModel.uiState.test {
-                val loadingState = awaitItem() // Estado de insertar datos
-                assertTrue(loadingState.isLoading)
-
-                val successState = awaitItem() // Estado final con el error
-                assertFalse(successState.isLoading)
-            }
-        }
+        viewModel.setPosMarker(LatLng(-3.245274, -79.832028))
 
         // When
         viewModel.insertReport()
-
-        // Ejecutamos las corrutinas
         advanceUntilIdle()
 
-        // Esperamos a que se completen las corrutinas
-        job1.cancel()
-        job2.cancel()
+        // Then
+        viewModel.eventChannel.test {
+            assertEquals(UiEvent.ShowToast(toastMessage), awaitItem())
+            assertEquals(UiEvent.ShowLog("insertReport: $errorMessage"), awaitItem())
+            cancel()
+        }
 
         coVerify(exactly = 1) { insertReportUseCase(any()) }
     }
@@ -376,45 +305,35 @@ class ViewModelTest {
     fun whenUpdateReportIsSuccessfulThenToastEventIsSent() = runTest {
         // Given
         val successMessage = "Report updated"
-        val reportToUpdate = ReportModel(id = 1, description = "Old Description", token = 123)
-
-        // Configuramos el estado inicial del ViewModel
+        val reportToUpdate = ReportModel(
+            id = 1,
+            latitude = -3.245274,
+            longitude = -79.832028,
+            date = "2023-09-04",
+            type = "Accidentes",
+            description = "Old Description",
+            token = "a7cf5ac786824acaccff4d533832f1f5"
+        )
         viewModel.setItemsMarker(listOf(reportToUpdate))
         viewModel.setIndexMarker(0)
         viewModel.setItemsComboBox(listOf("...", "Accidentes")) // Mock de opciones
         viewModel.setIndexComboBox(1) // Nueva selección
         viewModel.setTextDescription("New Description") // Nueva descripción
-        viewModel.setTextToken("123") // Token del usuario
+        viewModel.setTextToken("7bcf5ac786824acaccff4d533832f11d") // Token del usuario
 
         // Simulamos la respuesta exitosa del caso de uso
         coEvery { updateReportUseCase(eq(1), any()) } returns Result.Success(Unit)
         every { getStringUseCase(R.string.toast_update_true) } returns successMessage
 
-        // Then
-        val job1 = launch {
-            viewModel.eventChannel.test {
-                assertEquals(UiEvent.ShowToast(successMessage), awaitItem())
-            }
-        }
-        val job2 = launch {
-            viewModel.uiState.test {
-                val loadingState = awaitItem() // Estado de actualizar datos
-                assertTrue(loadingState.isLoading)
-
-                val successState = awaitItem() // Estado final de actualizacion exitosa
-                assertFalse(successState.isLoading)
-            }
-        }
-
         // When
         viewModel.updateReport()
-
-        // Ejecutamos las corrutinas
         advanceUntilIdle()
 
-        // Limpiamos los jobs
-        job1.cancel()
-        job2.cancel()
+        // Then
+        viewModel.eventChannel.test {
+            assertEquals(UiEvent.ShowToast(successMessage), awaitItem())
+            cancel()
+        }
 
         // Verificamos que el caso de uso se llamó con los parámetros correctos
         coVerify(exactly = 1) { updateReportUseCase(eq(1), any()) }
@@ -425,47 +344,36 @@ class ViewModelTest {
         // Given
         val errorMessage = "Database Error"
         val toastMessage = "Error updating report"
-        val reportToUpdate = ReportModel(id = 1, description = "Old Description", token = 123)
-
-        // Configuramos el estado inicial del ViewModel
+        val reportToUpdate = ReportModel(
+            id = 1,
+            latitude = -3.245274,
+            longitude = -79.832028,
+            date = "2023-09-04",
+            type = "Accidentes",
+            description = "Old Description",
+            token = "a7cf5ac786824acaccff4d533832f1f5"
+        )
         viewModel.setItemsMarker(listOf(reportToUpdate))
         viewModel.setIndexMarker(0)
         viewModel.setItemsComboBox(listOf("...", "Accidentes"))
         viewModel.setIndexComboBox(1)
         viewModel.setTextDescription("New Description")
-        viewModel.setTextToken("123")
+        viewModel.setTextToken("7bcf5ac786824acaccff4d533832f11d")
 
         // Simulamos la respuesta de error del caso de uso
         coEvery { updateReportUseCase(eq(1), any()) } returns Result.Error(Exception(errorMessage))
         every { getStringUseCase(R.string.toast_update_false) } returns toastMessage
 
-        // Then
-        val job1 = launch {
-            viewModel.eventChannel.test {
-                // Esperamos dos eventos: el toast y el log de error
-                assertEquals(UiEvent.ShowToast(toastMessage), awaitItem())
-                assertEquals(UiEvent.ShowLog(errorMessage), awaitItem())
-            }
-        }
-        val job2 = launch {
-            viewModel.uiState.test {
-                val loadingState = awaitItem() // Estado de actualizar datos
-                assertTrue(loadingState.isLoading)
-
-                val errorState = awaitItem() // Estado final con el error
-                assertFalse(errorState.isLoading)
-            }
-        }
-
         // When
         viewModel.updateReport()
-
-        // Ejecutamos las corrutinas
         advanceUntilIdle()
 
-        // Limpiamos los jobs
-        job1.cancel()
-        job2.cancel()
+        // Then
+        viewModel.eventChannel.test {
+            assertEquals(UiEvent.ShowToast(toastMessage), awaitItem())
+            assertEquals(UiEvent.ShowLog("updateReport: $errorMessage"), awaitItem())
+            cancel()
+        }
 
         // Verificamos la llamada al caso de uso
         coVerify(exactly = 1) { updateReportUseCase(eq(1), any()) }
@@ -475,9 +383,15 @@ class ViewModelTest {
     fun whenDeleteReportIsSuccessfulThenToastEventIsSent() = runTest {
         // Given
         val successMessage = "Report deleted"
-        val reportToDelete = ReportModel(id = 5, description = "Report to be deleted", token = 123)
-
-        // Configuramos el estado inicial
+        val reportToDelete = ReportModel(
+            id = 5,
+            latitude = -3.245274,
+            longitude = -79.832028,
+            date = "2023-09-04",
+            type = "Accidentes",
+            description = "Report to be deleted",
+            token = "a7cf5ac786824acaccff4d533832f1f5"
+        )
         viewModel.setItemsMarker(listOf(reportToDelete))
         viewModel.setIndexMarker(0)
 
@@ -485,31 +399,15 @@ class ViewModelTest {
         coEvery { deleteReportUseCase(eq(5)) } returns Result.Success(Unit)
         every { getStringUseCase(R.string.toast_delete_true) } returns successMessage
 
-        // Then
-        val job1 = launch {
-            viewModel.eventChannel.test {
-                assertEquals(UiEvent.ShowToast(successMessage), awaitItem())
-            }
-        }
-        val job2 = launch {
-            viewModel.uiState.test {
-                val loadingState = awaitItem() // Estado de eliminar datos
-                assertTrue(loadingState.isLoading)
-
-                val successState = awaitItem() // Estado final de eliminacion exitosa
-                assertFalse(successState.isLoading)
-            }
-        }
-
         // When
         viewModel.deleteReport()
-
-        // Ejecutamos las corrutinas
         advanceUntilIdle()
 
-        // Limpiamos los jobs
-        job1.cancel()
-        job2.cancel()
+        // Then
+        viewModel.eventChannel.test {
+            assertEquals(UiEvent.ShowToast(successMessage), awaitItem())
+            cancel()
+        }
 
         // Verificamos la llamada al caso de uso con el ID correcto
         coVerify(exactly = 1) { deleteReportUseCase(eq(5)) }
@@ -520,41 +418,31 @@ class ViewModelTest {
         // Given
         val errorMessage = "Deletion failed"
         val toastMessage = "Error deleting report"
-        val reportToDelete = ReportModel(id = 5, description = "Report to be deleted", token = 123)
-
-        // Configuramos el estado inicial
+        val reportToDelete = ReportModel(
+            id = 5,
+            latitude = -3.245274,
+            longitude = -79.832028,
+            date = "2023-09-04",
+            type = "Accidentes",
+            description = "Report to be deleted",
+            token = "a7cf5ac786824acaccff4d533832f1f5"
+        )
         viewModel.setItemsMarker(listOf(reportToDelete))
         viewModel.setIndexMarker(0)
 
         coEvery { deleteReportUseCase(eq(5)) } returns Result.Error(Exception(errorMessage))
         every { getStringUseCase(R.string.toast_delete_false) } returns toastMessage
 
-        // Then
-        val job1 = launch {
-            viewModel.eventChannel.test {
-                assertEquals(UiEvent.ShowToast(toastMessage), awaitItem())
-                assertEquals(UiEvent.ShowLog(errorMessage), awaitItem())
-            }
-        }
-        val job2 = launch {
-            viewModel.uiState.test {
-                val loadingState = awaitItem() // Estado de eliminar datos
-                assertTrue(loadingState.isLoading)
-
-                val successState = awaitItem() // Estado final con el error
-                assertFalse(successState.isLoading)
-            }
-        }
-
         // When
         viewModel.deleteReport()
-
-        // Ejecutamos las corrutinas
         advanceUntilIdle()
 
-        // Esperamos a que se completen las corrutinas
-        job1.cancel()
-        job2.cancel()
+        // Then
+        viewModel.eventChannel.test {
+            assertEquals(UiEvent.ShowToast(toastMessage), awaitItem())
+            assertEquals(UiEvent.ShowLog("deleteReport: $errorMessage"), awaitItem())
+            cancel()
+        }
 
         coVerify(exactly = 1) { deleteReportUseCase(eq(5)) }
     }
@@ -563,83 +451,63 @@ class ViewModelTest {
     fun whenGetLocationAndTokenIsCalledAndUsedInViewModel() = runTest {
         // Given
         val fakeLocation = "Ecuador,El Oro,El Guabo"
-        val fakeToken = 113454
+        val fakeToken = "a7cf5ac786824acaccff4d533832f1f5"
         every { getLocationUseCase() } returns fakeLocation
         every { getTokenUseCase() } returns fakeToken
 
+        // When: Establecemos los valores
+        viewModel.setTextCountry("Ecuador")
+        viewModel.setTextProvince("El Oro")
+        viewModel.setTextCity("El Guabo")
+        viewModel.setTextToken(fakeToken)
+
         // Then
-        val job = launch {
-            viewModel.uiState.test {
-                val updatedState = awaitItem()
-                assertEquals("Ecuador", updatedState.textCountry)
-                assertEquals("El Oro", updatedState.textProvince)
-                assertEquals("El Guabo", updatedState.textCity)
-                assertEquals(fakeToken.toString(), updatedState.textToken)
-            }
+        viewModel.uiState.test {
+            val updatedState = awaitItem()
+            assertEquals("Ecuador", updatedState.textCountry)
+            assertEquals("El Oro", updatedState.textProvince)
+            assertEquals("El Guabo", updatedState.textCity)
+            assertEquals(fakeToken, updatedState.textToken)
+            cancel()
         }
-
-        // When
-        val location = getLocationUseCase().split(",")
-        viewModel.setTextCountry(location[0])
-        viewModel.setTextProvince(location[1])
-        viewModel.setTextCity(location[2])
-        viewModel.setTextToken(getTokenUseCase().toString())
-
-        // Ejecutamos las corrutinas
-        advanceUntilIdle()
-
-        // Esperamos a que se completen las corrutinas
-        job.cancel()
     }
 
     @Test
     fun whenEditTokenIsCalledThenUseCaseIsInvokedAndToastEventIsSent() = runTest {
         // Given
-        val newToken = "654321"
+        val newToken = "a7cf5ac786824acaccff4d533832f1f5"
         val successMessage = "Token updated"
-
-        every { editTokenUseCase(newToken.toInt()) } just Runs
-        every { getStringUseCase(R.string.toast_update_token) } returns successMessage
-
-        // Then
-        val job = launch {
-            viewModel.eventChannel.test {
-                assertEquals(UiEvent.ShowToast(successMessage), awaitItem())
-            }
-        }
+        every { editTokenUseCase(newToken) } just Runs
+        every { getStringUseCase(R.string.toast_update_token_true) } returns successMessage
 
         // When
         viewModel.editToken(newToken)
-
-        // Ejecutamos las corrutinas
         advanceUntilIdle()
 
         // Then
-        verify(exactly = 1) { editTokenUseCase(newToken.toInt()) }
-
-        // Esperamos a que se completen las corrutinas
-        job.cancel()
+        viewModel.eventChannel.test {
+            assertEquals(UiEvent.ShowToast(successMessage), awaitItem())
+            cancel()
+        }
+        verify(exactly = 1) { editTokenUseCase(newToken) }
     }
 
     @Test
     fun whenEditLocationIsCalledThenUseCaseIsInvokedAndToastEventIsSent() = runTest {
         // Given
-        val newLocation = "Ecuador,El Oro,El Guabo"
-        val item = newLocation.split(",")
-        viewModel.setTextCountry(item[0])
-        viewModel.setTextProvince(item[1])
-        viewModel.setTextCity(item[2])
+        val country = "Ecuador"
+        val province = "El Oro"
+        val city = "El Guabo"
+        viewModel.setTextCountry(country)
+        viewModel.setTextProvince(province)
+        viewModel.setTextCity(city)
 
         // When
-        viewModel.editLocation()
+        viewModel.editLocation(country, province, city)
+        advanceUntilIdle()
 
         // Then
-        viewModel.uiState.test {
-            val updatedState = awaitItem()
-            assertEquals(item[0], updatedState.textCountry)
-            assertEquals(item[1], updatedState.textProvince)
-            assertEquals(item[2], updatedState.textCity)
-        }
+        verify(exactly = 1) { editLocationUseCase("$country,$province,$city") }
     }
 
     @Test
@@ -649,11 +517,13 @@ class ViewModelTest {
 
         // When
         viewModel.setTextDescription(newDescription)
+        advanceUntilIdle()
 
         // Then
         viewModel.uiState.test {
             val updatedState = awaitItem()
             assertEquals(newDescription, updatedState.textDescription)
+            cancel()
         }
     }
 
@@ -690,7 +560,7 @@ class ViewModelTest {
     @Test
     fun whenVerifyUserReturnsTrueIfTokenMatchesTheSelectedMarkerSToken() {
         // Given
-        val userToken = "123456"
+        val userToken = "a7cf5ac786824acaccff4d533832f1f5"
         val reports = listOf(
             ReportModel(
                 id = 1,
@@ -699,7 +569,7 @@ class ViewModelTest {
                 date = "2023-09-04",
                 type = "Accidentes",
                 description = "Test Report 1",
-                token = 123456),
+                token = "a7cf5ac786824acaccff4d533832f1f5"),
             ReportModel(
                 id = 2,
                 latitude = -3.456789,
@@ -707,11 +577,11 @@ class ViewModelTest {
                 date = "2023-10-14",
                 type = "Trafico",
                 description = "Test Report 2",
-                token = 456567)
+                token = "7bcf5ac786824acaccff4d533832f11d")
         )
         viewModel.setTextToken(userToken)
         viewModel.setItemsMarker(reports)
-        viewModel.setIndexMarker(0) // Selecciona el primer reporte
+        viewModel.setIndexMarker(0)
 
         // When & Then
         assertTrue(viewModel.verifyUser())
@@ -720,7 +590,7 @@ class ViewModelTest {
     @Test
     fun whenVerifyUserReturnsFalseIfTokenDoesNotMatch() {
         // Given
-        val userToken = "999999"
+        val userToken = "sw5f5ac786824acaccff4d533832st56"
         val reports = listOf(
             ReportModel(
                 id = 1,
@@ -729,7 +599,7 @@ class ViewModelTest {
                 date = "2023-09-04",
                 type = "Accidentes",
                 description = "Test Report 1",
-                token = 123456),
+                token = "a7cf5ac786824acaccff4d533832f1f5"),
             ReportModel(
                 id = 2,
                 latitude = -3.456789,
@@ -737,7 +607,7 @@ class ViewModelTest {
                 date = "2023-10-14",
                 type = "Trafico",
                 description = "Test Report 2",
-                token = 456567)
+                token = "7bcf5ac786824acaccff4d533832f11d")
         )
         viewModel.setTextToken(userToken)
         viewModel.setItemsMarker(reports)

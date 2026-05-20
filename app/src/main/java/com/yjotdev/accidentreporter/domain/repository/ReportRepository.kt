@@ -20,4 +20,6 @@ interface ReportRepository {
     suspend fun updateReport(id: Int, report: ReportModel): Result<Unit>
 
     suspend fun deleteReport(id: Int): Result<Unit>
+
+    suspend fun createToken(): Result<String>
 }

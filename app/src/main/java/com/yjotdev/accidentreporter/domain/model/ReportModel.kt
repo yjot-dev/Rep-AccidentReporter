@@ -8,5 +8,5 @@ data class ReportModel(
     val date: String = "",
     val type: String = "",
     val description: String = "",
-    val token: Int = 0
+    val token: String = ""
 )
