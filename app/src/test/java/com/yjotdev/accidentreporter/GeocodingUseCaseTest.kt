@@ -5,9 +5,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
-import io.mockk.runs
 import io.mockk.verify
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -41,21 +39,35 @@ class GeocodingUseCaseTest {
     }
 
     @Test
-    fun whenSelectGeocodingUseCaseIsInvokedThenPortMethodIsCalledAndReturnsData() = runTest {
+    fun whenSelectGeocodingUseCaseIsInvokedSuccessfullyThenItReturnGeocoding() = runTest {
         // Given: Configuramos el mock para que devuelva un resultado exitoso
-        val fakeResponse: GeocodingModel = mockk()
-        coEvery { geocodingRepository.selectGeocoding(any(), any(), any()) } returns Result.Success(fakeResponse)
+        val fakeResponse = GeocodingModel(-38.5678, -69.5633)
+        coEvery { geocodingRepository.selectGeocoding("Ecuador", "El Oro", "El Guabo") } returns Result.Success(fakeResponse)
 
         // When: Invocamos el caso de uso
         val result = selectGeocodingUseCase("Ecuador", "El Oro", "El Guabo")
 
-        // Then: Verificamos que el resultado es el esperado y que se llamó al puerto
+        // Then: Verificamos que el resultado es el esperado
         assertEquals(fakeResponse, (result as Result.Success).data)
         coVerify(exactly = 1) { geocodingRepository.selectGeocoding("Ecuador", "El Oro", "El Guabo") }
     }
 
     @Test
-    fun whenGetLocationUseCaseIsInvokedThenItReturnsLocationFromPort() {
+    fun whenSelectGeocodingUseCaseIsInvokedWithErrorThenReturnException() = runTest {
+        // Given: Configuramos el mock para que devuelva un resultado fallido
+        val fakeResponse = Exception("Error al obtener el geocoding")
+        coEvery { geocodingRepository.selectGeocoding("Ecuador", "El Oro", "El Guabo") } returns Result.Error(fakeResponse)
+
+        // When: Invocamos el caso de uso
+        val result = selectGeocodingUseCase("Ecuador", "El Oro", "El Guabo")
+
+        // Then: Verificamos que el resultado es el esperado
+        assertEquals(fakeResponse, (result as Result.Error).exception)
+        coVerify(exactly = 1) { geocodingRepository.selectGeocoding("Ecuador", "El Oro", "El Guabo") }
+    }
+
+    @Test
+    fun whenGetLocationUseCaseIsInvokedThenReturnLocation() {
         // Given
         val expectedLocation = "Ecuador,El Oro,El Guabo"
         every { geocodingRepository.getLocation() } returns expectedLocation
@@ -69,15 +81,16 @@ class GeocodingUseCaseTest {
     }
 
     @Test
-    fun whenEditLocationUseCaseIsInvokedThenPortMethodIsCalledWithCorrectData() {
+    fun whenEditLocationUseCaseIsInvokedThenPortMethodIsCalled() {
         // Given
         val newLocation = "Ecuador,Pichincha,Quito"
-        every { geocodingRepository.editLocation(newLocation) } just runs
+        every { geocodingRepository.editLocation(newLocation) } returns Unit
 
         // When
-        editLocationUseCase(newLocation)
+        val result = editLocationUseCase(newLocation)
 
         // Then
+        assertEquals(Unit, result)
         verify(exactly = 1) { geocodingRepository.editLocation(newLocation) }
     }
 }

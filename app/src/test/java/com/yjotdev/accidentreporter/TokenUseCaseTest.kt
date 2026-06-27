@@ -1,9 +1,7 @@
 package com.yjotdev.accidentreporter
 
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
-import io.mockk.runs
 import io.mockk.verify
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -29,7 +27,7 @@ class TokenUseCaseTest {
     }
 
     @Test
-    fun whenGetTokenUseCaseIsInvokedThenItReturnsTokenFromPort() {
+    fun whenGetTokenUseCaseIsInvokedSuccessfullyThenItReturnToken() {
         // Given
         val expectedToken = "a7cf5ac786824acaccff4d533832f1f5"
         every { tokenRepository.getToken() } returns expectedToken
@@ -43,15 +41,16 @@ class TokenUseCaseTest {
     }
 
     @Test
-    fun whenEditTokenUseCaseIsInvokedThenPortEditTokenIsCalledWithCorrectToken() {
+    fun whenEditTokenUseCaseIsInvokedThenPortMethodIsCalled() {
         // Given
         val newToken = "a7cf5ac786824acaccff4d533832f1f5"
-        every { tokenRepository.editToken(newToken) } just runs
+        every { tokenRepository.editToken(newToken) } returns Unit
 
         // When
-        editTokenUseCase(newToken)
+        val result = editTokenUseCase(newToken)
 
         // Then
+        assertEquals(Unit, result)
         verify(exactly = 1) { tokenRepository.editToken(newToken) }
     }
 }

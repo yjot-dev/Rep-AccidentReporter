@@ -30,6 +30,9 @@ import com.yjotdev.accidentreporter.presentation.theme.AccidentReporterTheme
 import com.yjotdev.accidentreporter.presentation.utils.ComponentPreview
 import com.yjotdev.accidentreporter.domain.model.ReportModel
 
+const val GOOGLE_MAP = "googleMap"
+const val MARKET_POS = "Market:1"
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapView(
@@ -51,16 +54,17 @@ fun MapView(
         Box(modifier = modifier
             .background(Color.LightGray)
             .clickable { onMapClick(LatLng(-3.245, -79.832)) }
-            .testTag("googleMap")
+            .testTag(GOOGLE_MAP)
         ){
             itemsMarker.forEachIndexed { index, pos ->
                 //Coordenada de marcador en mapa
                 val marker = LatLng(pos.latitude, pos.longitude)
+                val tag = MARKET_POS.substring(0, 7)
                 Button(
                     onClick = { onInfoWindowClick(marker, index) },
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .testTag("Market:${index + 1}")
+                        .testTag("$tag${index + 1}")
                 ) {
                     Text("${index + 1}: ${pos.type}")
                 }
@@ -78,18 +82,19 @@ fun MapView(
         GoogleMap(
             modifier = modifier,
             cameraPositionState = cameraPositionState,
-            contentDescription = "googleMap",
+            contentDescription = GOOGLE_MAP,
             onMapClick = onMapClick
         ) {
             itemsMarker.forEachIndexed { index, pos ->
                 //Coordenada de marcador en mapa
                 val marker = LatLng(pos.latitude, pos.longitude)
+                val tag = MARKET_POS.substring(0, 7)
                 Marker(
                     state = rememberMarkerState(
                         position = marker
                     ),
                     title = "${index + 1}: ${pos.type}",
-                    contentDescription = "Market:${index + 1}",
+                    contentDescription = "$tag${index + 1}",
                     onClick = {
                         it.showInfoWindow()
                         false
@@ -99,7 +104,7 @@ fun MapView(
             }
         }
     }
-    //Muestra e oculta la informacion del marcador seleccionado
+    //Muestra y oculta la información del marcador seleccionado
     if(showPosition){
         BasicAlertDialog(
             onDismissRequest = { onShowPosition(false) },

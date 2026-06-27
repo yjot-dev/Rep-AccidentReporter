@@ -25,6 +25,11 @@ import com.yjotdev.accidentreporter.presentation.components.ComboBoxAccidentRepo
 import com.yjotdev.accidentreporter.presentation.components.TextFieldAccidentReporter
 import com.yjotdev.accidentreporter.presentation.utils.ComponentPreview
 
+const val EDIT_POSITION_VIEW_COMBO_BOX = "editpositionview_combobox"
+const val EDIT_POSITION_VIEW_TEXT_FIELD = "editpositionview_textfield"
+const val EDIT_POSITION_VIEW_EDIT_BUTTON = "editpositionview_editbutton"
+const val EDIT_POSITION_VIEW_UPDATE_BUTTON = "editpositionview_updatebutton"
+
 @Composable
 fun EditPositionView(
     modifier: Modifier = Modifier,
@@ -52,7 +57,7 @@ fun EditPositionView(
             indexSelected = indexSelected,
             onIndexSelected = { onIndexSelected(it) },
             enabled = enableComboBox,
-            modifier = Modifier.testTag("editpositionview_combobox")
+            modifier = Modifier.testTag(EDIT_POSITION_VIEW_COMBO_BOX)
         )
         TextFieldAccidentReporter(
             value = textDescription,
@@ -61,7 +66,7 @@ fun EditPositionView(
             enabled = enableTextDescription,
             modifier = Modifier
                 .fillMaxWidth(0.8f)
-                .testTag("editpositionview_textfield")
+                .testTag(EDIT_POSITION_VIEW_TEXT_FIELD)
         )
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -69,7 +74,7 @@ fun EditPositionView(
         ) {
             Image(
                 painter = painterResource(R.drawable.edit),
-                contentDescription = "editpositionview_editbutton",
+                contentDescription = EDIT_POSITION_VIEW_EDIT_BUTTON,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .height(dimensionResource(R.dimen.dp_5))
@@ -85,7 +90,7 @@ fun EditPositionView(
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
                     .height(dimensionResource(R.dimen.dp_5))
-                    .testTag("editpositionview_updatebutton")
+                    .testTag(EDIT_POSITION_VIEW_UPDATE_BUTTON)
             )
         }
     }

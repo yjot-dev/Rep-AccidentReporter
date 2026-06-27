@@ -9,6 +9,7 @@ import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
+import junit.framework.TestCase.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.Before
@@ -20,7 +21,25 @@ import androidx.compose.ui.test.click
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
-import junit.framework.TestCase.assertEquals
+import com.yjotdev.accidentreporter.presentation.components.BACK_BUTTON
+import com.yjotdev.accidentreporter.presentation.components.COMBO_BOX_ITEM_POS
+import com.yjotdev.accidentreporter.presentation.components.MAP_VIEW_LOOK_BUTTON
+import com.yjotdev.accidentreporter.presentation.mvvm.ui.ADD_POSITION_VIEW_BUTTON
+import com.yjotdev.accidentreporter.presentation.mvvm.ui.ADD_POSITION_VIEW_COMBO_BOX
+import com.yjotdev.accidentreporter.presentation.mvvm.ui.ADD_POSITION_VIEW_TEXT_FIELD
+import com.yjotdev.accidentreporter.presentation.mvvm.ui.COUNTRY_VIEW_BUTTON_1
+import com.yjotdev.accidentreporter.presentation.mvvm.ui.COUNTRY_VIEW_BUTTON_2
+import com.yjotdev.accidentreporter.presentation.mvvm.ui.COUNTRY_VIEW_TEXT_FIELD_1
+import com.yjotdev.accidentreporter.presentation.mvvm.ui.COUNTRY_VIEW_TEXT_FIELD_2
+import com.yjotdev.accidentreporter.presentation.mvvm.ui.COUNTRY_VIEW_TEXT_FIELD_3
+import com.yjotdev.accidentreporter.presentation.mvvm.ui.EDIT_POSITION_VIEW_COMBO_BOX
+import com.yjotdev.accidentreporter.presentation.mvvm.ui.GOOGLE_MAP
+import com.yjotdev.accidentreporter.presentation.mvvm.ui.MARKET_POS
+import com.yjotdev.accidentreporter.presentation.mvvm.ui.START_VIEW_BUTTON_1
+import com.yjotdev.accidentreporter.presentation.mvvm.ui.START_VIEW_BUTTON_2
+import com.yjotdev.accidentreporter.presentation.mvvm.ui.TOKEN_CONFIG_VIEW_EDIT_BUTTON
+import com.yjotdev.accidentreporter.presentation.mvvm.ui.TOKEN_CONFIG_VIEW_TEXT_FIELD
+import com.yjotdev.accidentreporter.presentation.mvvm.ui.TOKEN_CONFIG_VIEW_UPDATE_BUTTON
 import com.yjotdev.accidentreporter.presentation.navigation.PermissionView
 import com.yjotdev.accidentreporter.presentation.navigation.ViewRoutes
 import com.yjotdev.accidentreporter.presentation.theme.AccidentReporterTheme
@@ -60,15 +79,15 @@ class NavigationViewInstrumentedTest {
         // Navegacion de StartView -> CountryConfigView -> MapView
         navigationToCountryConfigViewTest()
 
-        // Hago click en continuar
-        composeTestRule.onNodeWithTag("countryview_button2")
+        // Hago clic en continuar
+        composeTestRule.onNodeWithTag(COUNTRY_VIEW_BUTTON_2)
             .performClick()
 
         // Esperamos navegación a MapView
         waitForRoute(ViewRoutes.Map.name)
 
         // MapView -> Click en el Mapa Fake
-        composeTestRule.onNodeWithTag("googleMap").performTouchInput {
+        composeTestRule.onNodeWithTag(GOOGLE_MAP).performTouchInput {
             click(percentOffset(0.1f, 0.1f)) // Click en la esquina superior
         }
 
@@ -76,19 +95,19 @@ class NavigationViewInstrumentedTest {
         waitForRoute(ViewRoutes.AddPosition.name)
 
         // Selecciono el combobox para desplegar los tipos de incidentes
-        composeTestRule.onNodeWithTag("addpositionview_combobox")
+        composeTestRule.onNodeWithTag(ADD_POSITION_VIEW_COMBO_BOX)
             .performClick()
 
-        // Elijo el tipo de incidente (Ejemplo item 3, el 1ro es el encabezado)
-        composeTestRule.onNodeWithTag("combobox_item:3")
+        // Elijo el tipo de incidente (Ejemplo item 3, el primero es el encabezado)
+        composeTestRule.onNodeWithTag(COMBO_BOX_ITEM_POS)
             .performClick()
 
         // Escribo la descripcion del incidente
-        composeTestRule.onNodeWithTag("addpositionview_textfield")
+        composeTestRule.onNodeWithTag(ADD_POSITION_VIEW_TEXT_FIELD)
             .performTextInput("Hay un problema de transito entre la calle A y B.")
 
-        // Hago click en el boton de agregar
-        composeTestRule.onNodeWithTag("addpositionview_button")
+        // Hago clic en el boton de agregar
+        composeTestRule.onNodeWithTag(ADD_POSITION_VIEW_BUTTON)
             .performClick()
 
         // Verificación final
@@ -100,28 +119,28 @@ class NavigationViewInstrumentedTest {
         // Navegacion de StartView -> CountryConfigView -> MapView
         navigationToCountryConfigViewTest()
 
-        // Hago click en continuar
-        composeTestRule.onNodeWithTag("countryview_button2")
+        // Hago clic en continuar
+        composeTestRule.onNodeWithTag(COUNTRY_VIEW_BUTTON_2)
             .performClick()
 
         // Esperamos navegación a MapView
         waitForRoute(ViewRoutes.Map.name)
 
         // MapView -> Click en un Marcador Existente (Fake Marker)
-        composeTestRule.onNodeWithTag("Market:1")
+        composeTestRule.onNodeWithTag(MARKET_POS)
             .performClick()
 
         composeTestRule.waitForIdle()
 
         // Position (AlertDialog) -> Click en "Ver/Editar"
-        composeTestRule.onNodeWithContentDescription("mapview_lookbutton")
+        composeTestRule.onNodeWithContentDescription(MAP_VIEW_LOOK_BUTTON)
             .performClick()
 
         // Esperamos navegación a EditPositionView
         waitForRoute(ViewRoutes.EditPosition.name)
 
         // Verificamos que exista un combobox
-        composeTestRule.onNodeWithTag("editpositionview_combobox")
+        composeTestRule.onNodeWithTag(EDIT_POSITION_VIEW_COMBO_BOX)
             .assertExists()
 
         // Verificación final
@@ -132,22 +151,22 @@ class NavigationViewInstrumentedTest {
     fun navigationToTokenConfigViewTest() {
         loadTestActivity()
         // StartView -> Click en Configurar Token
-        composeTestRule.onNodeWithTag("startview_button1")
+        composeTestRule.onNodeWithTag(START_VIEW_BUTTON_1)
             .performClick()
 
         // Esperamos navegación a TokenConfigView
         waitForRoute(ViewRoutes.TokenConfig.name)
 
-        // Hago click en el boton editar
-        composeTestRule.onNodeWithContentDescription("tokenconfigview_editbutton")
+        // Hago clic en el boton editar
+        composeTestRule.onNodeWithContentDescription(TOKEN_CONFIG_VIEW_EDIT_BUTTON)
             .performClick()
 
         // Escribo el nuevo token
-        composeTestRule.onNodeWithTag("tokenconfigview_textfield")
+        composeTestRule.onNodeWithTag(TOKEN_CONFIG_VIEW_TEXT_FIELD)
             .performTextReplacement("a7cf5ac786824acaccff4d533832f1f5")
 
-        // Hago click en el boton actualizar
-        composeTestRule.onNodeWithTag("tokenconfigview_updatebutton")
+        // Hago clic en el boton actualizar
+        composeTestRule.onNodeWithTag(TOKEN_CONFIG_VIEW_UPDATE_BUTTON)
             .performClick()
 
         // Verificación final
@@ -158,26 +177,26 @@ class NavigationViewInstrumentedTest {
     fun navigationToCountryConfigViewTest() {
         loadTestActivity()
         // StartView -> Click en Configurar Pais
-        composeTestRule.onNodeWithTag("startview_button2")
+        composeTestRule.onNodeWithTag(START_VIEW_BUTTON_2)
             .performClick()
 
         // Esperamos navegación a CountryConfigView
         waitForRoute(ViewRoutes.LocationConfig.name)
 
         // Escribo el pais
-        composeTestRule.onNodeWithTag("countryview_textfield1")
+        composeTestRule.onNodeWithTag(COUNTRY_VIEW_TEXT_FIELD_1)
             .performTextReplacement("Ecuador")
 
         // Escribo la provincia
-        composeTestRule.onNodeWithTag("countryview_textfield2")
+        composeTestRule.onNodeWithTag(COUNTRY_VIEW_TEXT_FIELD_2)
             .performTextReplacement("El Oro")
 
         // Escribo la ciudad
-        composeTestRule.onNodeWithTag("countryview_textfield3")
+        composeTestRule.onNodeWithTag(COUNTRY_VIEW_TEXT_FIELD_3)
             .performTextReplacement("El Guabo")
 
-        // Hago click en el boton buscar ubicacion
-        composeTestRule.onNodeWithTag("countryview_button1")
+        // Hago clic en el botón buscar ubicación
+        composeTestRule.onNodeWithTag(COUNTRY_VIEW_BUTTON_1)
             .performClick()
 
         // Verificación final
@@ -186,28 +205,28 @@ class NavigationViewInstrumentedTest {
 
     @Test
     fun navigationToMapViewAndGoBackTest() {
-        // Navegacion de StartView -> CountryConfigView -> MapView
+        // Navegación de StartView -> CountryConfigView -> MapView
         navigationToCountryConfigViewTest()
 
-        // Hago click en continuar
-        composeTestRule.onNodeWithTag("countryview_button2")
+        // Hago clic en continuar
+        composeTestRule.onNodeWithTag(COUNTRY_VIEW_BUTTON_2)
             .performClick()
 
         // Esperamos navegación a MapView
         waitForRoute(ViewRoutes.Map.name)
 
         // Verificamos que existe un marcador
-        composeTestRule.onNodeWithTag("Market:1").assertExists()
+        composeTestRule.onNodeWithTag(MARKET_POS).assertExists()
 
         // Volvemos a la vista de inicio
-        composeTestRule.onNodeWithContentDescription("backbutton")
+        composeTestRule.onNodeWithContentDescription(BACK_BUTTON)
             .performClick()
 
         // Esperamos navegación a CountryConfigView
         waitForRoute(ViewRoutes.LocationConfig.name)
 
-        // Verificamos que existe un boton "Continuar"
-        composeTestRule.onNodeWithTag("countryview_button2")
+        // Verificamos que existe un botón "Continuar"
+        composeTestRule.onNodeWithTag(COUNTRY_VIEW_BUTTON_2)
             .assertExists()
 
         // Verificación final
@@ -215,7 +234,7 @@ class NavigationViewInstrumentedTest {
     }
 
     /**
-     * Funcion para cargar la vista de prueba.
+     * Función para cargar la vista de prueba.
      * Evita errores de aserción inmediata antes de que la vista se cargue.
      */
     private fun loadTestActivity() {

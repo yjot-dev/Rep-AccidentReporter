@@ -10,7 +10,7 @@ import com.yjotdev.accidentreporter.domain.core.Result
 class FakeReportRepositoryImpl @Inject constructor(): ReportRepository {
     private val reportList = mutableListOf(
         ReportModel(
-            id = 0,
+            id = 1,
             latitude = -3.245448,
             longitude = -79.832331,
             date = "15/03/2025",
@@ -37,7 +37,7 @@ class FakeReportRepositoryImpl @Inject constructor(): ReportRepository {
     }
 
     override suspend fun updateReport(id: Int, report: ReportModel): Result<Unit> {
-        return if (report != ReportModel()){
+        return if (id != 0 && report != ReportModel()){
             Result.Success(Unit)
         }else {
             Result.Error(Exception("Error al actualizar el reporte"))
@@ -53,6 +53,10 @@ class FakeReportRepositoryImpl @Inject constructor(): ReportRepository {
     }
 
     override suspend fun createToken(): Result<String>{
-        return Result.Success("a7cf5ac786824acaccff4d533832f1f5")
+        return if(reportList.isNotEmpty()) {
+            Result.Success(reportList[0].token)
+        } else {
+            Result.Error(Exception("Error al crear token"))
+        }
     }
 }

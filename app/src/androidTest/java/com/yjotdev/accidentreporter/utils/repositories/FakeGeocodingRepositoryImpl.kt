@@ -16,7 +16,11 @@ class FakeGeocodingRepositoryImpl @Inject constructor(): GeocodingRepository {
         city: String
     ): Result<GeocodingModel> {
         val location = GeocodingModel(lat = -3.245274, lng = -79.832028)
-        return Result.Success(location)
+        return if(country.isNotEmpty() && province.isNotEmpty() && city.isNotEmpty()) {
+            Result.Success(location)
+        } else {
+            Result.Error(Exception("Error al obtener geocoding"))
+        }
     }
 
     override fun getLocation(): String {

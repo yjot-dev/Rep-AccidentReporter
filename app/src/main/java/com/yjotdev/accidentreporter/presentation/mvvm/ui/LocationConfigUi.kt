@@ -17,6 +17,12 @@ import com.yjotdev.accidentreporter.presentation.components.TextFieldAccidentRep
 import com.yjotdev.accidentreporter.presentation.theme.AccidentReporterTheme
 import com.yjotdev.accidentreporter.presentation.utils.ComponentPreview
 
+const val COUNTRY_VIEW_TEXT_FIELD_1 = "countryview_textfield1"
+const val COUNTRY_VIEW_TEXT_FIELD_2 = "countryview_textfield2"
+const val COUNTRY_VIEW_TEXT_FIELD_3 = "countryview_textfield3"
+const val COUNTRY_VIEW_BUTTON_1 = "countryview_button1"
+const val COUNTRY_VIEW_BUTTON_2 = "countryview_button2"
+
 @Composable
 fun LocationConfigView(
     modifier: Modifier = Modifier,
@@ -42,7 +48,7 @@ fun LocationConfigView(
             onValueChange = onCountry,
             modifier = Modifier
                 .fillMaxWidth(0.8f)
-                .testTag("countryview_textfield1")
+                .testTag(COUNTRY_VIEW_TEXT_FIELD_1)
         )
         TextFieldAccidentReporter(
             idHeight = R.dimen.dp_5,
@@ -51,7 +57,7 @@ fun LocationConfigView(
             onValueChange = onProvince,
             modifier = Modifier
                 .fillMaxWidth(0.8f)
-                .testTag("countryview_textfield2")
+                .testTag(COUNTRY_VIEW_TEXT_FIELD_2)
         )
         TextFieldAccidentReporter(
             idHeight = R.dimen.dp_5,
@@ -60,7 +66,7 @@ fun LocationConfigView(
             onValueChange = onCity,
             modifier = Modifier
                 .fillMaxWidth(0.8f)
-                .testTag("countryview_textfield3")
+                .testTag(COUNTRY_VIEW_TEXT_FIELD_3)
         )
         ButtonAccidentReporter(
             onClick = onSearchLocation,
@@ -68,7 +74,7 @@ fun LocationConfigView(
             modifier = Modifier
                 .fillMaxWidth(0.8f)
                 .height(dimensionResource(R.dimen.dp_5))
-                .testTag("countryview_button1")
+                .testTag(COUNTRY_VIEW_BUTTON_1)
         )
         ButtonAccidentReporter(
             enabled = enableOnMap,
@@ -77,7 +83,7 @@ fun LocationConfigView(
             modifier = Modifier
                 .fillMaxWidth(0.8f)
                 .height(dimensionResource(R.dimen.dp_5))
-                .testTag("countryview_button2")
+                .testTag(COUNTRY_VIEW_BUTTON_2)
         )
     }
 }

@@ -22,6 +22,10 @@ import com.yjotdev.accidentreporter.presentation.components.TextFieldAccidentRep
 import com.yjotdev.accidentreporter.presentation.theme.AccidentReporterTheme
 import com.yjotdev.accidentreporter.presentation.utils.ComponentPreview
 
+const val TOKEN_CONFIG_VIEW_TEXT_FIELD = "tokenconfigview_textfield"
+const val TOKEN_CONFIG_VIEW_EDIT_BUTTON = "tokenconfigview_editbutton"
+const val TOKEN_CONFIG_VIEW_UPDATE_BUTTON = "tokenconfigview_updatebutton"
+
 @Composable
 fun TokenConfigView(
     modifier: Modifier = Modifier,
@@ -44,7 +48,7 @@ fun TokenConfigView(
             onValueChange = { onTokenText(it) },
             modifier = Modifier
                 .fillMaxWidth(0.8f)
-                .testTag("tokenconfigview_textfield")
+                .testTag(TOKEN_CONFIG_VIEW_TEXT_FIELD)
         )
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -52,7 +56,7 @@ fun TokenConfigView(
         ) {
             Image(
                 painter = painterResource(R.drawable.edit),
-                contentDescription = "tokenconfigview_editbutton",
+                contentDescription = TOKEN_CONFIG_VIEW_EDIT_BUTTON,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .height(dimensionResource(R.dimen.dp_5))
@@ -67,7 +71,7 @@ fun TokenConfigView(
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
                     .height(dimensionResource(R.dimen.dp_5))
-                    .testTag("tokenconfigview_updatebutton")
+                    .testTag(TOKEN_CONFIG_VIEW_UPDATE_BUTTON)
             )
         }
     }
