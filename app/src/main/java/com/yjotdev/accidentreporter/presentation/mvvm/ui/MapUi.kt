@@ -49,6 +49,7 @@ fun MapView(
     onMapClick: (LatLng) -> Unit,
     onInfoWindowClick: (LatLng, Int) -> Unit
 ){
+    val tag = MARKET_POS.substring(0, 7)
     //Mapa
     if(isTestMode) {
         Box(modifier = modifier
@@ -59,7 +60,6 @@ fun MapView(
             itemsMarker.forEachIndexed { index, pos ->
                 //Coordenada de marcador en mapa
                 val marker = LatLng(pos.latitude, pos.longitude)
-                val tag = MARKET_POS.substring(0, 7)
                 Button(
                     onClick = { onInfoWindowClick(marker, index) },
                     modifier = Modifier
@@ -88,7 +88,6 @@ fun MapView(
             itemsMarker.forEachIndexed { index, pos ->
                 //Coordenada de marcador en mapa
                 val marker = LatLng(pos.latitude, pos.longitude)
-                val tag = MARKET_POS.substring(0, 7)
                 Marker(
                     state = rememberMarkerState(
                         position = marker

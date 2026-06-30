@@ -34,7 +34,7 @@ import com.yjotdev.accidentreporter.R
 
 @HiltViewModel
 class UiViewModel @Inject constructor(
-    private val getString: StringUseCase,
+    private val stringUseCase: StringUseCase,
     private val selectGeocodingUseCase: SelectGeocodingUseCase,
     private val getLocationUseCase: GetLocationUseCase,
     private val editLocationUseCase: EditLocationUseCase,
@@ -78,7 +78,7 @@ class UiViewModel @Inject constructor(
                     is Result.Error -> {
                         _uiState.update { it.copy(isLoading = false) }
                         _eventChannel.send(UiEvent.ShowToast(
-                            getString(R.string.toast_create_token_false))
+                            stringUseCase(R.string.toast_create_token_false))
                         )
                         _eventChannel.send(UiEvent.ShowLog(
                             "getToken: ${result.exception.message!!}")
@@ -111,7 +111,7 @@ class UiViewModel @Inject constructor(
         editTokenUseCase(token)
         viewModelScope.launch {
             _eventChannel.send(UiEvent.ShowToast(
-                getString(R.string.toast_update_token_true))
+                stringUseCase(R.string.toast_update_token_true))
             )
         }
     }
@@ -164,7 +164,7 @@ class UiViewModel @Inject constructor(
         }
     }
 
-    /** Actualiza el indice de la opcion seleccionada **/
+    /** Actualiza el índice de la opción seleccionada **/
     fun setIndexComboBox(index: Int){
         _uiState.update { state ->
             state.copy(indexComboBox = index)
@@ -178,7 +178,7 @@ class UiViewModel @Inject constructor(
         }
     }
 
-    /** Muestra u oculta la informacion del marcador **/
+    /** Muestra u oculta la información del marcador **/
     fun setShowPosition(show: Boolean){
         _uiState.update { state ->
             state.copy(showPosition = show)
@@ -192,7 +192,7 @@ class UiViewModel @Inject constructor(
         }
     }
 
-    /** Actualiza el indice del marcador seleccionado **/
+    /** Actualiza el índice del marcador seleccionado **/
     fun setIndexMarker(index: Int){
         _uiState.update { state ->
             state.copy(indexMarker = index)
@@ -206,7 +206,7 @@ class UiViewModel @Inject constructor(
         }
     }
 
-    /** Obtiene la ubicacion del usuario en base a su pais, provincia y ciudad **/
+    /** Obtiene la ubicación del usuario con base a su pais, provincia y ciudad **/
     fun selectGeocoding(){
         val state = _uiState.value
         val country = state.textCountry
@@ -227,13 +227,13 @@ class UiViewModel @Inject constructor(
                         )
                     }
                     _eventChannel.send(UiEvent.ShowToast(
-                        getString(R.string.toast_geocoding_true))
+                        stringUseCase(R.string.toast_geocoding_true))
                     )
                 }
                 is Result.Error -> {
                     _uiState.update { it.copy(isLoading = false) }
                     _eventChannel.send(UiEvent.ShowToast(
-                        getString(R.string.toast_geocoding_false))
+                        stringUseCase(R.string.toast_geocoding_false))
                     )
                     _eventChannel.send(UiEvent.ShowLog(
                         "selectGeocoding: ${result.exception.message!!}")
@@ -294,13 +294,13 @@ class UiViewModel @Inject constructor(
                 is Result.Success -> {
                     _uiState.update { it.copy(isLoading = false) }
                     _eventChannel.send(UiEvent.ShowToast(
-                        getString(R.string.toast_insert_true))
+                        stringUseCase(R.string.toast_insert_true))
                     )
                 }
                 is Result.Error -> {
                     _uiState.update { it.copy(isLoading = false) }
                     _eventChannel.send(UiEvent.ShowToast(
-                        getString(R.string.toast_insert_false))
+                        stringUseCase(R.string.toast_insert_false))
                     )
                     _eventChannel.send(UiEvent.ShowLog(
                         "insertReport: ${result.exception.message!!}")
@@ -325,13 +325,13 @@ class UiViewModel @Inject constructor(
                 is Result.Success -> {
                     _uiState.update { it.copy(isLoading = false) }
                     _eventChannel.send(UiEvent.ShowToast(
-                        getString(R.string.toast_update_true))
+                        stringUseCase(R.string.toast_update_true))
                     )
                 }
                 is Result.Error -> {
                     _uiState.update { it.copy(isLoading = false) }
                     _eventChannel.send(UiEvent.ShowToast(
-                        getString(R.string.toast_update_false))
+                        stringUseCase(R.string.toast_update_false))
                     )
                     _eventChannel.send(UiEvent.ShowLog(
                         "updateReport: ${result.exception.message!!}")
@@ -351,13 +351,13 @@ class UiViewModel @Inject constructor(
                 is Result.Success -> {
                     _uiState.update { it.copy(isLoading = false) }
                     _eventChannel.send(UiEvent.ShowToast(
-                        getString(R.string.toast_delete_true))
+                        stringUseCase(R.string.toast_delete_true))
                     )
                 }
                 is Result.Error -> {
                     _uiState.update { it.copy(isLoading = false) }
                     _eventChannel.send(UiEvent.ShowToast(
-                        getString(R.string.toast_delete_false))
+                        stringUseCase(R.string.toast_delete_false))
                     )
                     _eventChannel.send(UiEvent.ShowLog(
                         "deleteReport: ${result.exception.message!!}")
@@ -381,7 +381,7 @@ class UiViewModel @Inject constructor(
         else false
     }
 
-    /** Muestra y oculta la informacion del marcador seleccionado **/
+    /** Muestra y oculta la información del marcador seleccionado **/
     fun showMarker(): Boolean{
         val state = _uiState.value
         return if(!state.itemsMarker.isEmpty()){

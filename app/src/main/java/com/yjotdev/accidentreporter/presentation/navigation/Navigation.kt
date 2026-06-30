@@ -18,8 +18,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.compose.ui.res.stringResource
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -34,8 +34,8 @@ import com.yjotdev.accidentreporter.presentation.mvvm.ui.MapView
 import com.yjotdev.accidentreporter.presentation.mvvm.ui.StartView
 import com.yjotdev.accidentreporter.presentation.mvvm.ui.TokenConfigView
 import com.yjotdev.accidentreporter.presentation.mvvm.viewmodel.UiViewModel
-import com.yjotdev.accidentreporter.R
 import com.yjotdev.accidentreporter.presentation.utils.Helper
+import com.yjotdev.accidentreporter.R
 
 @Composable
 fun Navigation(
@@ -60,7 +60,7 @@ fun Navigation(
     viewModel.setItemsComboBox(optionList)
     //Observa clicks en el mapa
     ObserveClickOnMap(viewModel = viewModel)
-    //Observa estados asincronicos
+    //Observa estados asincrónicos
     ObserveViewModelState(
         viewModel = viewModel,
         navController = navController,
@@ -279,7 +279,7 @@ private fun ObserveClickOnMap(
 ){
     val state by viewModel.uiState.collectAsState()
     LaunchedEffect(key1 = state.posMarker) {
-        //Obtiene informacion del reporte seleccionado
+        //Obtiene información del reporte seleccionado
         if(viewModel.showMarker()){
             val type = state.itemsMarker[state.indexMarker].type
             viewModel.setIndexComboBox(state.itemsComboBox.indexOf(type))

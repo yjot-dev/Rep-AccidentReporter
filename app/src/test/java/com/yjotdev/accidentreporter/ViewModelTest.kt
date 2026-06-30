@@ -50,7 +50,7 @@ class ViewModelTest {
 
     // Mocks para todos los casos de uso inyectados en el ViewModel.
     @RelaxedMockK
-    private lateinit var getStringUseCase: StringUseCase
+    private lateinit var stringUseCase: StringUseCase
     @RelaxedMockK
     private lateinit var selectGeocodingUseCase: SelectGeocodingUseCase
     @RelaxedMockK
@@ -90,10 +90,10 @@ class ViewModelTest {
         coEvery { createTokenUseCase() } returns Result.Success("test-token-123")
         every { editTokenUseCase(any()) } just Runs
         every { editLocationUseCase(any()) } just Runs
-        every { getStringUseCase(any()) } returns "Test Message"
+        every { stringUseCase(any()) } returns "Test Message"
         // Crea la instancia del ViewModel con los mocks.
         viewModel = UiViewModel(
-            getString = getStringUseCase,
+            stringUseCase = stringUseCase,
             selectGeocodingUseCase = selectGeocodingUseCase,
             getLocationUseCase = getLocationUseCase,
             editLocationUseCase = editLocationUseCase,
@@ -121,7 +121,7 @@ class ViewModelTest {
         val successMessage = "Ubicacion encontrada"
         val fakeLocation = GeocodingModel(lat = -3.245274, lng = -79.832028)
         coEvery { selectGeocodingUseCase(any(),any(),any()) } returns Result.Success(fakeLocation)
-        every { getStringUseCase(R.string.toast_geocoding_true) } returns successMessage
+        every { stringUseCase(R.string.toast_geocoding_true) } returns successMessage
         viewModel.setTextCountry("Ecuador")
         viewModel.setTextProvince("El Oro")
         viewModel.setTextCity("El Guabo")
@@ -151,7 +151,7 @@ class ViewModelTest {
         val errorMessage = "Network Error"
         val toastMessage = "Error finding location"
         coEvery { selectGeocodingUseCase(any(),any(),any()) } returns Result.Error(Exception(errorMessage))
-        every { getStringUseCase(R.string.toast_geocoding_false) } returns toastMessage
+        every { stringUseCase(R.string.toast_geocoding_false) } returns toastMessage
         viewModel.setTextCountry("Ecuador")
         viewModel.setTextProvince("El Oro")
         viewModel.setTextCity("El Guabo")
@@ -240,7 +240,7 @@ class ViewModelTest {
         // Given
         val successMessage = "Report inserted"
         coEvery { insertReportUseCase(any()) } returns Result.Success(Unit)
-        every { getStringUseCase(R.string.toast_insert_true) } returns successMessage
+        every { stringUseCase(R.string.toast_insert_true) } returns successMessage
 
         viewModel.setItemsComboBox(
             listOf(
@@ -273,7 +273,7 @@ class ViewModelTest {
         val errorMessage = "Database Error"
         val toastMessage = "Error updating report"
         coEvery { insertReportUseCase(any()) } returns Result.Error(Exception(errorMessage))
-        every { getStringUseCase(R.string.toast_insert_false) } returns toastMessage
+        every { stringUseCase(R.string.toast_insert_false) } returns toastMessage
 
         viewModel.setItemsComboBox(
             listOf(
@@ -323,7 +323,7 @@ class ViewModelTest {
 
         // Simulamos la respuesta exitosa del caso de uso
         coEvery { updateReportUseCase(eq(1), any()) } returns Result.Success(Unit)
-        every { getStringUseCase(R.string.toast_update_true) } returns successMessage
+        every { stringUseCase(R.string.toast_update_true) } returns successMessage
 
         // When
         viewModel.updateReport()
@@ -362,7 +362,7 @@ class ViewModelTest {
 
         // Simulamos la respuesta de error del caso de uso
         coEvery { updateReportUseCase(eq(1), any()) } returns Result.Error(Exception(errorMessage))
-        every { getStringUseCase(R.string.toast_update_false) } returns toastMessage
+        every { stringUseCase(R.string.toast_update_false) } returns toastMessage
 
         // When
         viewModel.updateReport()
@@ -397,7 +397,7 @@ class ViewModelTest {
 
         // Simulamos la respuesta exitosa del caso de uso
         coEvery { deleteReportUseCase(eq(5)) } returns Result.Success(Unit)
-        every { getStringUseCase(R.string.toast_delete_true) } returns successMessage
+        every { stringUseCase(R.string.toast_delete_true) } returns successMessage
 
         // When
         viewModel.deleteReport()
@@ -431,7 +431,7 @@ class ViewModelTest {
         viewModel.setIndexMarker(0)
 
         coEvery { deleteReportUseCase(eq(5)) } returns Result.Error(Exception(errorMessage))
-        every { getStringUseCase(R.string.toast_delete_false) } returns toastMessage
+        every { stringUseCase(R.string.toast_delete_false) } returns toastMessage
 
         // When
         viewModel.deleteReport()
@@ -478,7 +478,7 @@ class ViewModelTest {
         val newToken = "a7cf5ac786824acaccff4d533832f1f5"
         val successMessage = "Token updated"
         every { editTokenUseCase(newToken) } just Runs
-        every { getStringUseCase(R.string.toast_update_token_true) } returns successMessage
+        every { stringUseCase(R.string.toast_update_token_true) } returns successMessage
 
         // When
         viewModel.editToken(newToken)
