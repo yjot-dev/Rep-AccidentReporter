@@ -34,8 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.yjotdev.accidentreporter.R
 import com.yjotdev.accidentreporter.presentation.theme.AccidentReporterTheme
-
-const val COMBO_BOX_ITEM_POS = "combobox_item:3"
+import com.yjotdev.accidentreporter.presentation.utils.TestTags
 
 /**
  * Un Composable que simula un ComboBox (o Dropdown) personalizado para la aplicación Accident Reporter.
@@ -51,7 +50,7 @@ fun ComboBoxAccidentReporter(
     indexSelected: Int,
     onIndexSelected: (Int) -> Unit
 ){
-    val tag = COMBO_BOX_ITEM_POS.substring(0,14)
+    val tag = TestTags.COMBO_BOX_ITEM_POS.substring(0,14)
     var showOptions by remember { mutableStateOf(false) }
     val colorList = listOf(
         MaterialTheme.colorScheme.background,

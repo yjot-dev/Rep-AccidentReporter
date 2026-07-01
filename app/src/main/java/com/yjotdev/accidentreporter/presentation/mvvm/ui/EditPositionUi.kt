@@ -24,11 +24,7 @@ import com.yjotdev.accidentreporter.presentation.components.ButtonAccidentReport
 import com.yjotdev.accidentreporter.presentation.components.ComboBoxAccidentReporter
 import com.yjotdev.accidentreporter.presentation.components.TextFieldAccidentReporter
 import com.yjotdev.accidentreporter.presentation.utils.ComponentPreview
-
-const val EDIT_POSITION_VIEW_COMBO_BOX = "editpositionview_combobox"
-const val EDIT_POSITION_VIEW_TEXT_FIELD = "editpositionview_textfield"
-const val EDIT_POSITION_VIEW_EDIT_BUTTON = "editpositionview_editbutton"
-const val EDIT_POSITION_VIEW_UPDATE_BUTTON = "editpositionview_updatebutton"
+import com.yjotdev.accidentreporter.presentation.utils.TestTags
 
 @Composable
 fun EditPositionView(
@@ -57,7 +53,7 @@ fun EditPositionView(
             indexSelected = indexSelected,
             onIndexSelected = { onIndexSelected(it) },
             enabled = enableComboBox,
-            modifier = Modifier.testTag(EDIT_POSITION_VIEW_COMBO_BOX)
+            modifier = Modifier.testTag(TestTags.EDIT_POSITION_VIEW_COMBO_BOX)
         )
         TextFieldAccidentReporter(
             value = textDescription,
@@ -66,7 +62,7 @@ fun EditPositionView(
             enabled = enableTextDescription,
             modifier = Modifier
                 .fillMaxWidth(0.8f)
-                .testTag(EDIT_POSITION_VIEW_TEXT_FIELD)
+                .testTag(TestTags.EDIT_POSITION_VIEW_TEXT_FIELD)
         )
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -74,7 +70,7 @@ fun EditPositionView(
         ) {
             Image(
                 painter = painterResource(R.drawable.edit),
-                contentDescription = EDIT_POSITION_VIEW_EDIT_BUTTON,
+                contentDescription = TestTags.EDIT_POSITION_VIEW_EDIT_BUTTON,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .height(dimensionResource(R.dimen.dp_5))
@@ -90,7 +86,7 @@ fun EditPositionView(
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
                     .height(dimensionResource(R.dimen.dp_5))
-                    .testTag(EDIT_POSITION_VIEW_UPDATE_BUTTON)
+                    .testTag(TestTags.EDIT_POSITION_VIEW_UPDATE_BUTTON)
             )
         }
     }

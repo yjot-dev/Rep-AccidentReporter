@@ -21,10 +21,7 @@ import com.yjotdev.accidentreporter.presentation.components.ButtonAccidentReport
 import com.yjotdev.accidentreporter.presentation.components.TextFieldAccidentReporter
 import com.yjotdev.accidentreporter.presentation.theme.AccidentReporterTheme
 import com.yjotdev.accidentreporter.presentation.utils.ComponentPreview
-
-const val TOKEN_CONFIG_VIEW_TEXT_FIELD = "tokenconfigview_textfield"
-const val TOKEN_CONFIG_VIEW_EDIT_BUTTON = "tokenconfigview_editbutton"
-const val TOKEN_CONFIG_VIEW_UPDATE_BUTTON = "tokenconfigview_updatebutton"
+import com.yjotdev.accidentreporter.presentation.utils.TestTags
 
 @Composable
 fun TokenConfigView(
@@ -48,7 +45,7 @@ fun TokenConfigView(
             onValueChange = { onTokenText(it) },
             modifier = Modifier
                 .fillMaxWidth(0.8f)
-                .testTag(TOKEN_CONFIG_VIEW_TEXT_FIELD)
+                .testTag(TestTags.TOKEN_CONFIG_VIEW_TEXT_FIELD)
         )
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -56,7 +53,7 @@ fun TokenConfigView(
         ) {
             Image(
                 painter = painterResource(R.drawable.edit),
-                contentDescription = TOKEN_CONFIG_VIEW_EDIT_BUTTON,
+                contentDescription = TestTags.TOKEN_CONFIG_VIEW_EDIT_BUTTON,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .height(dimensionResource(R.dimen.dp_5))
@@ -71,7 +68,7 @@ fun TokenConfigView(
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
                     .height(dimensionResource(R.dimen.dp_5))
-                    .testTag(TOKEN_CONFIG_VIEW_UPDATE_BUTTON)
+                    .testTag(TestTags.TOKEN_CONFIG_VIEW_UPDATE_BUTTON)
             )
         }
     }

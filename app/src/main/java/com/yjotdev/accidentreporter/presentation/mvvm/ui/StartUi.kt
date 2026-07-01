@@ -22,9 +22,7 @@ import com.yjotdev.accidentreporter.R
 import com.yjotdev.accidentreporter.presentation.components.ButtonAccidentReporter
 import com.yjotdev.accidentreporter.presentation.theme.AccidentReporterTheme
 import com.yjotdev.accidentreporter.presentation.utils.ComponentPreview
-
-const val START_VIEW_BUTTON_1 = "startview_button1"
-const val START_VIEW_BUTTON_2 = "startview_button2"
+import com.yjotdev.accidentreporter.presentation.utils.TestTags
 
 @Composable
 fun StartView(
@@ -59,7 +57,7 @@ fun StartView(
             modifier = Modifier
                 .fillMaxWidth(0.8f)
                 .height(dimensionResource(R.dimen.dp_5))
-                .testTag(START_VIEW_BUTTON_1)
+                .testTag(TestTags.START_VIEW_BUTTON_1)
         )
         ButtonAccidentReporter(
             onClick = onLocationConfig,
@@ -67,7 +65,7 @@ fun StartView(
             modifier = Modifier
                 .fillMaxWidth(0.8f)
                 .height(dimensionResource(R.dimen.dp_5))
-                .testTag(START_VIEW_BUTTON_2)
+                .testTag(TestTags.START_VIEW_BUTTON_2)
         )
     }
 }

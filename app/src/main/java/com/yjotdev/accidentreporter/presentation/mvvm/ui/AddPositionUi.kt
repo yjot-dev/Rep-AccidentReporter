@@ -18,10 +18,7 @@ import com.yjotdev.accidentreporter.presentation.components.ButtonAccidentReport
 import com.yjotdev.accidentreporter.presentation.components.ComboBoxAccidentReporter
 import com.yjotdev.accidentreporter.presentation.components.TextFieldAccidentReporter
 import com.yjotdev.accidentreporter.presentation.utils.ComponentPreview
-
-const val ADD_POSITION_VIEW_COMBO_BOX = "addpositionview_combobox"
-const val ADD_POSITION_VIEW_TEXT_FIELD = "addpositionview_textfield"
-const val ADD_POSITION_VIEW_BUTTON = "addpositionview_button"
+import com.yjotdev.accidentreporter.presentation.utils.TestTags
 
 @Composable
 fun AddPositionView(
@@ -45,7 +42,7 @@ fun AddPositionView(
             optionList = itemsComboBox,
             indexSelected = indexSelected,
             onIndexSelected = { onIndexSelected(it) },
-            modifier = Modifier.testTag(ADD_POSITION_VIEW_COMBO_BOX)
+            modifier = Modifier.testTag(TestTags.ADD_POSITION_VIEW_COMBO_BOX)
         )
         TextFieldAccidentReporter(
             value = textDescription,
@@ -53,7 +50,7 @@ fun AddPositionView(
             labelText = stringResource(R.string.textfield_description),
             modifier = Modifier
                 .fillMaxWidth(0.8f)
-                .testTag(ADD_POSITION_VIEW_TEXT_FIELD)
+                .testTag(TestTags.ADD_POSITION_VIEW_TEXT_FIELD)
         )
         ButtonAccidentReporter(
             onClick = onAdd,
@@ -62,7 +59,7 @@ fun AddPositionView(
             modifier = Modifier
                 .fillMaxWidth(0.8f)
                 .height(dimensionResource(R.dimen.dp_5))
-                .testTag(ADD_POSITION_VIEW_BUTTON)
+                .testTag(TestTags.ADD_POSITION_VIEW_BUTTON)
         )
     }
 }

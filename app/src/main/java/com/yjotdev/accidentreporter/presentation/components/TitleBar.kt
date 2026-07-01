@@ -18,8 +18,7 @@ import com.yjotdev.accidentreporter.R
 import com.yjotdev.accidentreporter.presentation.navigation.ViewRoutes
 import com.yjotdev.accidentreporter.presentation.theme.AccidentReporterTheme
 import com.yjotdev.accidentreporter.presentation.utils.ComponentPreview
-
-const val BACK_BUTTON = "backbutton"
+import com.yjotdev.accidentreporter.presentation.utils.TestTags
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,7 +43,7 @@ fun TitleBar(
                 IconButton(onClick = navigateUp) {
                     Icon(
                         imageVector = ImageVector.vectorResource(id = R.drawable.arrow_back),
-                        contentDescription = BACK_BUTTON,
+                        contentDescription = TestTags.BACK_BUTTON,
                         tint = MaterialTheme.colorScheme.onSecondary
                     )
                 }

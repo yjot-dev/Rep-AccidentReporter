@@ -26,9 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.yjotdev.accidentreporter.R
 import com.yjotdev.accidentreporter.presentation.theme.AccidentReporterTheme
-
-const val MAP_VIEW_LOOK_BUTTON = "mapview_lookbutton"
-const val MAP_VIEW_DELETE_BUTTON = "mapview_deletebutton"
+import com.yjotdev.accidentreporter.presentation.utils.TestTags
 
 @Composable
 fun Position(
@@ -61,7 +59,7 @@ fun Position(
         ) {
             Image(
                 painter = painterResource(R.drawable.look),
-                contentDescription = MAP_VIEW_LOOK_BUTTON,
+                contentDescription = TestTags.MAP_VIEW_LOOK_BUTTON,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .height(dimensionResource(R.dimen.dp_5))
@@ -69,7 +67,7 @@ fun Position(
             )
             Image(
                 painter = painterResource(R.drawable.delete),
-                contentDescription = MAP_VIEW_DELETE_BUTTON,
+                contentDescription = TestTags.MAP_VIEW_DELETE_BUTTON,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .height(dimensionResource(R.dimen.dp_5))

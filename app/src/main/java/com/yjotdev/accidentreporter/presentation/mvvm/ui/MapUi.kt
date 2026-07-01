@@ -28,10 +28,8 @@ import com.yjotdev.accidentreporter.R
 import com.yjotdev.accidentreporter.presentation.components.Position
 import com.yjotdev.accidentreporter.presentation.theme.AccidentReporterTheme
 import com.yjotdev.accidentreporter.presentation.utils.ComponentPreview
+import com.yjotdev.accidentreporter.presentation.utils.TestTags
 import com.yjotdev.accidentreporter.domain.model.ReportModel
-
-const val GOOGLE_MAP = "googleMap"
-const val MARKET_POS = "Market:1"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,13 +47,13 @@ fun MapView(
     onMapClick: (LatLng) -> Unit,
     onInfoWindowClick: (LatLng, Int) -> Unit
 ){
-    val tag = MARKET_POS.substring(0, 7)
+    val tag = TestTags.MARKET_POS.substring(0, 7)
     //Mapa
     if(isTestMode) {
         Box(modifier = modifier
             .background(Color.LightGray)
             .clickable { onMapClick(LatLng(-3.245, -79.832)) }
-            .testTag(GOOGLE_MAP)
+            .testTag(TestTags.GOOGLE_MAP)
         ){
             itemsMarker.forEachIndexed { index, pos ->
                 //Coordenada de marcador en mapa
@@ -82,7 +80,7 @@ fun MapView(
         GoogleMap(
             modifier = modifier,
             cameraPositionState = cameraPositionState,
-            contentDescription = GOOGLE_MAP,
+            contentDescription = TestTags.GOOGLE_MAP,
             onMapClick = onMapClick
         ) {
             itemsMarker.forEachIndexed { index, pos ->

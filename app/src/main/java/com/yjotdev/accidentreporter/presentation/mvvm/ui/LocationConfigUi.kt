@@ -16,12 +16,7 @@ import com.yjotdev.accidentreporter.presentation.components.ButtonAccidentReport
 import com.yjotdev.accidentreporter.presentation.components.TextFieldAccidentReporter
 import com.yjotdev.accidentreporter.presentation.theme.AccidentReporterTheme
 import com.yjotdev.accidentreporter.presentation.utils.ComponentPreview
-
-const val COUNTRY_VIEW_TEXT_FIELD_1 = "countryview_textfield1"
-const val COUNTRY_VIEW_TEXT_FIELD_2 = "countryview_textfield2"
-const val COUNTRY_VIEW_TEXT_FIELD_3 = "countryview_textfield3"
-const val COUNTRY_VIEW_BUTTON_1 = "countryview_button1"
-const val COUNTRY_VIEW_BUTTON_2 = "countryview_button2"
+import com.yjotdev.accidentreporter.presentation.utils.TestTags
 
 @Composable
 fun LocationConfigView(
@@ -48,7 +43,7 @@ fun LocationConfigView(
             onValueChange = onCountry,
             modifier = Modifier
                 .fillMaxWidth(0.8f)
-                .testTag(COUNTRY_VIEW_TEXT_FIELD_1)
+                .testTag(TestTags.COUNTRY_VIEW_TEXT_FIELD_1)
         )
         TextFieldAccidentReporter(
             idHeight = R.dimen.dp_5,
@@ -57,7 +52,7 @@ fun LocationConfigView(
             onValueChange = onProvince,
             modifier = Modifier
                 .fillMaxWidth(0.8f)
-                .testTag(COUNTRY_VIEW_TEXT_FIELD_2)
+                .testTag(TestTags.COUNTRY_VIEW_TEXT_FIELD_2)
         )
         TextFieldAccidentReporter(
             idHeight = R.dimen.dp_5,
@@ -66,7 +61,7 @@ fun LocationConfigView(
             onValueChange = onCity,
             modifier = Modifier
                 .fillMaxWidth(0.8f)
-                .testTag(COUNTRY_VIEW_TEXT_FIELD_3)
+                .testTag(TestTags.COUNTRY_VIEW_TEXT_FIELD_3)
         )
         ButtonAccidentReporter(
             onClick = onSearchLocation,
@@ -74,7 +69,7 @@ fun LocationConfigView(
             modifier = Modifier
                 .fillMaxWidth(0.8f)
                 .height(dimensionResource(R.dimen.dp_5))
-                .testTag(COUNTRY_VIEW_BUTTON_1)
+                .testTag(TestTags.COUNTRY_VIEW_BUTTON_1)
         )
         ButtonAccidentReporter(
             enabled = enableOnMap,
@@ -83,7 +78,7 @@ fun LocationConfigView(
             modifier = Modifier
                 .fillMaxWidth(0.8f)
                 .height(dimensionResource(R.dimen.dp_5))
-                .testTag(COUNTRY_VIEW_BUTTON_2)
+                .testTag(TestTags.COUNTRY_VIEW_BUTTON_2)
         )
     }
 }
