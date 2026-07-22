@@ -26,19 +26,3 @@ subprojects {
         }
     }
 }
-// Listener global para capturar fallos de compilación pesados
-gradle.buildFinished {
-    if (failure != null) {
-        // Apunta directamente a la carpeta build del módulo principal (:app)
-        val logDir = file("app/build/logs")
-        if (!logDir.exists()) logDir.mkdirs()
-
-        val errorFile = file("app/build/logs/build_error.txt")
-        errorFile.writeText("""
-            === FALLO DE COMPILACIÓN DETECTADO ===
-            Fecha: ${java.util.Date()}
-            Mensaje: ${failure?.message}
-            Causa: ${failure?.cause}
-        """.trimIndent())
-    }
-}

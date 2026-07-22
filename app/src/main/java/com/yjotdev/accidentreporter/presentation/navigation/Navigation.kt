@@ -144,9 +144,9 @@ fun Navigation(
                             if (state.textCountry.isNotEmpty()
                                 && state.textProvince.isNotEmpty()
                                 && state.textCity.isNotEmpty()) {
-                                if (Helper.isValidText(state.textCountry)
-                                    && Helper.isValidText(state.textProvince)
-                                    && Helper.isValidText(state.textCity)) {
+                                if (Helper.isValidMessage(state.textCountry)
+                                    && Helper.isValidMessage(state.textProvince)
+                                    && Helper.isValidMessage(state.textCity)) {
                                     viewModel.selectGeocoding()
                                 } else {
                                     Toast.makeText(
@@ -215,7 +215,7 @@ fun Navigation(
                         onIndexSelected = { viewModel.setIndexComboBox(it) },
                         onAdd = {
                             if (state.textDescription.isNotEmpty()) {
-                                if (Helper.isValidText(state.textDescription)) {
+                                if (Helper.isValidMessage(state.textDescription)) {
                                     viewModel.insertReport()
                                 } else {
                                     Toast.makeText(
@@ -252,7 +252,7 @@ fun Navigation(
                         onIndexSelected = { viewModel.setIndexComboBox(it) },
                         onUpdate = {
                             if (state.textDescription.isNotEmpty()) {
-                                if (Helper.isValidText(state.textDescription)) {
+                                if (Helper.isValidMessage(state.textDescription)) {
                                     viewModel.updateReport()
                                 } else {
                                     Toast.makeText(

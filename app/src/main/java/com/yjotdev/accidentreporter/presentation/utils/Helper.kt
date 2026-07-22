@@ -13,9 +13,9 @@ object Helper {
         return Regex("^[a-fA-F0-9]{32}$").matches(input)
     }
 
-    /** Valida si un string es un texto **/
-    fun isValidText(input: String): Boolean{
-        return Regex("^[A-Za-z ]+$").matches(input)
+    /** Valida si un string es un mensaje **/
+    fun isValidMessage(input: String): Boolean{
+        return Regex("^[A-Za-z.,\\s]{1,300}$").matches(input)
     }
 
     /** Convierte un marcador a posicion **/
