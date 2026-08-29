@@ -115,12 +115,12 @@ fun Navigation(
                                 viewModel.editToken(state.textToken)
                             } else {
                                 Toast.makeText(
-                                    context, context.getString(R.string.toast_invalid_data), Toast.LENGTH_SHORT
+                                    context, R.string.toast_invalid_data, Toast.LENGTH_SHORT
                                 ).show()
                             }
                         } else {
                             Toast.makeText(
-                                context, context.getString(R.string.toast_empty_field), Toast.LENGTH_SHORT
+                                context, R.string.toast_empty_field, Toast.LENGTH_SHORT
                             ).show()
                         }
                     }
@@ -150,12 +150,12 @@ fun Navigation(
                                     viewModel.selectGeocoding()
                                 } else {
                                     Toast.makeText(
-                                        context, context.getString(R.string.toast_invalid_data), Toast.LENGTH_SHORT
+                                        context, R.string.toast_invalid_data, Toast.LENGTH_SHORT
                                     ).show()
                                 }
                             } else {
                                 Toast.makeText(
-                                    context, context.getString(R.string.toast_empty_field), Toast.LENGTH_SHORT
+                                    context, R.string.toast_empty_field, Toast.LENGTH_SHORT
                                 ).show()
                             }
                         },
@@ -219,12 +219,12 @@ fun Navigation(
                                     viewModel.insertReport()
                                 } else {
                                     Toast.makeText(
-                                        context, context.getString(R.string.toast_invalid_data), Toast.LENGTH_SHORT
+                                        context, R.string.toast_invalid_data, Toast.LENGTH_SHORT
                                     ).show()
                                 }
                             } else {
                                 Toast.makeText(
-                                    context, context.getString(R.string.toast_empty_field), Toast.LENGTH_SHORT
+                                    context, R.string.toast_empty_field, Toast.LENGTH_SHORT
                                 ).show()
                             }
                         }
@@ -256,12 +256,12 @@ fun Navigation(
                                     viewModel.updateReport()
                                 } else {
                                     Toast.makeText(
-                                        context, context.getString(R.string.toast_invalid_data), Toast.LENGTH_SHORT
+                                        context, R.string.toast_invalid_data, Toast.LENGTH_SHORT
                                     ).show()
                                 }
                             } else {
                                 Toast.makeText(
-                                    context, context.getString(R.string.toast_empty_field), Toast.LENGTH_SHORT
+                                    context, R.string.toast_empty_field, Toast.LENGTH_SHORT
                                 ).show()
                             }
                         }
