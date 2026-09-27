@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Accident Reporter</string>
+    <string name="app_name">ARI</string>
     <string name="startview_title">App para Reportar Incidentes</string>
     <string name="startview_button1">Configurar token</string>
     <string name="startview_button2">Configurar país</string>

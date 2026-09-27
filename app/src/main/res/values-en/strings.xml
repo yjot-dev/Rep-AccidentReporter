@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Accident Reporter</string>
+    <string name="app_name">ARI</string>
     <string name="startview_title">Incident Report App</string>
     <string name="startview_button1">Set up token</string>
     <string name="startview_button2">Set up country</string>

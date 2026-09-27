@@ -1,22 +1,24 @@
+import com.android.build.api.dsl.ApplicationExtension
+
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
 }
 
-android {
+configure<ApplicationExtension> {
     namespace = "com.yjotdev.accidentreporter"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.yjotdev.accidentreporter"
         minSdk = 24
-        targetSdk = 36
-        versionCode = 4
-        versionName = "1.4"
+        targetSdk = 37
+        versionCode = 5
+        versionName = "1.5"
         testInstrumentationRunner = "com.yjotdev.accidentreporter.CustomTestRunner"
+        androidResources.localeFilters += setOf("en", "es")
     }
     signingConfigs {
         create("release") {
@@ -31,7 +33,7 @@ android {
             applicationIdSuffix = ".debug"
             isDebuggable = true
             // Key de Google enviada al manifesto
-            val mapsApiKey = project.findProperty("APP_MAPS_API_KEY_DEBUG") as String
+            val mapsApiKey = project.findProperty("MAPS_API_KEY_DEBUG") as String
             manifestPlaceholders.putAll(mapOf("MAPS_API_KEY" to mapsApiKey))
             buildConfigField("String", "API_BASE_URL", "\"${project.findProperty("API_BASE_URL_DEBUG")}\"")
         }
@@ -47,7 +49,7 @@ android {
                 debugSymbolLevel = "FULL"
             }
             // Key de Google enviada al manifesto
-            val mapsApiKey = project.findProperty("APP_MAPS_API_KEY_RELEASE") as String
+            val mapsApiKey = project.findProperty("MAPS_API_KEY_RELEASE") as String
             manifestPlaceholders.putAll(mapOf("MAPS_API_KEY" to mapsApiKey))
             buildConfigField("String", "API_BASE_URL", "\"${project.findProperty("API_BASE_URL_RELEASE")}\"")
         }
@@ -55,9 +57,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
-    }
-    kotlinOptions {
-        jvmTarget = "21"
     }
     buildFeatures {
         compose = true
@@ -70,6 +69,9 @@ android {
         jniLibs {
             useLegacyPackaging = false
         }
+    }
+    testOptions {
+        animationsDisabled = true
     }
 }
 
