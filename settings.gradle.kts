@@ -16,5 +16,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Accident Reporter"
+rootProject.name = "ARI"
 include(":app")
