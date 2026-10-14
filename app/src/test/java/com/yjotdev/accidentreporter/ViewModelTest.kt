@@ -14,6 +14,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -31,16 +33,20 @@ import com.yjotdev.accidentreporter.domain.usecase.string.StringUseCase
 import com.yjotdev.accidentreporter.domain.usecase.geocoding.SelectGeocodingUseCase
 import com.yjotdev.accidentreporter.domain.usecase.geocoding.EditLocationUseCase
 import com.yjotdev.accidentreporter.domain.usecase.geocoding.GetLocationUseCase
-import com.yjotdev.accidentreporter.domain.usecase.report.DeleteReportUseCase
-import com.yjotdev.accidentreporter.domain.usecase.report.InsertReportUseCase
-import com.yjotdev.accidentreporter.domain.usecase.report.SelectReportUseCase
-import com.yjotdev.accidentreporter.domain.usecase.report.UpdateReportUseCase
+import com.yjotdev.accidentreporter.domain.usecase.report.DeleteRemoteReportUseCase
+import com.yjotdev.accidentreporter.domain.usecase.report.DeleteLocalReportUseCase
+import com.yjotdev.accidentreporter.domain.usecase.report.InsertRemoteReportUseCase
+import com.yjotdev.accidentreporter.domain.usecase.report.InsertLocalReportUseCase
+import com.yjotdev.accidentreporter.domain.usecase.report.GetRemoteReportUseCase
+import com.yjotdev.accidentreporter.domain.usecase.report.GetLocalReportUseCase
+import com.yjotdev.accidentreporter.domain.usecase.report.UpdateRemoteReportUseCase
+import com.yjotdev.accidentreporter.domain.usecase.report.UpdateLocalReportUseCase
 import com.yjotdev.accidentreporter.domain.usecase.report.CreateTokenUseCase
+import com.yjotdev.accidentreporter.domain.usecase.report.SaveAllReportsUseCase
 import com.yjotdev.accidentreporter.domain.usecase.token.EditTokenUseCase
 import com.yjotdev.accidentreporter.domain.usecase.token.GetTokenUseCase
 import com.yjotdev.accidentreporter.presentation.mvvm.viewmodel.UiViewModel
 import com.yjotdev.accidentreporter.presentation.navigation.UiEvent
-import com.yjotdev.accidentreporter.presentation.navigation.ViewRoutes
 
 /**
  * Pruebas unitarias para los metodos del ViewModel.
@@ -58,13 +64,23 @@ class ViewModelTest {
     @RelaxedMockK
     private lateinit var editLocationUseCase: EditLocationUseCase
     @RelaxedMockK
-    private lateinit var selectReportUseCase: SelectReportUseCase
+    private lateinit var getRemoteReportUseCase: GetRemoteReportUseCase
     @RelaxedMockK
-    private lateinit var insertReportUseCase: InsertReportUseCase
+    private lateinit var getLocalReportUseCase: GetLocalReportUseCase
     @RelaxedMockK
-    private lateinit var updateReportUseCase: UpdateReportUseCase
+    private lateinit var insertRemoteReportUseCase: InsertRemoteReportUseCase
     @RelaxedMockK
-    private lateinit var deleteReportUseCase: DeleteReportUseCase
+    private lateinit var insertLocalReportUseCase: InsertLocalReportUseCase
+    @RelaxedMockK
+    private lateinit var saveAllReportsUseCase: SaveAllReportsUseCase
+    @RelaxedMockK
+    private lateinit var updateRemoteReportUseCase: UpdateRemoteReportUseCase
+    @RelaxedMockK
+    private lateinit var updateLocalReportUseCase: UpdateLocalReportUseCase
+    @RelaxedMockK
+    private lateinit var deleteRemoteReportUseCase: DeleteRemoteReportUseCase
+    @RelaxedMockK
+    private lateinit var deleteLocalReportUseCase: DeleteLocalReportUseCase
     @RelaxedMockK
     private lateinit var createTokenUseCase: CreateTokenUseCase
     @RelaxedMockK
@@ -72,11 +88,9 @@ class ViewModelTest {
     @RelaxedMockK
     private lateinit var editTokenUseCase: EditTokenUseCase
 
-    // La instancia del ViewModel que vamos a probar.
     private lateinit var viewModel: UiViewModel
-
-    // Un TestDispatcher para controlar el hilo principal en las pruebas.
     private val testDispatcher = StandardTestDispatcher()
+    private lateinit var localReportsFlow: MutableStateFlow<List<ReportModel>>
 
     @Before
     fun setUp() {
@@ -91,16 +105,23 @@ class ViewModelTest {
         every { editTokenUseCase(any()) } just Runs
         every { editLocationUseCase(any()) } just Runs
         every { stringUseCase(any()) } returns "Test Message"
+        localReportsFlow = MutableStateFlow(listOf(ReportModel()))
+        every { getLocalReportUseCase() } returns localReportsFlow
         // Crea la instancia del ViewModel con los mocks.
         viewModel = UiViewModel(
             stringUseCase = stringUseCase,
             selectGeocodingUseCase = selectGeocodingUseCase,
             getLocationUseCase = getLocationUseCase,
             editLocationUseCase = editLocationUseCase,
-            selectReportUseCase = selectReportUseCase,
-            insertReportUseCase = insertReportUseCase,
-            updateReportUseCase = updateReportUseCase,
-            deleteReportUseCase = deleteReportUseCase,
+            getRemoteReportUseCase = getRemoteReportUseCase,
+            getLocalReportUseCase = getLocalReportUseCase,
+            insertRemoteReportUseCase = insertRemoteReportUseCase,
+            insertLocalReportUseCase = insertLocalReportUseCase,
+            saveAllReportsUseCase = saveAllReportsUseCase,
+            updateRemoteReportUseCase = updateRemoteReportUseCase,
+            updateLocalReportUseCase = updateLocalReportUseCase,
+            deleteRemoteReportUseCase = deleteRemoteReportUseCase,
+            deleteLocalReportUseCase = deleteLocalReportUseCase,
             createTokenUseCase = createTokenUseCase,
             getTokenUseCase = getTokenUseCase,
             editTokenUseCase = editTokenUseCase
@@ -177,7 +198,7 @@ class ViewModelTest {
     }
 
     @Test
-    fun whenSelectReportsIsSuccessfulThenUiStateIsUpdatedWithDataAndNavigationEventIsSent() = runTest {
+    fun whenGetAllRemoteReportsIsSuccessfulThenUiStateIsUpdatedWithDataAndNavigationEventIsSent() = runTest {
         // Given: Preparamos el escenario
         val fakeReportList = listOf(ReportModel(
             id = 1,
@@ -188,58 +209,49 @@ class ViewModelTest {
             description = "Test Report",
             token = "a7cf5ac786824acaccff4d533832f1f5"
         ))
-        coEvery { selectReportUseCase() } returns Result.Success(fakeReportList)
+        coEvery { getRemoteReportUseCase() } returns Result.Success(fakeReportList)
+        coEvery { saveAllReportsUseCase(fakeReportList) } answers {
+            localReportsFlow.value = fakeReportList
+        }
 
         // When: Ejecutamos la acción a probar
-        viewModel.selectReports()
+        viewModel.getAllRemoteReports()
         advanceUntilIdle()
 
         // Then
-        viewModel.eventChannel.test {
-            assertEquals(UiEvent.Navigate(ViewRoutes.Map.name), awaitItem())
-            cancel()
-        }
-
-        viewModel.uiState.test {
-            val state = awaitItem()
-            assertEquals(fakeReportList, state.itemsMarker)
-            cancel()
-        }
-
-        // Verificamos que el caso de uso fue llamado una vez
-        coVerify(exactly = 1) { selectReportUseCase() }
+        assertEquals(fakeReportList, viewModel.uiState.value.itemsMarker)
+        assertFalse(viewModel.uiState.value.isLoading)
+        coVerify(exactly = 1) { getRemoteReportUseCase() }
+        coVerify(exactly = 1) { saveAllReportsUseCase(fakeReportList) }
     }
 
     @Test
-    fun whenSelectReportsFailsThenUiStateIsUpdatedAndLogEventIsSent() = runTest {
+    fun whenGetAllRemoteReportsFailsThenUiStateIsUpdatedAndLogEventIsSent() = runTest {
         // Given
         val errorMessage = "Network Error"
-        coEvery { selectReportUseCase() } returns Result.Error(Exception(errorMessage))
+        coEvery { getRemoteReportUseCase() } returns Result.Error(Exception(errorMessage))
 
         // When
-        viewModel.selectReports()
+        val eventJob = launch {
+            viewModel.eventChannel.test {
+                assertEquals(UiEvent.ShowLog("selectReports: $errorMessage"), awaitItem())
+            }
+        }
+        viewModel.getAllRemoteReports()
         advanceUntilIdle()
+        eventJob.cancel()
 
         // Then
-        viewModel.eventChannel.test {
-            assertEquals(UiEvent.ShowLog("selectReports: $errorMessage"), awaitItem())
-            cancel()
-        }
-
-        viewModel.uiState.test {
-            val state = awaitItem()
-            assertEquals(emptyList<ReportModel>(), state.itemsMarker)
-            cancel()
-        }
-
-        coVerify(exactly = 1) { selectReportUseCase() }
+        assertEquals(listOf(ReportModel()), viewModel.uiState.value.itemsMarker)
+        assertFalse(viewModel.uiState.value.isLoading)
+        coVerify(exactly = 1) { getRemoteReportUseCase() }
     }
 
     @Test
     fun whenInsertReportIsSuccessfulThenToastEventIsSent() = runTest {
         // Given
         val successMessage = "Report inserted"
-        coEvery { insertReportUseCase(any()) } returns Result.Success(Unit)
+        coEvery { insertRemoteReportUseCase(any()) } returns Result.Success(Unit)
         every { stringUseCase(R.string.toast_insert_true) } returns successMessage
 
         viewModel.setItemsComboBox(
@@ -264,7 +276,7 @@ class ViewModelTest {
             cancel()
         }
 
-        coVerify(exactly = 1) { insertReportUseCase(any()) }
+        coVerify(exactly = 1) { insertRemoteReportUseCase(any()) }
     }
 
     @Test
@@ -272,7 +284,7 @@ class ViewModelTest {
         // Given
         val errorMessage = "Database Error"
         val toastMessage = "Error updating report"
-        coEvery { insertReportUseCase(any()) } returns Result.Error(Exception(errorMessage))
+        coEvery { insertRemoteReportUseCase(any()) } returns Result.Error(Exception(errorMessage))
         every { stringUseCase(R.string.toast_insert_false) } returns toastMessage
 
         viewModel.setItemsComboBox(
@@ -298,7 +310,7 @@ class ViewModelTest {
             cancel()
         }
 
-        coVerify(exactly = 1) { insertReportUseCase(any()) }
+        coVerify(exactly = 1) { insertRemoteReportUseCase(any()) }
     }
 
     @Test
@@ -322,7 +334,7 @@ class ViewModelTest {
         viewModel.setTextToken("7bcf5ac786824acaccff4d533832f11d") // Token del usuario
 
         // Simulamos la respuesta exitosa del caso de uso
-        coEvery { updateReportUseCase(eq(1), any()) } returns Result.Success(Unit)
+        coEvery { updateRemoteReportUseCase(eq(1), any()) } returns Result.Success(Unit)
         every { stringUseCase(R.string.toast_update_true) } returns successMessage
 
         // When
@@ -336,7 +348,7 @@ class ViewModelTest {
         }
 
         // Verificamos que el caso de uso se llamó con los parámetros correctos
-        coVerify(exactly = 1) { updateReportUseCase(eq(1), any()) }
+        coVerify(exactly = 1) { updateRemoteReportUseCase(eq(1), any()) }
     }
 
     @Test
@@ -361,7 +373,7 @@ class ViewModelTest {
         viewModel.setTextToken("7bcf5ac786824acaccff4d533832f11d")
 
         // Simulamos la respuesta de error del caso de uso
-        coEvery { updateReportUseCase(eq(1), any()) } returns Result.Error(Exception(errorMessage))
+        coEvery { updateRemoteReportUseCase(eq(1), any()) } returns Result.Error(Exception(errorMessage))
         every { stringUseCase(R.string.toast_update_false) } returns toastMessage
 
         // When
@@ -376,7 +388,7 @@ class ViewModelTest {
         }
 
         // Verificamos la llamada al caso de uso
-        coVerify(exactly = 1) { updateReportUseCase(eq(1), any()) }
+        coVerify(exactly = 1) { updateRemoteReportUseCase(eq(1), any()) }
     }
 
     @Test
@@ -396,7 +408,7 @@ class ViewModelTest {
         viewModel.setIndexMarker(0)
 
         // Simulamos la respuesta exitosa del caso de uso
-        coEvery { deleteReportUseCase(eq(5)) } returns Result.Success(Unit)
+        coEvery { deleteRemoteReportUseCase(eq(5)) } returns Result.Success(Unit)
         every { stringUseCase(R.string.toast_delete_true) } returns successMessage
 
         // When
@@ -410,7 +422,7 @@ class ViewModelTest {
         }
 
         // Verificamos la llamada al caso de uso con el ID correcto
-        coVerify(exactly = 1) { deleteReportUseCase(eq(5)) }
+        coVerify(exactly = 1) { deleteRemoteReportUseCase(eq(5)) }
     }
 
     @Test
@@ -430,7 +442,7 @@ class ViewModelTest {
         viewModel.setItemsMarker(listOf(reportToDelete))
         viewModel.setIndexMarker(0)
 
-        coEvery { deleteReportUseCase(eq(5)) } returns Result.Error(Exception(errorMessage))
+        coEvery { deleteRemoteReportUseCase(eq(5)) } returns Result.Error(Exception(errorMessage))
         every { stringUseCase(R.string.toast_delete_false) } returns toastMessage
 
         // When
@@ -444,7 +456,7 @@ class ViewModelTest {
             cancel()
         }
 
-        coVerify(exactly = 1) { deleteReportUseCase(eq(5)) }
+        coVerify(exactly = 1) { deleteRemoteReportUseCase(eq(5)) }
     }
 
     @Test

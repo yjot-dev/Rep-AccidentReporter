@@ -15,8 +15,8 @@ configure<ApplicationExtension> {
         applicationId = "com.yjotdev.accidentreporter"
         minSdk = 24
         targetSdk = 37
-        versionCode = 5
-        versionName = "1.5"
+        versionCode = 6
+        versionName = "1.6"
         testInstrumentationRunner = "com.yjotdev.accidentreporter.CustomTestRunner"
         androidResources.localeFilters += setOf("en", "es")
     }
@@ -101,6 +101,10 @@ dependencies {
     implementation(libs.squareup.retrofit2)
     implementation(libs.squareup.retrofit2.gson)
     implementation(libs.google.code.gson)
+    //Room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
     //Logging Interceptor
     implementation(libs.squareup.okhttp3.logging.interceptor)
     //Hilt

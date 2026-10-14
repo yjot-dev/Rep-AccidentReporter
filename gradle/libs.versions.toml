@@ -24,6 +24,7 @@ mapsCompose = "8.6.0"
 navigationRuntimeKtx = "2.10.2"
 # Network
 retrofit = "3.0.0"
+roomVersion = "2.8.5"
 gson = "2.14.0"
 loggingInterceptor = "5.5.0"
 # Dependency Injection (Hilt)
@@ -51,6 +52,10 @@ androidx-navigation-compose = { module = "androidx.navigation:navigation-compose
 squareup-retrofit2 = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 squareup-retrofit2-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
 google-code-gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomVersion" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomVersion" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomVersion" }
 
 squareup-okhttp3-logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "loggingInterceptor" }
 

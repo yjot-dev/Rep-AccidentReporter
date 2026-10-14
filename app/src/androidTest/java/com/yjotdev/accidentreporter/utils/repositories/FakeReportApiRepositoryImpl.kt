@@ -3,11 +3,11 @@ package com.yjotdev.accidentreporter.utils.repositories
 import javax.inject.Singleton
 import javax.inject.Inject
 import com.yjotdev.accidentreporter.domain.model.ReportModel
-import com.yjotdev.accidentreporter.domain.repository.ReportRepository
+import com.yjotdev.accidentreporter.domain.repository.ReportApiRepository
 import com.yjotdev.accidentreporter.domain.core.Result
 
 @Singleton
-class FakeReportRepositoryImpl @Inject constructor(): ReportRepository {
+class FakeReportApiRepositoryImpl @Inject constructor(): ReportApiRepository {
     private val reportList = mutableListOf(
         ReportModel(
             id = 1,
@@ -20,7 +20,7 @@ class FakeReportRepositoryImpl @Inject constructor(): ReportRepository {
         )
     )
 
-    override suspend fun selectReports(): Result<List<ReportModel>> {
+    override suspend fun getRemoteReports(): Result<List<ReportModel>> {
         return if (reportList.isNotEmpty()){
             Result.Success(reportList)
         }else {
@@ -28,7 +28,7 @@ class FakeReportRepositoryImpl @Inject constructor(): ReportRepository {
         }
     }
 
-    override suspend fun insertReport(report: ReportModel): Result<Unit> {
+    override suspend fun insertRemoteReport(report: ReportModel): Result<Unit> {
         return if (report != ReportModel()){
             Result.Success(Unit)
         }else {
@@ -36,7 +36,7 @@ class FakeReportRepositoryImpl @Inject constructor(): ReportRepository {
         }
     }
 
-    override suspend fun updateReport(id: Int, report: ReportModel): Result<Unit> {
+    override suspend fun updateRemoteReport(id: Int, report: ReportModel): Result<Unit> {
         return if (id != 0 && report != ReportModel()){
             Result.Success(Unit)
         }else {
@@ -44,7 +44,7 @@ class FakeReportRepositoryImpl @Inject constructor(): ReportRepository {
         }
     }
 
-    override suspend fun deleteReport(id: Int): Result<Unit> {
+    override suspend fun deleteRemoteReport(id: Int): Result<Unit> {
         return if (id != 0){
             Result.Success(Unit)
         }else {

@@ -5,13 +5,15 @@ import dagger.Binds
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
 import javax.inject.Singleton
-import com.yjotdev.accidentreporter.domain.repository.ReportRepository
+import com.yjotdev.accidentreporter.domain.repository.ReportApiRepository
+import com.yjotdev.accidentreporter.domain.repository.ReportDaoRepository
 import com.yjotdev.accidentreporter.domain.repository.StringRepository
 import com.yjotdev.accidentreporter.domain.repository.TokenRepository
 import com.yjotdev.accidentreporter.domain.repository.GeocodingRepository
 import com.yjotdev.accidentreporter.data.di.DiModules
 import com.yjotdev.accidentreporter.utils.repositories.FakeGeocodingRepositoryImpl
-import com.yjotdev.accidentreporter.utils.repositories.FakeReportRepositoryImpl
+import com.yjotdev.accidentreporter.utils.repositories.FakeReportApiRepositoryImpl
+import com.yjotdev.accidentreporter.utils.repositories.FakeReportDaoRepositoryImpl
 import com.yjotdev.accidentreporter.utils.repositories.FakeStringRepositoryImpl
 import com.yjotdev.accidentreporter.utils.repositories.FakeTokenRepositoryImpl
 
@@ -26,9 +28,15 @@ abstract class DiModulesTest {
     // --- BINDINGS (Abstracciones) ---
     @Binds
     @Singleton
-    abstract fun bindFakeReportRepository(
-        impl: FakeReportRepositoryImpl
-    ): ReportRepository
+    abstract fun bindFakeReportApiRepository(
+        impl: FakeReportApiRepositoryImpl
+    ): ReportApiRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindFakeReportDaoRepository(
+        impl: FakeReportDaoRepositoryImpl
+    ): ReportDaoRepository
 
     @Binds
     @Singleton
@@ -49,5 +57,5 @@ abstract class DiModulesTest {
     ): GeocodingRepository
 
     // --- PROVIDERS (Instancias externas) ---
-    // No son necesarios aqui
+    // No son necesarios aquí
 }

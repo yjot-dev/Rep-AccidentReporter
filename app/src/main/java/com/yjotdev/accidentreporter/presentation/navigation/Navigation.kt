@@ -159,7 +159,7 @@ fun Navigation(
                                 ).show()
                             }
                         },
-                        onMap = { viewModel.selectReports() }
+                        onMap = { viewModel.navigateToMapUi() }
                     )
                     if(state.isLoading) LoadingScreen()
                 }

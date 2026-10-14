@@ -23,10 +23,15 @@ import com.yjotdev.accidentreporter.domain.usecase.string.StringUseCase
 import com.yjotdev.accidentreporter.domain.usecase.token.GetTokenUseCase
 import com.yjotdev.accidentreporter.domain.usecase.token.EditTokenUseCase
 import com.yjotdev.accidentreporter.domain.usecase.report.CreateTokenUseCase
-import com.yjotdev.accidentreporter.domain.usecase.report.SelectReportUseCase
-import com.yjotdev.accidentreporter.domain.usecase.report.DeleteReportUseCase
-import com.yjotdev.accidentreporter.domain.usecase.report.InsertReportUseCase
-import com.yjotdev.accidentreporter.domain.usecase.report.UpdateReportUseCase
+import com.yjotdev.accidentreporter.domain.usecase.report.GetRemoteReportUseCase
+import com.yjotdev.accidentreporter.domain.usecase.report.GetLocalReportUseCase
+import com.yjotdev.accidentreporter.domain.usecase.report.DeleteRemoteReportUseCase
+import com.yjotdev.accidentreporter.domain.usecase.report.DeleteLocalReportUseCase
+import com.yjotdev.accidentreporter.domain.usecase.report.InsertRemoteReportUseCase
+import com.yjotdev.accidentreporter.domain.usecase.report.InsertLocalReportUseCase
+import com.yjotdev.accidentreporter.domain.usecase.report.SaveAllReportsUseCase
+import com.yjotdev.accidentreporter.domain.usecase.report.UpdateRemoteReportUseCase
+import com.yjotdev.accidentreporter.domain.usecase.report.UpdateLocalReportUseCase
 import com.yjotdev.accidentreporter.domain.usecase.geocoding.SelectGeocodingUseCase
 import com.yjotdev.accidentreporter.domain.usecase.geocoding.EditLocationUseCase
 import com.yjotdev.accidentreporter.domain.usecase.geocoding.GetLocationUseCase
@@ -38,10 +43,15 @@ class UiViewModel @Inject constructor(
     private val selectGeocodingUseCase: SelectGeocodingUseCase,
     private val getLocationUseCase: GetLocationUseCase,
     private val editLocationUseCase: EditLocationUseCase,
-    private val selectReportUseCase: SelectReportUseCase,
-    private val insertReportUseCase: InsertReportUseCase,
-    private val updateReportUseCase: UpdateReportUseCase,
-    private val deleteReportUseCase: DeleteReportUseCase,
+    private val getRemoteReportUseCase: GetRemoteReportUseCase,
+    private val getLocalReportUseCase: GetLocalReportUseCase,
+    private val insertRemoteReportUseCase: InsertRemoteReportUseCase,
+    private val insertLocalReportUseCase: InsertLocalReportUseCase,
+    private val saveAllReportsUseCase: SaveAllReportsUseCase,
+    private val updateRemoteReportUseCase: UpdateRemoteReportUseCase,
+    private val updateLocalReportUseCase: UpdateLocalReportUseCase,
+    private val deleteRemoteReportUseCase: DeleteRemoteReportUseCase,
+    private val deleteLocalReportUseCase: DeleteLocalReportUseCase,
     private val createTokenUseCase: CreateTokenUseCase,
     private val getTokenUseCase: GetTokenUseCase,
     private val editTokenUseCase: EditTokenUseCase
@@ -53,11 +63,11 @@ class UiViewModel @Inject constructor(
     val eventChannel = _eventChannel.receiveAsFlow()
 
     override fun onCleared() {
-        super.onCleared()
-        resetViewModel()
+        cleanState()
     }
 
     init {
+        observerFlowLocalReports()
         getToken()
         getLocation()
     }
@@ -243,34 +253,12 @@ class UiViewModel @Inject constructor(
         }
     }
 
-    /** Obtiene los reportes (marcadores) de la BD **/
-    fun selectReports(){
-        _uiState.update { it.copy(isLoading = true) }
+    /** Navega a la vista MapUi **/
+    fun navigateToMapUi() {
         viewModelScope.launch {
-            when (val result = selectReportUseCase()) {
-                is Result.Success -> {
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            itemsMarker = result.data
-                        )
-                    }
-                    _eventChannel.send(UiEvent.Navigate(
-                        ViewRoutes.Map.name)
-                    )
-                }
-                is Result.Error -> {
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            itemsMarker = emptyList()
-                        )
-                    }
-                    _eventChannel.send(UiEvent.ShowLog(
-                        "selectReports: ${result.exception.message!!}")
-                    )
-                }
-            }
+            _eventChannel.send(UiEvent.Navigate(
+                ViewRoutes.Map.name)
+            )
         }
     }
 
@@ -290,8 +278,9 @@ class UiViewModel @Inject constructor(
         )
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
-            when (val result = insertReportUseCase(report)) {
+            when (val result = insertRemoteReportUseCase(report)) {
                 is Result.Success -> {
+                    insertLocalReportUseCase(report)
                     _uiState.update { it.copy(isLoading = false) }
                     _eventChannel.send(UiEvent.ShowToast(
                         stringUseCase(R.string.toast_insert_true))
@@ -321,8 +310,9 @@ class UiViewModel @Inject constructor(
         )
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
-            when (val result = updateReportUseCase(id, report)) {
+            when (val result = updateRemoteReportUseCase(id, report)) {
                 is Result.Success -> {
+                    updateLocalReportUseCase(report)
                     _uiState.update { it.copy(isLoading = false) }
                     _eventChannel.send(UiEvent.ShowToast(
                         stringUseCase(R.string.toast_update_true))
@@ -344,11 +334,12 @@ class UiViewModel @Inject constructor(
     /** Elimina un reporte de la BD **/
     fun deleteReport() {
         val state = _uiState.value
-        val id = state.itemsMarker[state.indexMarker].id
+        val report = state.itemsMarker[state.indexMarker]
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
-            when (val result = deleteReportUseCase(id)) {
+            when (val result = deleteRemoteReportUseCase(report.id)) {
                 is Result.Success -> {
+                    deleteLocalReportUseCase(report)
                     _uiState.update { it.copy(isLoading = false) }
                     _eventChannel.send(UiEvent.ShowToast(
                         stringUseCase(R.string.toast_delete_true))
@@ -376,22 +367,46 @@ class UiViewModel @Inject constructor(
     /** Verifica si el token del usuario corresponde al reporte seleccionado **/
     fun verifyUser(): Boolean{
         val state = _uiState.value
-        return if(!state.itemsMarker.isEmpty()){
-            state.textToken == state.itemsMarker[state.indexMarker].token }
-        else false
+        return state.itemsMarker.isNotEmpty() && state.textToken == state.itemsMarker[state.indexMarker].token
     }
 
     /** Muestra y oculta la información del marcador seleccionado **/
     fun showMarker(): Boolean{
         val state = _uiState.value
-        return if(!state.itemsMarker.isEmpty()){
+        return if(state.itemsMarker.isNotEmpty()){
             val pos = Helper.convertToPosition(state.itemsMarker[state.indexMarker])
             pos == state.posMarker
         }else{ false }
     }
 
-    /** Resetea el viewmodel **/
-    private fun resetViewModel(){
+    suspend fun getAllRemoteReports(){
+        _uiState.update { it.copy(isLoading = true) }
+        when (val result = getRemoteReportUseCase()) {
+            is Result.Success -> {
+                saveAllReportsUseCase(result.data)
+                _uiState.update { it.copy(isLoading = false) }
+            }
+            is Result.Error -> {
+                _uiState.update { it.copy(isLoading = false) }
+                _eventChannel.send(UiEvent.ShowLog(
+                    "selectReports: ${result.exception.message!!}")
+                )
+            }
+        }
+    }
+
+    private fun cleanState(){
         _uiState.value = UiState()
+    }
+
+    private fun observerFlowLocalReports() {
+        viewModelScope.launch {
+            getLocalReportUseCase().collect { reports ->
+                _uiState.update { it.copy(itemsMarker = reports) }
+                if (reports.isEmpty()) {
+                    getAllRemoteReports()
+                }
+            }
+        }
     }
 }

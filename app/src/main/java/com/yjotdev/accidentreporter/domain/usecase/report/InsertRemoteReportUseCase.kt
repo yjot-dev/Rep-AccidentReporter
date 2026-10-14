@@ -2,13 +2,13 @@ package com.yjotdev.accidentreporter.domain.usecase.report
 
 import javax.inject.Inject
 import com.yjotdev.accidentreporter.domain.core.Result
-import com.yjotdev.accidentreporter.domain.repository.ReportRepository
+import com.yjotdev.accidentreporter.domain.repository.ReportApiRepository
 import com.yjotdev.accidentreporter.domain.model.ReportModel
 
-class InsertReportUseCase @Inject constructor(
-    private val reportRepository: ReportRepository
+class InsertRemoteReportUseCase @Inject constructor(
+    private val reportApiRepository: ReportApiRepository
 ) {
     suspend operator fun invoke(report: ReportModel): Result<Unit> {
-        return reportRepository.insertReport(report)
+        return reportApiRepository.insertRemoteReport(report)
     }
 }

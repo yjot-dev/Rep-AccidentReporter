@@ -16,16 +16,16 @@ import com.yjotdev.accidentreporter.data.remote.dto.TokenDto
  */
 interface ReportApi {
     @GET("reports")
-    suspend fun selectReports(): Response<List<ReportDto>>
+    suspend fun getRemoteReports(): Response<List<ReportDto>>
 
     @POST("reports")
-    suspend fun insertReport(@Body report:ReportDto): Response<Unit>
+    suspend fun insertRemoteReport(@Body report:ReportDto): Response<Unit>
 
     @PUT("reports/{id}")
-    suspend fun updateReport(@Path("id") id:Int, @Body report:ReportDto): Response<Unit>
+    suspend fun updateRemoteReport(@Path("id") id:Int, @Body report:ReportDto): Response<Unit>
 
     @DELETE("reports/{id}")
-    suspend fun deleteReport(@Path("id") id:Int): Response<Unit>
+    suspend fun deleteRemoteReport(@Path("id") id:Int): Response<Unit>
 
     @GET("reports/token")
     suspend fun createToken(): Response<TokenDto>

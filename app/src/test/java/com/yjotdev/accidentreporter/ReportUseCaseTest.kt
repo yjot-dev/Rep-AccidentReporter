@@ -10,78 +10,78 @@ import org.junit.Before
 import org.junit.Test
 import com.yjotdev.accidentreporter.domain.core.Result
 import com.yjotdev.accidentreporter.domain.model.ReportModel
-import com.yjotdev.accidentreporter.domain.repository.ReportRepository
+import com.yjotdev.accidentreporter.domain.repository.ReportApiRepository
 import com.yjotdev.accidentreporter.domain.usecase.report.CreateTokenUseCase
-import com.yjotdev.accidentreporter.domain.usecase.report.DeleteReportUseCase
-import com.yjotdev.accidentreporter.domain.usecase.report.InsertReportUseCase
-import com.yjotdev.accidentreporter.domain.usecase.report.SelectReportUseCase
-import com.yjotdev.accidentreporter.domain.usecase.report.UpdateReportUseCase
+import com.yjotdev.accidentreporter.domain.usecase.report.DeleteRemoteReportUseCase
+import com.yjotdev.accidentreporter.domain.usecase.report.InsertRemoteReportUseCase
+import com.yjotdev.accidentreporter.domain.usecase.report.GetRemoteReportUseCase
+import com.yjotdev.accidentreporter.domain.usecase.report.UpdateRemoteReportUseCase
 
 /**
  * Pruebas unitarias para los casos de uso CRUD de Reportes.
  */
 class ReportUseCaseTest {
 
-    private lateinit var reportRepository: ReportRepository
-    private lateinit var selectReportUseCase: SelectReportUseCase
-    private lateinit var insertReportUseCase: InsertReportUseCase
-    private lateinit var updateReportUseCase: UpdateReportUseCase
-    private lateinit var deleteReportUseCase: DeleteReportUseCase
+    private lateinit var reportApiRepository: ReportApiRepository
+    private lateinit var getRemoteReportUseCase: GetRemoteReportUseCase
+    private lateinit var insertRemoteReportUseCase: InsertRemoteReportUseCase
+    private lateinit var updateRemoteReportUseCase: UpdateRemoteReportUseCase
+    private lateinit var deleteRemoteReportUseCase: DeleteRemoteReportUseCase
     private lateinit var createTokenUseCase: CreateTokenUseCase
 
     @Before
     fun setUp() {
-        reportRepository = mockk()
-        selectReportUseCase = SelectReportUseCase(reportRepository)
-        insertReportUseCase = InsertReportUseCase(reportRepository)
-        updateReportUseCase = UpdateReportUseCase(reportRepository)
-        deleteReportUseCase = DeleteReportUseCase(reportRepository)
-        createTokenUseCase = CreateTokenUseCase(reportRepository)
+        reportApiRepository = mockk()
+        getRemoteReportUseCase = GetRemoteReportUseCase(reportApiRepository)
+        insertRemoteReportUseCase = InsertRemoteReportUseCase(reportApiRepository)
+        updateRemoteReportUseCase = UpdateRemoteReportUseCase(reportApiRepository)
+        deleteRemoteReportUseCase = DeleteRemoteReportUseCase(reportApiRepository)
+        createTokenUseCase = CreateTokenUseCase(reportApiRepository)
     }
 
     @Test
     fun whenSelectReportUseCaseIsInvokedSuccessfullyThenItReturnListOfReports() = runTest {
         // Given
         val fakeReportList = listOf(ReportModel(id = 1, description = "Test", token = "a7cf5ac786824acaccff4d533832f1f5"))
-        coEvery { reportRepository.selectReports() } returns Result.Success(fakeReportList)
+        coEvery { reportApiRepository.getRemoteReports() } returns Result.Success(fakeReportList)
 
         // When
-        val result = selectReportUseCase()
+        val result = getRemoteReportUseCase()
 
         // Then
         assertTrue(result is Result.Success)
         assertEquals(fakeReportList, (result as Result.Success).data)
-        coVerify(exactly = 1) { reportRepository.selectReports() }
+        coVerify(exactly = 1) { reportApiRepository.getRemoteReports() }
     }
 
     @Test
     fun whenSelectReportUseCaseIsInvokedWithErrorThenReturnException() = runTest {
         // Given
         val exception = Exception("Error al obtener reporte")
-        coEvery { reportRepository.selectReports() } returns Result.Error(exception)
+        coEvery { reportApiRepository.getRemoteReports() } returns Result.Error(exception)
 
         // When
-        val result = selectReportUseCase()
+        val result = getRemoteReportUseCase()
 
         // Then
         assertTrue(result is Result.Error)
         assertEquals(exception, (result as Result.Error).exception)
-        coVerify(exactly = 1) { reportRepository.selectReports() }
+        coVerify(exactly = 1) { reportApiRepository.getRemoteReports() }
     }
 
     @Test
     fun whenInsertReportUseCaseIsInvokedThenPortMethodIsCalled() = runTest {
         // Given
         val newReport = ReportModel(id = 0, description = "New Report", token = "a7cf5ac786824acaccff4d533832f1f5")
-        coEvery { reportRepository.insertReport(newReport) } returns Result.Success(Unit)
+        coEvery { reportApiRepository.insertRemoteReport(newReport) } returns Result.Success(Unit)
 
         // When
-        val result = insertReportUseCase(newReport)
+        val result = insertRemoteReportUseCase(newReport)
 
         // Then
         assertTrue(result is Result.Success)
         assertEquals(Unit, (result as Result.Success).data)
-        coVerify(exactly = 1) { reportRepository.insertReport(newReport) }
+        coVerify(exactly = 1) { reportApiRepository.insertRemoteReport(newReport) }
     }
 
     @Test
@@ -89,15 +89,15 @@ class ReportUseCaseTest {
         // Given
         val exception = Exception("Error al insertar reporte")
         val newReport = ReportModel(id = 0, description = "New Report", token = "a7cf5ac786824acaccff4d533832f1f5")
-        coEvery { reportRepository.insertReport(newReport) } returns Result.Error(exception)
+        coEvery { reportApiRepository.insertRemoteReport(newReport) } returns Result.Error(exception)
 
         // When
-        val result = insertReportUseCase(newReport)
+        val result = insertRemoteReportUseCase(newReport)
 
         // Then
         assertTrue(result is Result.Error)
         assertEquals(exception, (result as Result.Error).exception)
-        coVerify(exactly = 1) { reportRepository.insertReport(newReport) }
+        coVerify(exactly = 1) { reportApiRepository.insertRemoteReport(newReport) }
     }
 
     @Test
@@ -105,15 +105,15 @@ class ReportUseCaseTest {
         // Given
         val reportId = 1
         val updatedReport = ReportModel(id = 1, description = "Updated Report", token = "a7cf5ac786824acaccff4d533832f1f5")
-        coEvery { reportRepository.updateReport(reportId, updatedReport) } returns Result.Success(Unit)
+        coEvery { reportApiRepository.updateRemoteReport(reportId, updatedReport) } returns Result.Success(Unit)
 
         // When
-        val result = updateReportUseCase(reportId, updatedReport)
+        val result = updateRemoteReportUseCase(reportId, updatedReport)
 
         // Then
         assertTrue(result is Result.Success)
         assertEquals(Unit, (result as Result.Success).data)
-        coVerify(exactly = 1) { reportRepository.updateReport(reportId, updatedReport) }
+        coVerify(exactly = 1) { reportApiRepository.updateRemoteReport(reportId, updatedReport) }
     }
 
     @Test
@@ -122,30 +122,30 @@ class ReportUseCaseTest {
         val exception = Exception("Error al actualizar reporte")
         val reportId = 1
         val updatedReport = ReportModel(id = 1, description = "Updated Report", token = "a7cf5ac786824acaccff4d533832f1f5")
-        coEvery { reportRepository.updateReport(reportId, updatedReport) } returns Result.Error(exception)
+        coEvery { reportApiRepository.updateRemoteReport(reportId, updatedReport) } returns Result.Error(exception)
 
         // When
-        val result = updateReportUseCase(reportId, updatedReport)
+        val result = updateRemoteReportUseCase(reportId, updatedReport)
 
         // Then
         assertTrue(result is Result.Error)
         assertEquals(exception, (result as Result.Error).exception)
-        coVerify(exactly = 1) { reportRepository.updateReport(reportId, updatedReport) }
+        coVerify(exactly = 1) { reportApiRepository.updateRemoteReport(reportId, updatedReport) }
     }
 
     @Test
     fun whenDeleteReportUseCaseIsInvokedThenPortMethodIsCalled() = runTest {
         // Given
         val reportId = 1
-        coEvery { reportRepository.deleteReport(reportId) } returns Result.Success(Unit)
+        coEvery { reportApiRepository.deleteRemoteReport(reportId) } returns Result.Success(Unit)
 
         // When
-        val result = deleteReportUseCase(reportId)
+        val result = deleteRemoteReportUseCase(reportId)
 
         // Then
         assertTrue(result is Result.Success)
         assertEquals(Unit, (result as Result.Success).data)
-        coVerify(exactly = 1) { reportRepository.deleteReport(reportId) }
+        coVerify(exactly = 1) { reportApiRepository.deleteRemoteReport(reportId) }
     }
 
     @Test
@@ -153,22 +153,22 @@ class ReportUseCaseTest {
         // Given
         val exception = Exception("Error al eliminar reporte")
         val reportId = 1
-        coEvery { reportRepository.deleteReport(reportId) } returns Result.Error(exception)
+        coEvery { reportApiRepository.deleteRemoteReport(reportId) } returns Result.Error(exception)
 
         // When
-        val result = deleteReportUseCase(reportId)
+        val result = deleteRemoteReportUseCase(reportId)
 
         // Then
         assertTrue(result is Result.Error)
         assertEquals(exception, (result as Result.Error).exception)
-        coVerify(exactly = 1) { reportRepository.deleteReport(reportId) }
+        coVerify(exactly = 1) { reportApiRepository.deleteRemoteReport(reportId) }
     }
 
     @Test
     fun whenCreateTokenUseCaseIsInvokedSuccessfullyThenItReturnToken() = runTest {
         // Given
         val token = "a7cf5ac786824acaccff4d533832f1f5"
-        coEvery { reportRepository.createToken() } returns Result.Success(token)
+        coEvery { reportApiRepository.createToken() } returns Result.Success(token)
 
         // When
         val result = createTokenUseCase()
@@ -176,14 +176,14 @@ class ReportUseCaseTest {
         // Then
         assertTrue(result is Result.Success)
         assertEquals(token, (result as Result.Success).data)
-        coVerify(exactly = 1) { reportRepository.createToken() }
+        coVerify(exactly = 1) { reportApiRepository.createToken() }
     }
 
     @Test
     fun whenCreateTokenUseCaseIsInvokedWithErrorThenReturnException() = runTest {
         // Given
         val exception = Exception("Error al crear token")
-        coEvery { reportRepository.createToken() } returns Result.Error(exception)
+        coEvery { reportApiRepository.createToken() } returns Result.Error(exception)
 
         // When
         val result = createTokenUseCase()
@@ -191,6 +191,6 @@ class ReportUseCaseTest {
         // Then
         assertTrue(result is Result.Error)
         assertEquals(exception, (result as Result.Error).exception)
-        coVerify(exactly = 1) { reportRepository.createToken() }
+        coVerify(exactly = 1) { reportApiRepository.createToken() }
     }
 }

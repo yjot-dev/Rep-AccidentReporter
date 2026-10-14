@@ -1,6 +1,6 @@
 package com.yjotdev.accidentreporter.domain.repository
 
-import com.yjotdev.accidentreporter.domain.core.Result
+import kotlinx.coroutines.flow.Flow
 import com.yjotdev.accidentreporter.domain.model.ReportModel
 
 /**
@@ -11,15 +11,15 @@ import com.yjotdev.accidentreporter.domain.model.ReportModel
  * permitiendo que la lógica de negocio (casos de uso) dependa de esta abstracción y no de una
  * implementación concreta.
  */
-interface ReportRepository {
+interface ReportDaoRepository {
 
-    suspend fun selectReports(): Result<List<ReportModel>>
+    fun getLocalReports(): Flow<List<ReportModel>>
 
-    suspend fun insertReport(report: ReportModel): Result<Unit>
+    suspend fun saveAllReports(reports: List<ReportModel>)
 
-    suspend fun updateReport(id: Int, report: ReportModel): Result<Unit>
+    suspend fun insertLocalReport(report: ReportModel)
 
-    suspend fun deleteReport(id: Int): Result<Unit>
+    suspend fun updateLocalReport(report: ReportModel)
 
-    suspend fun createToken(): Result<String>
+    suspend fun deleteLocalReport(report: ReportModel)
 }
